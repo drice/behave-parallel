@@ -24,14 +24,17 @@ NAME = os.path.basename(__file__)
 VERSION = "0.1.0"
 REPORT_DIR = "reports"
 
+
 def xml_prettify(elem):
     """Return a pretty-printed XML string for the XML element."""
     text = ET.tostring(elem, "utf-8")
     reparsed = minidom.parseString(text)
     return reparsed.toprettyxml(indent=" ")
 
+
 def xml_select_testcases_with_status(tree, status):
     return tree.findall(".//testcase[@status='%s']" % status)
+
 
 def path_select_files(paths, pattern="*.xml"):
     if not paths:
@@ -49,25 +52,32 @@ def path_select_files(paths, pattern="*.xml"):
             selected.append(pathname)
     return selected
 
+
 def report_testcases(filename, testcases):
-    print(u"REPORT: {0}".format(filename))
+    print("REPORT: {0}".format(filename))
     for xml_testcase in testcases:
         print("  TESTCASE: {0}".format(xml_testcase.get("name")))
         xml_text = indent(xml_prettify(xml_testcase), "    ")
         print(xml_text)
+
 
 def main(args=None):
     """Filter JUnit XML reports to show only a subset of all information."""
     if args is None:
         args = sys.argv[1:]
 
-    parser = argparse.ArgumentParser(prog=NAME,
-                                     description=main.__doc__)
-    parser.add_argument("-s", "--status", default="failed", required=False,
-                        choices=["passed", "failed", "skipped"],
-                        help="Status to select (passed, failed, skipped).")
-    parser.add_argument("xml_file", nargs="*",
-                        help="XML file(s) or directory with XML files.")
+    parser = argparse.ArgumentParser(prog=NAME, description=main.__doc__)
+    parser.add_argument(
+        "-s",
+        "--status",
+        default="failed",
+        required=False,
+        choices=["passed", "failed", "skipped"],
+        help="Status to select (passed, failed, skipped).",
+    )
+    parser.add_argument(
+        "xml_file", nargs="*", help="XML file(s) or directory with XML files."
+    )
     parser.add_argument("--version", action="version", version=VERSION)
 
     options = parser.parse_args(args)
@@ -80,6 +90,7 @@ def main(args=None):
         if testcases:
             report_testcases(xml_filename, testcases)
     return 0
+
 
 if __name__ == "__main__":
     sys.exit(main())

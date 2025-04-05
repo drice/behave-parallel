@@ -36,12 +36,16 @@ import pytest
 def raise_exception(exception_class, message):
     raise exception_class(message)
 
-@pytest.mark.parametrize("exception_class, message", [
-    (AssertionError, "Ärgernis"),
-    (AssertionError, u"Ärgernis"),
-    (RuntimeError, "Übermut"),
-    (RuntimeError, u"Übermut"),
-])
+
+@pytest.mark.parametrize(
+    "exception_class, message",
+    [
+        (AssertionError, "Ärgernis"),
+        (AssertionError, "Ärgernis"),
+        (RuntimeError, "Übermut"),
+        (RuntimeError, "Übermut"),
+    ],
+)
 def test_issue(exception_class, message):
     with pytest.raises(exception_class) as e:
         # runner.run()
@@ -50,5 +54,5 @@ def test_issue(exception_class, message):
     # -- SHOULD NOT RAISE EXCEPTION HERE:
     text = _text(e)
     # -- DIAGNOSTICS:
-    print(u"text"+ text)
-    print(u"exception: %s" % e)
+    print("text" + text)
+    print("exception: %s" % e)

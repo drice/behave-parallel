@@ -6,6 +6,7 @@ from mock import patch
 from behave.log_capture import LoggingCapture
 from six.moves import range
 
+
 class TestLogCapture(object):
     def test_get_value_returns_all_log_records(self):
         class FakeConfig(object):
@@ -19,9 +20,9 @@ class TestLogCapture(object):
         handler = LoggingCapture(FakeConfig())
         handler.buffer = fake_records
 
-        with patch.object(handler.formatter, 'format') as format:
-            format.return_value = 'foo'
-            expected = '\n'.join(['foo'] * len(fake_records))
+        with patch.object(handler.formatter, "format") as format:
+            format.return_value = "foo"
+            expected = "\n".join(["foo"] * len(fake_records))
 
             eq_(handler.getvalue(), expected)
 

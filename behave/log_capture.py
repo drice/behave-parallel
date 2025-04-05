@@ -11,11 +11,12 @@ class RecordFilter(object):
     """Implement logging record filtering as per the configuration
     --logging-filter option.
     """
+
     def __init__(self, names):
         self.include = set()
         self.exclude = set()
-        for name in names.split(','):
-            if name[0] == '-':
+        for name in names.split(","):
+            if name[0] == "-":
                 self.exclude.add(name[1:])
             else:
                 self.include.add(name)
@@ -68,7 +69,7 @@ class LoggingCapture(BufferingHandler):
         if config.logging_format:
             log_format = config.logging_format
         else:
-            log_format = '%(levelname)s:%(name)s:%(message)s'
+            log_format = "%(levelname)s:%(name)s:%(message)s"
         if config.logging_datefmt:
             datefmt = config.logging_datefmt
         formatter = logging.Formatter(log_format, datefmt)
@@ -96,7 +97,7 @@ class LoggingCapture(BufferingHandler):
         self.buffer = []
 
     def getvalue(self):
-        return '\n'.join(self.formatter.format(r) for r in self.buffer)
+        return "\n".join(self.formatter.format(r) for r in self.buffer)
 
     def find_event(self, pattern):
         """Search through the buffer for a message that matches the given
@@ -115,8 +116,11 @@ class LoggingCapture(BufferingHandler):
 
         Returns boolean indicating whether a match was found.
         """
-        return any(record for record in self.buffer
-                   if record.levelname in ('ERROR', 'CRITICAL'))
+        return any(
+            record
+            for record in self.buffer
+            if record.levelname in ("ERROR", "CRITICAL")
+        )
 
     def inveigle(self):
         """Turn on logging capture by replacing all existing handlers
@@ -173,6 +177,7 @@ class LoggingCapture(BufferingHandler):
             root_logger.setLevel(self.old_level)
             self.old_level = None
 
+
 # pre-1.2 backwards compatibility
 MemoryHandler = LoggingCapture
 
@@ -213,6 +218,7 @@ def capture(*args, **kw):
     This would limit the logging captured to just ERROR and above, and thus
     only display logged events if they are interesting.
     """
+
     def create_decorator(func, level=None):
         def f(context, *args):
             h = LoggingCapture(context.config, level=level)
@@ -225,6 +231,7 @@ def capture(*args, **kw):
             if v:
                 print("Captured Logging:")
                 print(v)
+
         return f
 
     if not args:

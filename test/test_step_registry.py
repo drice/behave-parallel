@@ -2,8 +2,8 @@
 # pylint: disable=unused-wildcard-import
 from __future__ import absolute_import, with_statement
 from mock import Mock, patch
-from nose.tools import *        # pylint: disable=wildcard-import
-from six.moves import range     # pylint: disable=redefined-builtin
+from nose.tools import *  # pylint: disable=wildcard-import
+from six.moves import range  # pylint: disable=redefined-builtin
 from behave import step_registry
 
 
@@ -14,9 +14,9 @@ class TestStepRegistry(object):
         registry = step_registry.StepRegistry()
         # -- MONKEYPATCH-PROBLEM:
         #  with patch('behave.matchers.get_matcher') as get_matcher:
-        with patch('behave.step_registry.get_matcher') as get_matcher:
+        with patch("behave.step_registry.get_matcher") as get_matcher:
             func = lambda x: -x
-            pattern = 'just a test string'
+            pattern = "just a test string"
             magic_object = object()
             get_matcher.return_value = magic_object
 
@@ -36,12 +36,12 @@ class TestStepRegistry(object):
         step_mock = Mock()
         step_mock.match.return_value = None
 
-        registry.steps['given'].append(given_mock)
-        registry.steps['step'].append(step_mock)
+        registry.steps["given"].append(given_mock)
+        registry.steps["step"].append(step_mock)
 
         step = Mock()
-        step.step_type = 'given'
-        step.name = 'just a test step'
+        step.step_type = "given"
+        step.name = "just a test step"
 
         assert registry.find_match(step) is None
 
@@ -55,11 +55,11 @@ class TestStepRegistry(object):
         for mock in step_defs:
             mock.match.return_value = None
 
-        registry.steps['when'] = step_defs
+        registry.steps["when"] = step_defs
 
         step = Mock()
-        step.step_type = 'when'
-        step.name = 'just a test step'
+        step.step_type = "when"
+        step.name = "just a test step"
 
         assert registry.find_match(step) is None
 
@@ -72,19 +72,21 @@ class TestStepRegistry(object):
         magic_object = object()
         step_defs[5].match.return_value = magic_object
 
-        registry.steps['then'] = step_defs
+        registry.steps["then"] = step_defs
 
         step = Mock()
-        step.step_type = 'then'
-        step.name = 'just a test step'
+        step.step_type = "then"
+        step.name = "just a test step"
 
         assert registry.find_match(step) is magic_object
         for mock in step_defs[6:]:
             eq_(mock.match.call_count, 0)
 
     # pylint: disable=line-too-long
-    @patch.object(step_registry.registry, 'add_step_definition')
-    def test_make_step_decorator_ends_up_adding_a_step_definition(self, add_step_definition):
+    @patch.object(step_registry.registry, "add_step_definition")
+    def test_make_step_decorator_ends_up_adding_a_step_definition(
+        self, add_step_definition
+    ):
         step_type = object()
         step_pattern = object()
         func = object()
@@ -93,4 +95,3 @@ class TestStepRegistry(object):
         wrapper = decorator(step_pattern)
         assert wrapper(func) is func
         add_step_definition.assert_called_with(step_type, step_pattern, func)
-

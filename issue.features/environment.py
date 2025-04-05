@@ -45,11 +45,13 @@ def require_tool(tool_name):
     # print("TOOL-NOT-FOUND: %s" % tool_name)
     return False
 
+
 def as_bool_string(value):
     if bool(value):
         return "yes"
     else:
         return "no"
+
 
 def discover_ci_server():
     # pylint: disable=invalid-name
@@ -75,12 +77,13 @@ active_tag_value_provider = {
     "python3": str(six.PY3).lower(),
     # -- python.implementation: cpython, pypy, jython, ironpython
     "python.implementation": platform.python_implementation().lower(),
-    "pypy":    str("__pypy__" in sys.modules).lower(),
-    "os":      sys.platform,
+    "pypy": str("__pypy__" in sys.modules).lower(),
+    "os": sys.platform,
     "xmllint": as_bool_string(require_tool("xmllint")),
-    "ci": discover_ci_server()
+    "ci": discover_ci_server(),
 }
 active_tag_matcher = ActiveTagMatcher(active_tag_value_provider)
+
 
 def before_all(context):
     # -- SETUP ACTIVE-TAG MATCHER (with userdata):
@@ -89,9 +92,11 @@ def before_all(context):
     #                                     context.config.userdata)
     setup_command_shell_processors4behave()
 
+
 def before_feature(context, feature):
     if active_tag_matcher.should_exclude_with(feature.tags):
         feature.skip(reason=active_tag_matcher.exclude_reason)
+
 
 def before_scenario(context, scenario):
     if active_tag_matcher.should_exclude_with(scenario.effective_tags):

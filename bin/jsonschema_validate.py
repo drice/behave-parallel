@@ -15,7 +15,7 @@ REQUIRES:
 
 from __future__ import absolute_import, print_function
 
-__author__  = "Jens Engel"
+__author__ = "Jens Engel"
 __version__ = "0.1.0"
 
 from jsonschema import validate
@@ -23,6 +23,7 @@ import argparse
 import os.path
 import sys
 import textwrap
+
 try:
     import json
 except ImportError:
@@ -36,7 +37,7 @@ except ImportError:
 # CONSTANTS:
 # -----------------------------------------------------------------------------
 HERE = os.path.dirname(__file__)
-TOP  = os.path.normpath(os.path.join(HERE, ".."))
+TOP = os.path.normpath(os.path.join(HERE, ".."))
 SCHEMA = os.path.join(TOP, "etc", "json", "behave.json-schema")
 
 
@@ -67,21 +68,16 @@ def main(args=None):
         default_schema = SCHEMA
 
     parser = argparse.ArgumentParser(
-                description=textwrap.dedent(main.__doc__),
-                formatter_class=argparse.RawDescriptionHelpFormatter
+        description=textwrap.dedent(main.__doc__),
+        formatter_class=argparse.RawDescriptionHelpFormatter,
     )
-    parser.add_argument("-v", "--version",
-                        action="version", version=__version__)
-    parser.add_argument("-s", "--schema",
-                        help="JSON schema to use.")
-    parser.add_argument("-e", "--encoding",
-                        help="Encoding for JSON/JSON schema.")
-    parser.add_argument("files", nargs="+", metavar="JSON_FILE",
-                        help="JSON file to check.")
-    parser.set_defaults(
-            schema=default_schema,
-            encoding="UTF-8"
+    parser.add_argument("-v", "--version", action="version", version=__version__)
+    parser.add_argument("-s", "--schema", help="JSON schema to use.")
+    parser.add_argument("-e", "--encoding", help="Encoding for JSON/JSON schema.")
+    parser.add_argument(
+        "files", nargs="+", metavar="JSON_FILE", help="JSON file to check."
     )
+    parser.set_defaults(schema=default_schema, encoding="UTF-8")
     options = parser.parse_args(args)
     if not options.schema:
         parser.error("REQUIRE: JSON schema")
@@ -102,7 +98,7 @@ def main(args=None):
         validated = True
         more_info = None
         try:
-            print("validate:", filename, "...", end=' ')
+            print("validate:", filename, "...", end=" ")
             jsonschema_validate(filename, schema, encoding=options.encoding)
         except Exception as e:
             more_info = "%s: %s" % (e.__class__.__name__, e)

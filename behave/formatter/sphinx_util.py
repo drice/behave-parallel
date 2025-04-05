@@ -17,6 +17,7 @@ class DocumentWriter(object):
     Provides a simple "ReStructured Text Writer" to generate
     Sphinx-based documentation.
     """
+
     heading_styles = ["=", "=", "-", "~"]
     default_encoding = "utf-8"
     default_toctree_title = "**Contents:**"
@@ -108,11 +109,11 @@ class DocumentWriter(object):
 
         separator = " ".join(separator_parts) + "\n"
         row_schema = " ".join(row_schema_parts) + "\n"
-        self.stream.write("\n")     # -- ENSURE: Empty line before table start.
+        self.stream.write("\n")  # -- ENSURE: Empty line before table start.
         self.stream.write(separator)
         self.stream.write(row_schema % tuple(table.headings))
         self.stream.write(separator)
         for row in table.rows:
             self.stream.write(row_schema % tuple(row))
         self.stream.write(separator)
-        self.stream.write("\n")     # -- ENSURE: Empty line after table end.
+        self.stream.write("\n")  # -- ENSURE: Empty line after table end.

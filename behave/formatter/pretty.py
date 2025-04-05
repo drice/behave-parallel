@@ -17,6 +17,7 @@ from six.moves import range, zip
 DEFAULT_WIDTH = 80
 DEFAULT_HEIGHT = 24
 
+
 def get_terminal_size():
     if sys.platform == "windows":
         # Autodetecting the size of a Windows command window is left as an
@@ -33,7 +34,7 @@ def get_terminal_size():
         h, w, hp1, wp1 = struct.unpack("HHHH", result)
 
         return w or DEFAULT_WIDTH, h or DEFAULT_HEIGHT
-    except Exception:   # pylint: disable=broad-except
+    except Exception:  # pylint: disable=broad-except
         return (DEFAULT_WIDTH, DEFAULT_HEIGHT)
 
 
@@ -41,9 +42,10 @@ def get_terminal_size():
 # COLORING SUPPORT:
 # -----------------------------------------------------------------------------
 class MonochromeFormat(object):
-    def text(self, text):   # pylint: disable=no-self-use
+    def text(self, text):  # pylint: disable=no-self-use
         assert isinstance(text, six.text_type)
         return text
+
 
 class ColorFormat(object):
     def __init__(self, status):
@@ -83,7 +85,6 @@ class PrettyFormatter(Formatter):
         self.indentations = []
         self.step_lines = 0
 
-
     def reset(self):
         # -- UNUSED: self.tag_statement = None
         self.steps = []
@@ -98,13 +99,13 @@ class PrettyFormatter(Formatter):
         self._uri = uri
 
     def feature(self, feature):
-        #self.print_comments(feature.comments, '')
-        self.print_tags(feature.tags, '')
-        self.stream.write(u"%s: %s" % (feature.keyword, feature.name))
+        # self.print_comments(feature.comments, '')
+        self.print_tags(feature.tags, "")
+        self.stream.write("%s: %s" % (feature.keyword, feature.name))
         if self.show_source:
             # pylint: disable=redefined-builtin
             format = self.format("comments")
-            self.stream.write(format.text(u" # %s" % feature.location))
+            self.stream.write(format.text(" # %s" % feature.location))
         self.stream.write("\n")
         self.print_description(feature.description, "  ", False)
         self.stream.flush()
@@ -128,8 +129,12 @@ class PrettyFormatter(Formatter):
     def match(self, match):
         self._match = match
         self.print_statement()
-        self.print_step(Status.executing, self._match.arguments,
-                        self._match.location, self.monochrome)
+        self.print_step(
+            Status.executing,
+            self._match.arguments,
+            self._match.location,
+            self.monochrome,
+        )
         self.stream.flush()
 
     def result(self, step):
@@ -148,7 +153,7 @@ class PrettyFormatter(Formatter):
                 location = self._match.location
             self.print_step(step.status, arguments, location, True)
         if step.error_message:
-            self.stream.write(indent(step.error_message.strip(), u"      "))
+            self.stream.write(indent(step.error_message.strip(), "      "))
             self.stream.write("\n\n")
         self.stream.flush()
 
@@ -187,7 +192,7 @@ class PrettyFormatter(Formatter):
             max_lengths.append(max([c[col] for c in cell_lengths]))
 
         for i, row in enumerate(all_rows):
-            #for comment in row.comments:
+            # for comment in row.comments:
             #    self.stream.write("      %s\n" % comment.value)
             self.stream.write("      |")
             for j, (cell, max_length) in enumerate(zip(row, max_lengths)):
@@ -199,13 +204,13 @@ class PrettyFormatter(Formatter):
         self.stream.flush()
 
     def doc_string(self, doc_string):
-        #self.stream.write('      """' + doc_string.content_type + '\n')
+        # self.stream.write('      """' + doc_string.content_type + '\n')
         doc_string = _text(doc_string)
-        prefix = u"      "
-        self.stream.write(u'%s"""\n' % prefix)
+        prefix = "      "
+        self.stream.write('%s"""\n' % prefix)
         doc_string = escape_triple_quotes(indent(doc_string, prefix))
         self.stream.write(doc_string)
-        self.stream.write(u'\n%s"""\n' % prefix)
+        self.stream.write('\n%s"""\n' % prefix)
         self.stream.flush()
 
     # def doc_string(self, doc_string):
@@ -229,15 +234,15 @@ class PrettyFormatter(Formatter):
 
     def indented_text(self, text, proceed):
         if not text:
-            return u""
+            return ""
 
         if proceed:
             indentation = self.indentations.pop(0)
         else:
             indentation = self.indentations[0]
 
-        indentation = u" " * indentation
-        return u"%s # %s" % (indentation, text)
+        indentation = " " * indentation
+        return "%s # %s" % (indentation, text)
 
     def calculate_location_indentations(self):
         line_widths = []
@@ -252,18 +257,17 @@ class PrettyFormatter(Formatter):
             return
 
         self.calculate_location_indentations()
-        self.stream.write(u"\n")
-        #self.print_comments(self.statement.comments, "  ")
+        self.stream.write("\n")
+        # self.print_comments(self.statement.comments, "  ")
         if hasattr(self.statement, "tags"):
-            self.print_tags(self.statement.tags, u"  ")
-        self.stream.write(u"  %s: %s " % (self.statement.keyword,
-                                          self.statement.name))
+            self.print_tags(self.statement.tags, "  ")
+        self.stream.write("  %s: %s " % (self.statement.keyword, self.statement.name))
 
         location = self.indented_text(six.text_type(self.statement.location), True)
         if self.show_source:
             self.stream.write(self.format("comments").text(location))
         self.stream.write("\n")
-        #self.print_description(self.statement.description, u"    ")
+        # self.print_description(self.statement.description, u"    ")
         self.statement = None
 
     def print_steps(self):
@@ -279,7 +283,7 @@ class PrettyFormatter(Formatter):
         text_format = self.format(status.name)
         arg_format = self.arg_format(status.name)
 
-        #self.print_comments(step.comments, "    ")
+        # self.print_comments(step.comments, "    ")
         self.stream.write("    ")
         self.stream.write(text_format.text(step.keyword + " "))
         line_length = 5 + len(step.keyword)
@@ -295,7 +299,7 @@ class PrettyFormatter(Formatter):
                 continue
                 # -- VALID, MATCHED ARGUMENT:
             assert arg.original is not None
-            text = step_name[text_start:arg.start]
+            text = step_name[text_start : arg.start]
             self.stream.write(text_format.text(text))
             line_length += len(text)
             self.stream.write(arg_format.text(arg.original))
@@ -305,7 +309,7 @@ class PrettyFormatter(Formatter):
         if text_start != len(step_name):
             text = step_name[text_start:]
             self.stream.write(text_format.text(text))
-            line_length += (len(text))
+            line_length += len(text)
 
         if self.show_source:
             location = six.text_type(location)

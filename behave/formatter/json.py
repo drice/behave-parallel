@@ -13,6 +13,7 @@ import base64
 from behave.formatter.base import Formatter
 from behave.model_core import Status
 import six
+
 try:
     import json
 except ImportError:
@@ -26,7 +27,7 @@ class JSONFormatter(Formatter):
     name = "json"
     description = "JSON dump of test run"
     dumps_kwargs = {}
-    split_text_into_lines = True   # EXPERIMENT for better readability.
+    split_text_into_lines = True  # EXPERIMENT for better readability.
 
     json_number_types = six.integer_types + (float,)
     json_scalar_types = json_number_types + (six.text_type, bool, type(None))
@@ -59,20 +60,22 @@ class JSONFormatter(Formatter):
             "name": feature.name,
             "tags": list(feature.tags),
             "location": six.text_type(feature.location),
-            "status": None,     # Not known before feature run.
+            "status": None,  # Not known before feature run.
         }
         element = self.current_feature_data
         if feature.description:
             element["description"] = feature.description
 
     def background(self, background):
-        element = self.add_feature_element({
-            "type": "background",
-            "keyword": background.keyword,
-            "name": background.name,
-            "location": six.text_type(background.location),
-            "steps": [],
-        })
+        element = self.add_feature_element(
+            {
+                "type": "background",
+                "keyword": background.keyword,
+                "name": background.name,
+                "location": six.text_type(background.location),
+                "steps": [],
+            }
+        )
         if background.name:
             element["name"] = background.name
         self._step_index = 0
@@ -85,15 +88,17 @@ class JSONFormatter(Formatter):
         self.finish_current_scenario()
         self.current_scenario = scenario
 
-        element = self.add_feature_element({
-            "type": "scenario",
-            "keyword": scenario.keyword,
-            "name": scenario.name,
-            "tags": scenario.tags,
-            "location": six.text_type(scenario.location),
-            "steps": [],
-            "status": None,
-        })
+        element = self.add_feature_element(
+            {
+                "type": "scenario",
+                "keyword": scenario.keyword,
+                "name": scenario.name,
+                "tags": scenario.tags,
+                "location": six.text_type(scenario.location),
+                "steps": [],
+                "status": None,
+            }
+        )
         if scenario.description:
             element["description"] = scenario.description
         self._step_index = 0
@@ -102,7 +107,7 @@ class JSONFormatter(Formatter):
     def make_table(cls, table):
         table_data = {
             "headings": table.headings,
-            "rows": [list(row) for row in table.rows]
+            "rows": [list(row) for row in table.rows],
         }
         return table_data
 
@@ -169,10 +174,12 @@ class JSONFormatter(Formatter):
 
     def embedding(self, mime_type, data):
         step = self.current_feature_element["steps"][-1]
-        step["embeddings"].append({
-            "mime_type": mime_type,
-            "data": base64.b64encode(data).replace("\n", ""),
-        })
+        step["embeddings"].append(
+            {
+                "mime_type": mime_type,
+                "data": base64.b64encode(data).replace("\n", ""),
+            }
+        )
 
     def eof(self):
         """
@@ -248,6 +255,7 @@ class PrettyJSONFormatter(JSONFormatter):
     """
     Provides readable/comparable textual JSON output.
     """
+
     name = "json.pretty"
     description = "JSON dump of test run (human readable)"
     dumps_kwargs = {"indent": 2, "sort_keys": True}

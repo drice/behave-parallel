@@ -16,6 +16,7 @@ from behave.formatter import _registry
 warnings.simplefilter("once", DeprecationWarning)
 warnings.warn("Use 'behave.formatter._registry' instead.", DeprecationWarning)
 
+
 # -----------------------------------------------------------------------------
 # FORMATTER REGISTRY:
 # -----------------------------------------------------------------------------
@@ -26,8 +27,11 @@ def register_as(formatter_class, name):
     :param formatter_class:  Formatter class to register.
     :param name:  Name for this formatter (as identifier).
     """
-    warnings.warn("Use behave.formatter._registry.register_as() instead.",
-                  DeprecationWarning, stacklevel=2)
+    warnings.warn(
+        "Use behave.formatter._registry.register_as() instead.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
     _registry.register_as(name, formatter_class)
 
 
@@ -36,8 +40,7 @@ def register(formatter_class):
 
 
 def get_formatter(config, stream_openers):
-    warnings.warn("Use make_formatters() instead",
-                  DeprecationWarning, stacklevel=2)
+    warnings.warn("Use make_formatters() instead", DeprecationWarning, stacklevel=2)
     return _registry.make_formatters(config, stream_openers)
 
 
@@ -45,9 +48,11 @@ def get_formatter(config, stream_openers):
 # SETUP:
 # -----------------------------------------------------------------------------
 def setup_formatters():
-    warnings.warn("Use behave.formatter._builtins instead",
-                  DeprecationWarning, stacklevel=2)
+    warnings.warn(
+        "Use behave.formatter._builtins instead", DeprecationWarning, stacklevel=2
+    )
     from behave.formatter import _builtins
+
     _builtins.setup_formatters()
 
 

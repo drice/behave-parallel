@@ -20,6 +20,7 @@ def parse_bool(text):
     :raises: ValueError, if text is invalid
     """
     from distutils.util import strtobool
+
     return bool(strtobool(text))
 
 
@@ -58,10 +59,12 @@ def parse_user_define(text):
 def unqote(text):
     """Strip pair of leading and trailing quotes from text."""
     # -- QUOTED: Strip single-quote or double-quote pair.
-    if ((text.startswith('"') and text.endswith('"')) or
-            (text.startswith("'") and text.endswith("'"))):
+    if (text.startswith('"') and text.endswith('"')) or (
+        text.startswith("'") and text.endswith("'")
+    ):
         text = text[1:-1]
     return text
+
 
 # -----------------------------------------------------------------------------
 # CLASSES:
@@ -69,7 +72,7 @@ def unqote(text):
 class UserData(dict):
     """Dictionary-like user-data with some additional features:
 
-      * type-converter methods, similar to configparser.ConfigParser.getint()
+    * type-converter methods, similar to configparser.ConfigParser.getint()
 
     """
 
@@ -156,7 +159,7 @@ class UserDataNamespace(object):
     @staticmethod
     def make_scoped(namespace, name):
         """Creates a scoped-name from its parts."""
-        if not namespace:   # noqa
+        if not namespace:  # noqa
             return name
         return "%s.%s" % (namespace, name)
 
@@ -167,8 +170,9 @@ class UserDataNamespace(object):
 
     def getas(self, convert, name, default=None, valuetype=None):
         scoped_name = self.make_scoped(self.namespace, name)
-        return self.data.getas(convert, scoped_name, default=default,
-                               valuetype=valuetype)
+        return self.data.getas(
+            convert, scoped_name, default=default, valuetype=valuetype
+        )
 
     def getint(self, name, default=0):
         scoped_name = self.make_scoped(self.namespace, name)

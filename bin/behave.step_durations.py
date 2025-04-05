@@ -9,9 +9,9 @@ LICENSE:  BSD
 
 from __future__ import absolute_import
 
-__author__    = "Jens Engel"
+__author__ = "Jens Engel"
 __copyright__ = "(c) 2013 by Jens Engel"
-__license__   = "BSD"
+__license__ = "BSD"
 VERSION = "0.1.0"
 
 # -- IMPORTS:
@@ -58,7 +58,6 @@ class BehaveDurationData(object):
         self.all_steps = []
         self.all_scenarios = []
 
-
     def process_features(self, features):
         for feature in features:
             self.process_feature(feature)
@@ -97,23 +96,23 @@ class BehaveDurationData(object):
     def report_step_durations(self, limit=None, min_duration=None, ostream=sys.stdout):
         step_datas = list(self.step_registry.values())
         steps_size = len(step_datas)
-        steps_by_longest_duration_first = sorted(step_datas,
-                                                 key=attrgetter("max_duration"),
-                                                 reverse=True)
+        steps_by_longest_duration_first = sorted(
+            step_datas, key=attrgetter("max_duration"), reverse=True
+        )
         ostream.write("STEP DURATIONS (longest first, size=%d):\n" % steps_size)
         ostream.write("-" * 80)
         ostream.write("\n")
         for index, step in enumerate(steps_by_longest_duration_first):
-            ostream.write("% 4d.  %9.6fs  %s" % \
-                          (index+1, step.max_duration, step.step_name))
+            ostream.write(
+                "% 4d.  %9.6fs  %s" % (index + 1, step.max_duration, step.step_name)
+            )
             calls = len(step.durations)
             if calls > 1:
                 ostream.write(" (%d calls, min: %.6fs)\n" % (calls, step.min_duration))
             else:
                 ostream.write("\n")
-            if ((limit and index+1 >= limit) or
-                (step.max_duration < min_duration)):
-                remaining = steps_size - (index+1)
+            if (limit and index + 1 >= limit) or (step.max_duration < min_duration):
+                remaining = steps_size - (index + 1)
                 ostream.write("...\nSkip remaining %d steps.\n" % remaining)
                 break
 
@@ -128,13 +127,27 @@ def main(args=None):
     usage_ = """%prog [OPTIONS] JsonFile
 Read behave JSON data file and extract steps with longest duration."""
     parser = OptionParser(usage=usage_, version=VERSION)
-    parser.add_option("-e", "--encoding", dest="encoding",
-                     default="UTF-8",
-                     help="Encoding to use (default: %default).")
-    parser.add_option("-l", "--limit", dest="limit", type="int",
-                     help="Max. number of steps (default: %default).")
-    parser.add_option("-m", "--min", dest="min_duration", default="0",
-                     help="Min. duration threshold (default: %default).")
+    parser.add_option(
+        "-e",
+        "--encoding",
+        dest="encoding",
+        default="UTF-8",
+        help="Encoding to use (default: %default).",
+    )
+    parser.add_option(
+        "-l",
+        "--limit",
+        dest="limit",
+        type="int",
+        help="Max. number of steps (default: %default).",
+    )
+    parser.add_option(
+        "-m",
+        "--min",
+        dest="min_duration",
+        default="0",
+        help="Min. duration threshold (default: %default).",
+    )
     options, filenames = parser.parse_args(args)
     if not filenames:
         parser.error("OOPS, no filenames provided.")

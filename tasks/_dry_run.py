@@ -17,6 +17,7 @@ Basic support to use a --dry-run mode w/ invoke tasks.
 
 from __future__ import print_function
 
+
 class DryRunContext(object):
     PREFIX = "DRY-RUN: "
     SCHEMA = "{prefix}{command}"
@@ -33,11 +34,8 @@ class DryRunContext(object):
         self.schema = schema
 
     def run(self, command, **kwargs):
-        message = self.schema.format(command=command,
-                                     prefix=self.prefix,
-                                     kwargs=kwargs)
+        message = self.schema.format(command=command, prefix=self.prefix, kwargs=kwargs)
         print(message)
-
 
     def sudo(self, command, **kwargs):
         command2 = "sudo %s" % command

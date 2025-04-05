@@ -32,17 +32,22 @@ import pytest
 # def ensure_logging_setup():
 #    logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 
-class SimpleContext(object): pass
+
+class SimpleContext(object):
+    pass
 
 
 # -----------------------------------------------------------------------------
 # TESTS:
 # -----------------------------------------------------------------------------
-@pytest.mark.parametrize("log_message", [
-    u"Hello Alice",             # case: unproblematic (GOOD CASE)
-    u"Ärgernis ist überall",    # case: unicode-string
-    "Ärgernis",                 # case: byte-string (use encoding-declaration above)
-])
+@pytest.mark.parametrize(
+    "log_message",
+    [
+        "Hello Alice",  # case: unproblematic (GOOD CASE)
+        "Ärgernis ist überall",  # case: unicode-string
+        "Ärgernis",  # case: byte-string (use encoding-declaration above)
+    ],
+)
 def test_issue(log_message):
     @capture(level=logging.INFO)
     def hook_after_scenario(context, message):
@@ -52,10 +57,12 @@ def test_issue(log_message):
     # -- PREPARE:
     # ensure_logging_setup()
     context = SimpleContext()
-    context.config = Configuration("", load_config=False,
+    context.config = Configuration(
+        "",
+        load_config=False,
         log_capture=True,
         logging_format="%(levelname)s: %(message)s",
-        logging_level=logging.INFO
+        logging_level=logging.INFO,
     )
     context.config.setup_logging()
 

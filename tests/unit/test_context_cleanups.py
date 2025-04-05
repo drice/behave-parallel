@@ -23,6 +23,7 @@ import pytest
 def cleanup_func():
     pass
 
+
 class CleanupFunction(object):
     def __init__(self, name="CLEANUP-FUNC", listener=None):
         self.name = name
@@ -42,16 +43,14 @@ class CallListener(object):
         self.collected.append(message)
 
 
-
 # ------------------------------------------------------------------------------
 # TESTS:
 # ------------------------------------------------------------------------------
 class TestContextCleanup(object):
-
     def test_cleanup_func_is_called_when_context_frame_is_popped(self):
         my_cleanup = Mock(spec=cleanup_func)
         context = Context(runner=Mock())
-        with scoped_context_layer(context):   # CALLS-HERE: context._push()
+        with scoped_context_layer(context):  # CALLS-HERE: context._push()
             context.add_cleanup(my_cleanup)
             # -- ENSURE: Not called before context._pop()
             my_cleanup.assert_not_called()
@@ -112,11 +111,11 @@ class TestContextCleanup(object):
 
         # -- SETUP:
         context = Context(runner=Mock())
-        with scoped_context_layer(context):       # -- LAYER A:
+        with scoped_context_layer(context):  # -- LAYER A:
             context.add_cleanup(my_cleanup_A1M)
             context.add_cleanup(my_cleanup_A2M)
 
-            with scoped_context_layer(context):   # -- LAYER B:
+            with scoped_context_layer(context):  # -- LAYER B:
                 context.add_cleanup(my_cleanup_B1M)
                 context.add_cleanup(my_cleanup_B2M)
                 context.add_cleanup(my_cleanup_B3M)
@@ -125,7 +124,9 @@ class TestContextCleanup(object):
                 my_cleanup_B3M.assert_not_called()
             # -- context.pop(LAYER_B): Call cleanups for Bx
             expected_call_order = [
-                "called:CLEANUP_B3", "called:CLEANUP_B2", "called:CLEANUP_B1",
+                "called:CLEANUP_B3",
+                "called:CLEANUP_B2",
+                "called:CLEANUP_B1",
             ]
             assert call_listener.collected == expected_call_order
             my_cleanup_A1M.assert_not_called()
@@ -135,8 +136,11 @@ class TestContextCleanup(object):
             my_cleanup_B3M.assert_called_once()
         # -- context.pop(LAYER_A): Call cleanups for Ax
         expected_call_order = [
-            "called:CLEANUP_B3", "called:CLEANUP_B2", "called:CLEANUP_B1",
-            "called:CLEANUP_A2", "called:CLEANUP_A1",
+            "called:CLEANUP_B3",
+            "called:CLEANUP_B2",
+            "called:CLEANUP_B1",
+            "called:CLEANUP_A2",
+            "called:CLEANUP_A1",
         ]
         assert call_listener.collected == expected_call_order
         my_cleanup_A1M.assert_called_once()
@@ -146,7 +150,9 @@ class TestContextCleanup(object):
         my_cleanup_B3M.assert_called_once()
 
     def test_add_cleanup__rejects_noncallable_cleanup_func(self):
-        class NonCallable(object): pass
+        class NonCallable(object):
+            pass
+
         non_callable = NonCallable()
         context = Context(runner=Mock())
 
@@ -158,6 +164,7 @@ class TestContextCleanup(object):
     def test_on_cleanup_error__prints_error_by_default(self, capsys):
         def bad_cleanup_func():
             raise RuntimeError("in CLEANUP call")
+
         bad_cleanup = Mock(side_effect=bad_cleanup_func)
 
         context = Context(runner=Mock())
@@ -175,6 +182,7 @@ class TestContextCleanup(object):
     def test_on_cleanup_error__is_called_if_defined(self):
         def bad_cleanup():
             raise RuntimeError("in CLEANUP call")
+
         def handle_cleanup_error(context, cleanup_func, exception):
             print("CALLED: handle_cleanup_error")
 
@@ -193,12 +201,14 @@ class TestContextCleanup(object):
     def test_on_cleanup_error__may_be_called_several_times_per_cleanup(self):
         def bad_cleanup1():
             raise RuntimeError("CLEANUP_1")
+
         def bad_cleanup2():
             raise RuntimeError("CLEANUP_2")
 
         class CleanupErrorCollector(object):
             def __init__(self):
                 self.collected = []
+
             def __call__(self, context, cleanup_func, exception):
                 self.collected.append((context, cleanup_func, exception))
 
@@ -217,4 +227,3 @@ class TestContextCleanup(object):
         assert len(collect_cleanup_error.collected) == 2
         assert collect_cleanup_error.collected[0][:-1] == expected[0][:-1]
         assert collect_cleanup_error.collected[1][:-1] == expected[1][:-1]
-

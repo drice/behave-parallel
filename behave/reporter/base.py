@@ -2,6 +2,7 @@
 
 from behave.model_core import Status
 
+
 class Reporter(object):
     """
     Base class for all reporters.
@@ -29,7 +30,7 @@ class Reporter(object):
     def __init__(self, config):
         self.config = config
 
-    def feature(self, feature):     # pylint: disable=no-self-use
+    def feature(self, feature):  # pylint: disable=no-self-use
         """
         Called after a feature was processed.
 

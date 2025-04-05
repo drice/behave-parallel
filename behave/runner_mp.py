@@ -22,10 +22,11 @@ else:
 class MultiProcRunner(Runner):
     """Master multiprocessing runner: scans jobs and distributes to slaves
 
-        This runner should not do any "processing" tasks, apart from scanning
-        the feature files and their scenarios. It then spawns processing nodes
-        and lets them consume the queue of tasks scheduled.
+    This runner should not do any "processing" tasks, apart from scanning
+    the feature files and their scenarios. It then spawns processing nodes
+    and lets them consume the queue of tasks scheduled.
     """
+
     def __init__(self, config):
         super(MultiProcRunner, self).__init__(config)
         self.jobs_map = {}
@@ -35,9 +36,12 @@ class MultiProcRunner(Runner):
         self.results_fail = False
 
     def run_with_paths(self):
-        feature_locations = [filename for filename in self.feature_locations()
-                        if not self.config.exclude(filename)]
-        self.load_hooks()   # hooks themselves not used, but 'environment.py' loaded
+        feature_locations = [
+            filename
+            for filename in self.feature_locations()
+            if not self.config.exclude(filename)
+        ]
+        self.load_hooks()  # hooks themselves not used, but 'environment.py' loaded
         # step definitions are needed here for formatters only
         self.load_step_definitions()
         features = parse_features(feature_locations, language=self.config.lang)
@@ -45,10 +49,11 @@ class MultiProcRunner(Runner):
         feature_count, scenario_count = self.scan_features()
         njobs = len(self.jobs_map)
         proc_count = int(self.config.proc_count)
-        print ("INFO: {0} scenario(s) and {1} feature(s) queued for"
-                " consideration by {2} workers. Some may be skipped if the"
-                " -t option was given..."
-               .format(scenario_count, feature_count, proc_count))
+        print(
+            "INFO: {0} scenario(s) and {1} feature(s) queued for"
+            " consideration by {2} workers. Some may be skipped if the"
+            " -t option was given...".format(scenario_count, feature_count, proc_count)
+        )
 
         procs = []
         old_outs = self.config.outputs
@@ -63,20 +68,20 @@ class MultiProcRunner(Runner):
             p.start()
             del p
 
-        print ("INFO: started {0} workers for {1} jobs.".format(proc_count, njobs))
+        print("INFO: started {0} workers for {1} jobs.".format(proc_count, njobs))
 
         self.config.reporters = old_reporters
         self.formatters = make_formatters(self.config, old_outs)
         self.config.outputs = old_outs
-        while (not self.jobsq.empty()):
+        while not self.jobsq.empty():
             # 1: consume while tests are running
             self.consume_results()
             if not any([p.is_alive() for p in procs]):
                 break
 
         if any([p.is_alive() for p in procs]):
-            self.jobsq.join()   # wait for all jobs to be processed
-            print ("INFO: all jobs have been processed")
+            self.jobsq.join()  # wait for all jobs to be processed
+            print("INFO: all jobs have been processed")
 
             while self.consume_results(timeout=0.1):
                 # 2: remaining results
@@ -85,7 +90,7 @@ class MultiProcRunner(Runner):
             # then, wait for all workers to exit:
             [p.join() for p in procs]
 
-        print ("INFO: all sub-processes have returned")
+        print("INFO: all sub-processes have returned")
 
         while self.consume_results(timeout=0.1):
             # 3: just in case some arrive late in the pipe
@@ -112,7 +117,7 @@ class MultiProcRunner(Runner):
         except queue.Empty:
             return False
 
-        if job_id is None and result == 'set_fail':
+        if job_id is None and result == "set_fail":
             self.results_fail = True
             return True
 
@@ -135,6 +140,7 @@ class MultiProcRunner(Runner):
             print("ERROR: cannot receive status for %r: %s" % (item, e))
             if self.config.wip and not self.config.quiet:
                 import traceback
+
                 traceback.print_exc()
         return True
 
@@ -184,13 +190,14 @@ class MultiProcRunner_Feature(MultiProcRunner):
 class MultiProcRunner_Scenario(MultiProcRunner):
     def scan_features(self):
         nfeat = nscens = 0
+
         def put(sth):
             idf = id(sth)
             self.jobs_map[idf] = sth
             self.jobsq.put(idf)
 
         for feature in self.features:
-            if 'serial' in feature.tags:
+            if "serial" in feature.tags:
                 put(feature)
                 nfeat += 1
                 for scen in feature.scenarios:
@@ -202,7 +209,7 @@ class MultiProcRunner_Scenario(MultiProcRunner):
                 continue
             for scenario in feature.scenarios:
                 scenario.background_steps  # compute them, before sending out
-                if scenario.type == 'scenario':
+                if scenario.type == "scenario":
                     put(scenario)
                     nscens += 1
                 else:
@@ -217,8 +224,9 @@ class MultiProcRunner_Scenario(MultiProcRunner):
 class MultiProcClientRunner(Runner):
     """Multiprocessing Client runner: picks "jobs" from parent queue
 
-        Each client is tagged with a `num` to appear in outputs etc.
+    Each client is tagged with a `num` to appear in outputs etc.
     """
+
     def __init__(self, parent, num):
         super(MultiProcClientRunner, self).__init__(parent.config)
         self.num = num
@@ -229,9 +237,9 @@ class MultiProcClientRunner(Runner):
     def iter_queue(self):
         """Iterator fetching features from the queue
 
-            Note that this iterator is lazy and multiprocess-affected:
-            it cannot know its set of features in advance, will dynamically
-            yield ones as found in the queue
+        Note that this iterator is lazy and multiprocess-affected:
+        it cannot know its set of features in advance, will dynamically
+        yield ones as found in the queue
         """
         while True:
             try:
@@ -254,10 +262,18 @@ class MultiProcClientRunner(Runner):
             elif isinstance(job, Scenario):
                 # construct a dummy feature, having only this scenario
                 kwargs = {}
-                for k in ('filename', 'line', 'keyword', 'name', 'tags',
-                          'description', 'background', 'language'):
+                for k in (
+                    "filename",
+                    "line",
+                    "keyword",
+                    "name",
+                    "tags",
+                    "description",
+                    "background",
+                    "language",
+                ):
                     kwargs[k] = getattr(job.feature, k)
-                kwargs['scenarios'] = [job]
+                kwargs["scenarios"] = [job]
                 orig_parser = job.feature.parser
                 feature = Feature(**kwargs)
                 feature.parser = orig_parser
@@ -278,7 +294,7 @@ class MultiProcClientRunner(Runner):
 
         failed = self.run_model(features=self.iter_queue())
         if failed:
-            self.resultsq.put((None, 'set_fail'))
+            self.resultsq.put((None, "set_fail"))
         self.resultsq.close()
 
 

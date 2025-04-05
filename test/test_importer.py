@@ -13,7 +13,10 @@ import types
 # import unittest
 
 
-class TestTheory(object): pass
+class TestTheory(object):
+    pass
+
+
 class ImportModuleTheory(TestTheory):
     """
     Provides a test theory for importing modules.
@@ -63,8 +66,8 @@ class TestLoadModule(object):
         self.theory.assert_module_with_name(module, module_name)
         self.theory.assert_module_is_imported(module_name)
 
-class TestLazyObject(object):
 
+class TestLazyObject(object):
     def test_get__should_succeed_for_known_object(self):
         lazy = LazyObject("behave.importer", "LazyObject")
         value = lazy.get()
@@ -88,7 +91,6 @@ class TestLazyObject(object):
 
 
 class LazyDictTheory(TestTheory):
-
     @staticmethod
     def safe_getitem(data, key):
         return dict.__getitem__(data, key)
@@ -144,8 +146,6 @@ class TestLazyDict(object):
         assert_raises(ImportError, item_access, "bob")
 
     def test_lazy_item_access__should_fail_with_unknown_object(self):
-        lazy_dict = LazyDict({
-            "bob": LazyObject("behave.importer", "XUnknown")
-        })
+        lazy_dict = LazyDict({"bob": LazyObject("behave.importer", "XUnknown")})
         item_access = lambda key: lazy_dict[key]
         assert_raises(ImportError, item_access, "bob")

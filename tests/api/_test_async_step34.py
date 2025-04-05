@@ -40,12 +40,12 @@ from .testing_support_async import AsyncStepTheory
 _python_version = float("%s.%s" % sys.version_info[:2])
 py34_or_newer = pytest.mark.skipif(_python_version < 3.4, reason="Needs Python >= 3.4")
 
+
 # -----------------------------------------------------------------------------
 # TESTSUITE:
 # -----------------------------------------------------------------------------
 @py34_or_newer
 class TestAsyncStepDecoratorPy34(object):
-
     def test_step_decorator_async_run_until_complete2(self):
         step_container = SimpleStepContainer()
         with use_step_import_modules(step_container):
@@ -142,13 +142,13 @@ class TestAsyncStepRunPy34(object):
             from behave.api.async_step import async_run_until_complete
             import asyncio
 
-            @given('an async-step passes')
+            @given("an async-step passes")
             @async_run_until_complete
             @asyncio.coroutine
             def given_async_step_passes(context):
                 context.traced_steps.append("async-step1")
 
-            @when('an async-step passes')
+            @when("an async-step passes")
             @async_run_until_complete
             @asyncio.coroutine
             def when_async_step_passes(context):
@@ -161,7 +161,6 @@ class TestAsyncStepRunPy34(object):
         when_async_step_passes(context)
         assert context.traced_steps == ["async-step1", "async-step2"]
 
-
     def test_async_step_fails(self):
         """ENSURE: Failures in async-steps are detected correctly."""
         step_container = SimpleStepContainer()
@@ -172,7 +171,7 @@ class TestAsyncStepRunPy34(object):
             from behave.api.async_step import async_run_until_complete
             import asyncio
 
-            @when('an async-step fails')
+            @when("an async-step fails")
             @async_run_until_complete
             @asyncio.coroutine
             def when_async_step_fails(context):
@@ -193,11 +192,11 @@ class TestAsyncStepRunPy34(object):
             from behave.api.async_step import async_run_until_complete
             import asyncio
 
-            @when('an async-step raises exception')
+            @when("an async-step raises exception")
             @async_run_until_complete
             @asyncio.coroutine
             def when_async_step_raises_exception(context):
-                1 / 0   # XFAIL-HERE: Raises ZeroDivisionError
+                1 / 0  # XFAIL-HERE: Raises ZeroDivisionError
 
         # -- RUN ASYNC-STEP: Verify that raised exeception is detected.
         context = Context(runner=Runner(config={}))

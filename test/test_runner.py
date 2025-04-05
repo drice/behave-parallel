@@ -156,12 +156,18 @@ class TestContext(unittest.TestCase):
         self.context._pop()
         eq_(self.context.thing, "stuff")
         eq_(self.context.other_thing, "more stuff")
-        assert getattr(self.context, "third_thing", None) is None, "%s is not None" % self.context.third_thing
+        assert getattr(self.context, "third_thing", None) is None, (
+            "%s is not None" % self.context.third_thing
+        )
 
         self.context._pop()
         eq_(self.context.thing, "stuff")
-        assert getattr(self.context, "other_thing", None) is None, "%s is not None" % self.context.other_thing
-        assert getattr(self.context, "third_thing", None) is None, "%s is not None" % self.context.third_thing
+        assert getattr(self.context, "other_thing", None) is None, (
+            "%s is not None" % self.context.other_thing
+        )
+        assert getattr(self.context, "third_thing", None) is None, (
+            "%s is not None" % self.context.third_thing
+        )
 
     def test_masking_existing_user_attribute_when_verbose_causes_warning(self):
         warns = []
@@ -184,11 +190,13 @@ class TestContext(unittest.TestCase):
         print(repr(warns))
         assert warns, "warns is empty!"
         warning = warns[0]
-        assert isinstance(warning, runner.ContextMaskWarning), "warning is not a ContextMaskWarning"
+        assert isinstance(
+            warning, runner.ContextMaskWarning
+        ), "warning is not a ContextMaskWarning"
         info = warning.args[0]
         assert info.startswith("user code"), "%r doesn't start with 'user code'" % info
         assert "'thing'" in info, "%r not in %r" % ("'thing'", info)
-        assert "tutorial" in info, '"tutorial" not in %r' % (info, )
+        assert "tutorial" in info, '"tutorial" not in %r' % (info,)
 
     def test_masking_existing_user_attribute_when_not_verbose_causes_no_warning(self):
         warns = []
@@ -231,9 +239,13 @@ class TestContext(unittest.TestCase):
         print(repr(warns))
         assert warns, "OOPS: warns is empty, but expected non-empty"
         warning = warns[0]
-        assert isinstance(warning, runner.ContextMaskWarning), "warning is not a ContextMaskWarning"
+        assert isinstance(
+            warning, runner.ContextMaskWarning
+        ), "warning is not a ContextMaskWarning"
         info = warning.args[0]
-        assert info.startswith("behave runner"), "%r doesn't start with 'behave runner'" % info
+        assert info.startswith("behave runner"), (
+            "%r doesn't start with 'behave runner'" % info
+        )
         assert "'thing'" in info, "%r not in %r" % ("'thing'", info)
         filename = __file__.rsplit(".", 1)[0]
         if python_implementation() == "Jython":
@@ -262,7 +274,9 @@ class TestContext(unittest.TestCase):
         warning = warns[0]
         assert isinstance(warning, runner.ContextMaskWarning)
         info = warning.args[0]
-        assert info.startswith("behave runner"), "%r doesn't start with 'behave runner'" % info
+        assert info.startswith("behave runner"), (
+            "%r doesn't start with 'behave runner'" % info
+        )
         assert "'thing'" in info, "%r not in %r" % ("'thing'", info)
         filename = __file__.rsplit(".", 1)[0]
         if python_implementation() == "Jython":
@@ -286,16 +300,17 @@ class TestContext(unittest.TestCase):
         eq_("thing" in self.context, True)
         del self.context.thing
 
+
 class ExampleSteps(object):
     text = None
     table = None
 
     @staticmethod
-    def step_passes(context):   # pylint: disable=unused-argument
+    def step_passes(context):  # pylint: disable=unused-argument
         pass
 
     @staticmethod
-    def step_fails(context):    # pylint: disable=unused-argument
+    def step_fails(context):  # pylint: disable=unused-argument
         assert False, "XFAIL"
 
     @classmethod
@@ -313,17 +328,19 @@ class ExampleSteps(object):
         # pylint: disable=bad-whitespace
         step_definitions = [
             ("step", "a step passes", cls.step_passes),
-            ("step", "a step fails",  cls.step_fails),
-            ("step", "a step with text",     cls.step_with_text),
-            ("step", "a step with a table",  cls.step_with_table),
+            ("step", "a step fails", cls.step_fails),
+            ("step", "a step with text", cls.step_with_text),
+            ("step", "a step with a table", cls.step_with_table),
         ]
         for keyword, pattern, func in step_definitions:
             step_registry.add_step_definition(keyword, pattern, func)
+
 
 class TestContext_ExecuteSteps(unittest.TestCase):
     """
     Test the behave.runner.Context.execute_steps() functionality.
     """
+
     # pylint: disable=invalid-name, no-self-use
     step_registry = None
 
@@ -352,7 +369,7 @@ class TestContext_ExecuteSteps(unittest.TestCase):
         # self.context.table = None
 
     def test_execute_steps_with_simple_steps(self):
-        doc = u"""
+        doc = """
 Given a step passes
 Then a step passes
 """.lstrip()
@@ -361,7 +378,7 @@ Then a step passes
             eq_(result, True)
 
     def test_execute_steps_with_failing_step(self):
-        doc = u"""
+        doc = """
 Given a step passes
 When a step fails
 Then a step passes
@@ -373,7 +390,7 @@ Then a step passes
                 ok_("FAILED SUB-STEP: When a step fails" in _text(e))
 
     def test_execute_steps_with_undefined_step(self):
-        doc = u"""
+        doc = """
 Given a step passes
 When a step is undefined
 Then a step passes
@@ -385,7 +402,7 @@ Then a step passes
                 ok_("UNDEFINED SUB-STEP: When a step is undefined" in _text(e))
 
     def test_execute_steps_with_text(self):
-        doc = u'''
+        doc = '''
 Given a step passes
 When a step with text:
     """
@@ -401,7 +418,7 @@ Then a step passes
             eq_(expected_text, ExampleSteps.text)
 
     def test_execute_steps_with_table(self):
-        doc = u"""
+        doc = """
 Given a step with a table:
     | Name  | Age |
     | Alice |  12 |
@@ -411,15 +428,19 @@ Then a step passes
         with patch("behave.step_registry.registry", self.step_registry):
             # pylint: disable=bad-whitespace, bad-continuation
             result = self.context.execute_steps(doc)
-            expected_table = Table([u"Name", u"Age"], 0, [
-                    [u"Alice", u"12"],
-                    [u"Bob",   u"23"],
-            ])
+            expected_table = Table(
+                ["Name", "Age"],
+                0,
+                [
+                    ["Alice", "12"],
+                    ["Bob", "23"],
+                ],
+            )
             eq_(result, True)
             eq_(expected_table, ExampleSteps.table)
 
     def test_context_table_is_restored_after_execute_steps_without_table(self):
-        doc = u"""
+        doc = """
 Given a step passes
 Then a step passes
 """.lstrip()
@@ -430,7 +451,7 @@ Then a step passes
             eq_(self.context.table, original_table)
 
     def test_context_table_is_restored_after_execute_steps_with_table(self):
-        doc = u"""
+        doc = """
 Given a step with a table:
     | Name  | Age |
     | Alice |  12 |
@@ -444,7 +465,7 @@ Then a step passes
             eq_(self.context.table, original_table)
 
     def test_context_text_is_restored_after_execute_steps_without_text(self):
-        doc = u"""
+        doc = """
 Given a step passes
 Then a step passes
 """.lstrip()
@@ -455,7 +476,7 @@ Then a step passes
             eq_(self.context.text, original_text)
 
     def test_context_text_is_restored_after_execute_steps_with_text(self):
-        doc = u'''
+        doc = '''
 Given a step passes
 When a step with text:
     """
@@ -469,10 +490,9 @@ When a step with text:
             self.context.execute_steps(doc)
             eq_(self.context.text, original_text)
 
-
     @raises(ValueError)
     def test_execute_steps_should_fail_when_called_without_feature(self):
-        doc = u"""
+        doc = """
 Given a passes
 Then a step passes
 """.lstrip()
@@ -688,16 +708,20 @@ class TestRunWithPaths(unittest.TestCase):
         self.runner.context = Mock()
         self.runner.run_with_paths()
 
-        eq_(self.run_hook.call_args_list, [
-            ((), {}),
-            (("before_all", self.runner.context), {}),
-            (("after_all", self.runner.context), {}),
-        ])
+        eq_(
+            self.run_hook.call_args_list,
+            [
+                ((), {}),
+                (("before_all", self.runner.context), {}),
+                (("after_all", self.runner.context), {}),
+            ],
+        )
 
     @patch("behave.parser.parse_file")
     @patch("os.path.abspath")
-    def test_parses_feature_files_and_appends_to_feature_list(self, abspath,
-                                                              parse_file):
+    def test_parses_feature_files_and_appends_to_feature_list(
+        self, abspath, parse_file
+    ):
         feature_locations = ["one", "two", "three"]
         feature = Mock()
         feature.tags = []
@@ -716,8 +740,9 @@ class TestRunWithPaths(unittest.TestCase):
 
         self.runner.run_with_paths()
 
-        expected_parse_file_args = \
-            [((x.upper(),), {"language": "fritz"}) for x in feature_locations]
+        expected_parse_file_args = [
+            ((x.upper(),), {"language": "fritz"}) for x in feature_locations
+        ]
         eq_(parse_file.call_args_list, expected_parse_file_args)
         eq_(self.runner.features, [feature] * 3)
 
@@ -992,7 +1017,6 @@ class TestFeatureDirectoryLayout2(object):
         ok_(("isdir", os.path.join(fs.base, "features", "steps")) in fs.calls)
         eq_(r.base_dir, None)
 
-
     def test_supplied_feature_file(self):
         config = create_mock_config()
         config.paths = ["features/group1/foo.feature"]
@@ -1012,8 +1036,11 @@ class TestFeatureDirectoryLayout2(object):
                 with r.path_manager:
                     r.setup_paths()
 
-        ok_(("isdir", os.path.join(fs.base, "features", "steps"))  in fs.calls)
-        ok_(("isfile", os.path.join(fs.base, "features", "group1", "foo.feature")) in fs.calls)
+        ok_(("isdir", os.path.join(fs.base, "features", "steps")) in fs.calls)
+        ok_(
+            ("isfile", os.path.join(fs.base, "features", "group1", "foo.feature"))
+            in fs.calls
+        )
         eq_(r.base_dir, fs.join(fs.base, "features"))
 
     def test_supplied_feature_file_no_steps(self):
@@ -1053,7 +1080,6 @@ class TestFeatureDirectoryLayout2(object):
 
         ok_(("isdir", os.path.join(fs.base, "features", "steps")) in fs.calls)
         eq_(r.base_dir, os.path.join(fs.base, "features"))
-
 
     def test_supplied_feature_directory_no_steps(self):
         config = create_mock_config()

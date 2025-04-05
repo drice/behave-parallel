@@ -34,12 +34,15 @@ class TestStatus(object):
         assert enum_value != "__UNKNOWN__"
         assert not (enum_value == "__UNKNOWN__")
 
-    @pytest.mark.parametrize("enum_value, similar_name", [
-        (Status.passed, "Passed"),
-        (Status.failed, "FAILED"),
-        (Status.passed, "passed1"),
-        (Status.failed, "failed2"),
-    ])
+    @pytest.mark.parametrize(
+        "enum_value, similar_name",
+        [
+            (Status.passed, "Passed"),
+            (Status.failed, "FAILED"),
+            (Status.passed, "passed1"),
+            (Status.failed, "failed2"),
+        ],
+    )
     def test_equals__with_similar_name(self, enum_value, similar_name):
         assert enum_value != similar_name
 
@@ -47,10 +50,7 @@ class TestStatus(object):
     def test_from_name__with_known_names(self, enum_value):
         assert enum_value == Status.from_name(enum_value.name)
 
-
-    @pytest.mark.parametrize("unknown_name", [
-        "Passed", "Failed", "passed2", "failed1"
-    ])
+    @pytest.mark.parametrize("unknown_name", ["Passed", "Failed", "passed2", "failed1"])
     def test_from_name__with_unknown_name_raises_lookuperror(self, unknown_name):
         with pytest.raises(LookupError):
             Status.from_name(unknown_name)

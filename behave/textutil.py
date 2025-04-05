@@ -19,12 +19,12 @@ BEHAVE_UNICODE_ERRORS = os.environ.get("BEHAVE_UNICODE_ERRORS", "replace")
 # -----------------------------------------------------------------------------
 # FUNCTIONS:
 # -----------------------------------------------------------------------------
-def make_indentation(indent_size, part=u" "):
+def make_indentation(indent_size, part=" "):
     """Creates an indentation prefix string of the given size."""
     return indent_size * part
 
 
-def indent(text, prefix):   # pylint: disable=redefined-outer-name
+def indent(text, prefix):  # pylint: disable=redefined-outer-name
     """Indent text or a number of text lines (with newline).
 
     :param lines:  Text lines to indent (as string or list of strings).
@@ -32,14 +32,14 @@ def indent(text, prefix):   # pylint: disable=redefined-outer-name
     :return: Indented text (as unicode string).
     """
     lines = text
-    newline = u""
+    newline = ""
     if isinstance(text, six.string_types):
         lines = text.splitlines(True)
     elif lines and not lines[0].endswith("\n"):
         # -- TEXT LINES: Without trailing new-line.
-        newline = u"\n"
+        newline = "\n"
     # MAYBE: return newline.join([prefix + six.text_type(line, errors="replace")
-    return newline.join([prefix + six.text_type(line)  for line in lines])
+    return newline.join([prefix + six.text_type(line) for line in lines])
 
 
 def compute_words_maxsize(words):
@@ -61,6 +61,7 @@ def is_ascii_encoding(encoding):
         return codecs.lookup(encoding).name == "ascii"
     except LookupError:
         return False
+
 
 def select_best_encoding(outstream=None):
     """Select the *best* encoding for an output stream/file.
@@ -140,7 +141,7 @@ def text(value, encoding=None, errors=None):
 def to_texts(args, encoding=None, errors=None):
     """Process a list of string-like objects into list of unicode values.
     Optionally converts binary text into unicode for each item.
-    
+
     :return: List of text/unicode values.
     """
     if encoding is None:
@@ -155,7 +156,7 @@ def ensure_stream_with_encoder(stream, encoding=None):
     if six.PY3:
         return stream
     elif hasattr(stream, "stream"):
-        return stream    # Already wrapped with a codecs.StreamWriter
+        return stream  # Already wrapped with a codecs.StreamWriter
     else:
         assert six.PY2
         # py2 does, however, sometimes declare an encoding on sys.stdout,

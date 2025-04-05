@@ -24,7 +24,7 @@ import six
 
 class TestIssue(object):
     # -- USE SAVED TRACEBACK: No need to require Windows platform.
-    traceback_bytes = br"""\
+    traceback_bytes = rb"""\
 Traceback (most recent call last):
   File "C:\Users\alice\xxx\behave\model.py", line 1456, in run
     match.run(runner.context)
@@ -37,9 +37,9 @@ AssertionError
 
     traceback_file_line_texts = [
         # -- NOTE: Cannot use: ur'C:\Users ..." => \U is a unicode escape char.
-        u'File "C:\\Users\\alice\\xxx\\behave\\model.py", line 1456, in run',
-        u'File "C:\\Users\\alice\\xxx\\behave\\model.py", line 1903, in run',
-        u'File "features\\steps\\my_steps.py", line 210, in step_impl',
+        'File "C:\\Users\\alice\\xxx\\behave\\model.py", line 1456, in run',
+        'File "C:\\Users\\alice\\xxx\\behave\\model.py", line 1903, in run',
+        'File "features\\steps\\my_steps.py", line 210, in step_impl',
     ]
 
     # @require_python2
@@ -57,7 +57,7 @@ AssertionError
         # -- NOTE: Explicit use of problematic encoding
         problematic_encoding = "unicode-escape"
         text2 = text(self.traceback_bytes, problematic_encoding)
-        print("TEXT: "+ text2)
+        print("TEXT: " + text2)
         assert isinstance(self.traceback_bytes, bytes)
         assert isinstance(text2, six.text_type)
 

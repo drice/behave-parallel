@@ -20,12 +20,14 @@ import six
 import subprocess
 import sys
 import shlex
+
 if six.PY2:
     import codecs
 
 
 # HERE = os.path.dirname(__file__)
 # TOP  = os.path.join(HERE, "..")
+
 
 # -----------------------------------------------------------------------------
 # CLASSES:
@@ -34,6 +36,7 @@ class CommandResult(object):
     """
     ValueObject to store the results of a subprocess command call.
     """
+
     def __init__(self, **kwargs):
         self.command = kwargs.pop("command", None)
         self.returncode = kwargs.pop("returncode", 0)
@@ -72,10 +75,9 @@ class Command(object):
     Helper class to run commands as subprocess,
     collect their output and subprocess returncode.
     """
+
     DEBUG = False
-    COMMAND_MAP = {
-        "behave": os.path.normpath("{0}/bin/behave".format(TOP))
-    }
+    COMMAND_MAP = {"behave": os.path.normpath("{0}/bin/behave".format(TOP))}
     PREPROCESSOR_MAP = {}
     POSTPROCESSOR_MAP = {}
     USE_SHELL = sys.platform.startswith("win")
@@ -128,17 +130,19 @@ class Command(object):
         if preprocessors:
             cmdargs = cls.preprocess_command(preprocessors, cmdargs, command, cwd)
 
-
         # -- RUN COMMAND:
         try:
-            process = subprocess.Popen(cmdargs,
-                            stdout=subprocess.PIPE,
-                            stderr=subprocess.PIPE,
-                            universal_newlines=True,
-                            shell=use_shell,
-                            cwd=cwd, **kwargs)
+            process = subprocess.Popen(
+                cmdargs,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                universal_newlines=True,
+                shell=use_shell,
+                cwd=cwd,
+                **kwargs,
+            )
             out, err = process.communicate()
-            if six.PY2: # py3: we get unicode strings, py2 not
+            if six.PY2:  # py3: we get unicode strings, py2 not
                 # default_encoding = "UTF-8"
                 out = _text(out, process.stdout.encoding)
                 err = _text(err, process.stderr.encoding)
@@ -152,7 +156,7 @@ class Command(object):
                 print("shell.command: {0}".format(" ".join(cmdargs)))
                 print("shell.command.output:\n{0};".format(command_result.output))
         except OSError as e:
-            command_result.stderr = u"OSError: %s" % e
+            command_result.stderr = "OSError: %s" % e
             command_result.returncode = e.errno
             assert e.errno != 0
 
@@ -167,6 +171,7 @@ class Command(object):
 # -----------------------------------------------------------------------------
 def path_glob(command, cmdargs, cwd="."):
     import glob
+
     if not glob.has_magic(command):
         return cmdargs
 
@@ -193,11 +198,13 @@ def path_glob(command, cmdargs, cwd="."):
         os.chdir(current_cwd)
     return cmdargs
 
+
 # -----------------------------------------------------------------------------
 # FUNCTIONS:
 # -----------------------------------------------------------------------------
 def run(command, cwd=".", **kwargs):
     return Command.run(command, cwd=cwd, **kwargs)
+
 
 def behave(cmdline, cwd=".", **kwargs):
     """
@@ -206,6 +213,7 @@ def behave(cmdline, cwd=".", **kwargs):
     """
     assert isinstance(cmdline, six.string_types)
     return run("behave " + cmdline, cwd=cwd, **kwargs)
+
 
 # -----------------------------------------------------------------------------
 # TEST MAIN:

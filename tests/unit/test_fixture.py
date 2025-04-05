@@ -6,9 +6,15 @@ Unit tests for :mod:`behave.fixture` module.
 from __future__ import absolute_import, print_function
 import sys
 import inspect
-from behave.fixture import \
-    fixture, use_fixture, is_context_manager, InvalidFixtureError, \
-    use_fixture_by_tag, use_composite_fixture_with, fixture_call_params
+from behave.fixture import (
+    fixture,
+    use_fixture,
+    is_context_manager,
+    InvalidFixtureError,
+    use_fixture_by_tag,
+    use_composite_fixture_with,
+    fixture_call_params,
+)
 from behave.runner import Context, CleanupError, scoped_context_layer
 from behave._types import Unknown
 import pytest
@@ -21,7 +27,7 @@ import six
 # -----------------------------------------------------------------------------
 def make_runtime_context(runner=None):
     """Build a runtime/runner context for the tests here (partly faked).
-    
+
     :return: Runtime context object (normally used by the runner).
     """
     if runner is None:
@@ -32,6 +38,7 @@ def make_runtime_context(runner=None):
 
 class BasicFixture(object):
     """Helper class used in behave fixtures (test-support)."""
+
     def __init__(self, *args, **kwargs):
         setup_called = kwargs.pop("_setup_called", True)
         name = kwargs.get("name", self.__class__.__name__)
@@ -59,18 +66,28 @@ class BasicFixture(object):
 
     def __str__(self):
         args_text = ", ".join([str(arg) for arg in self.args])
-        kwargs_parts = ["%s= %s" % (key, value)
-            for key, value in sorted(six.iteritems(self.kwargs))]
+        kwargs_parts = [
+            "%s= %s" % (key, value) for key, value in sorted(six.iteritems(self.kwargs))
+        ]
         kwargs_text = ", ".join(kwargs_parts)
         return "%s: args=%s; kwargs=%s" % (self.name, args_text, kwargs_text)
 
 
-class FooFixture(BasicFixture): pass
-class BarFixture(BasicFixture): pass
+class FooFixture(BasicFixture):
+    pass
+
+
+class BarFixture(BasicFixture):
+    pass
+
 
 # -- FIXTURE EXCEPTIONS:
-class FixtureSetupError(RuntimeError): pass
-class FixtureCleanupError(RuntimeError): pass
+class FixtureSetupError(RuntimeError):
+    pass
+
+
+class FixtureCleanupError(RuntimeError):
+    pass
 
 
 # -----------------------------------------------------------------------------
@@ -84,18 +101,22 @@ def assert_context_setup(context, fixture_name, fixture_class=Unknown):
     if fixture_class is not Unknown:
         assert isinstance(the_fixture, fixture_class)
 
+
 def assert_context_cleanup(context, fixture_name):
     """Ensure that fixture object is no longer stored in context."""
     assert not hasattr(context, fixture_name)
+
 
 def assert_fixture_setup_called(fixture_obj):
     """Ensure that fixture setup was performed."""
     if hasattr(fixture_obj, "setup_called"):
         assert fixture_obj.setup_called
 
+
 def assert_fixture_cleanup_called(fixture_obj):
     if hasattr(fixture_obj, "cleanup_called"):
         assert fixture_obj.cleanup_called
+
 
 def assert_fixture_cleanup_not_called(fixture_obj):
     if hasattr(fixture_obj, "cleanup_called"):
@@ -153,7 +174,6 @@ class TestFixtureDecorator(object):
         assert inspect.isfunction(foo)
         assert inspect.isgenerator(func_it)
 
-
     def test_decorated_function_is_callable(self):
         # -- SIMILAR-TO: TestUseFixture.test_with_function()
         @fixture(name="fixture.bar")
@@ -170,18 +190,19 @@ class TestFixtureDecorator(object):
         assert isinstance(the_fixture, BarFixture)
 
     def test_decorator_with_non_callable_raises_type_error(self):
-        class NotCallable(object): pass
+        class NotCallable(object):
+            pass
 
         with pytest.raises(TypeError) as exc_info:
             not_callable = NotCallable()
-            bad_fixture = fixture(not_callable)     # DECORATED_BY_HAND
+            bad_fixture = fixture(not_callable)  # DECORATED_BY_HAND
 
         exception_text = str(exc_info.value)
         assert "Invalid func:" in exception_text
         assert "NotCallable object" in exception_text
 
-class TestUseFixture(object):
 
+class TestUseFixture(object):
     def test_basic_lifecycle(self):
         # -- NOTE: Use explicit checks instead of assert-helper functions.
         @fixture
@@ -204,6 +225,7 @@ class TestUseFixture(object):
 
     def test_fixture_with_args(self):
         """Ensures that positional args are passed to fixture function."""
+
         @fixture
         def foo(context, *args, **kwargs):
             fixture_object = FooFixture.setup(*args, **kwargs)
@@ -220,6 +242,7 @@ class TestUseFixture(object):
 
     def test_fixture_with_kwargs(self):
         """Ensures that keyword args are passed to fixture function."""
+
         @fixture
         def bar(context, *args, **kwargs):
             fixture_object = BarFixture.setup(*args, **kwargs)
@@ -278,9 +301,10 @@ class TestUseFixture(object):
         # -- NOT: Normal functions have no fixture-cleanup part.
 
     def test_can_use_fixture_two_times(self):
-        """Ensures that a fixture can be used multiple times 
+        """Ensures that a fixture can be used multiple times
         (with different names) within a context layer.
         """
+
         @fixture
         def foo(context, checkpoints, *args, **kwargs):
             fixture_object = FooFixture.setup(*args, **kwargs)
@@ -306,15 +330,20 @@ class TestUseFixture(object):
         # -- VERIFY: Fixture and context cleanup is performed.
         assert_context_cleanup(context, "foo_1")
         assert_context_cleanup(context, "foo_2")
-        assert checkpoints == ["foo.setup:foo_1",   "foo.setup:foo_2",
-                               "scoped-block",
-                               "foo.cleanup:foo_2", "foo.cleanup:foo_1"]
+        assert checkpoints == [
+            "foo.setup:foo_1",
+            "foo.setup:foo_2",
+            "scoped-block",
+            "foo.cleanup:foo_2",
+            "foo.cleanup:foo_1",
+        ]
         # -- NOTE: Cleanups occur in reverse order.
 
     def test_invalid_fixture_function(self):
         """Test invalid generator function with more than one yield-statement
         (not a valid fixture/context-manager).
         """
+
         @fixture
         def invalid_fixture(context, checkpoints, *args, **kwargs):
             checkpoints.append("bad.setup")
@@ -359,7 +388,6 @@ class TestUseFixture(object):
         assert the_fixture is None  # -- NEVER STORED: Due to setup error.
         assert checkpoints == ["bad.setup_with_error"]
 
-
     def test_bad_with_setup_error_aborts_on_first_error(self):
         @fixture
         def foo(context, checkpoints, *args, **kwargs):
@@ -385,16 +413,23 @@ class TestUseFixture(object):
         with pytest.raises(FixtureSetupError):
             with scoped_context_layer(context):
                 the_fixture1 = use_fixture(foo, context, checkpoints, name="foo_1")
-                the_fixture2 = use_fixture(bad_fixture, context, checkpoints, name="BAD")
-                the_fixture3 = use_fixture(foo, context, checkpoints, name="NOT_REACHED")
+                the_fixture2 = use_fixture(
+                    bad_fixture, context, checkpoints, name="BAD"
+                )
+                the_fixture3 = use_fixture(
+                    foo, context, checkpoints, name="NOT_REACHED"
+                )
                 checkpoints.append("scoped-block:NOT_REACHED")
 
         # -- VERIFY: Ensure cleanup-parts were performed until failure-point.
         assert isinstance(the_fixture1, FooFixture)
-        assert the_fixture2 is None     # -- NEVER-STORED:  Due to setup error.
-        assert the_fixture3 is None     # -- NEVER-CREATED: Due to bad_fixture.
+        assert the_fixture2 is None  # -- NEVER-STORED:  Due to setup error.
+        assert the_fixture3 is None  # -- NEVER-CREATED: Due to bad_fixture.
         assert checkpoints == [
-            "foo.setup:foo_1", "bad.setup_with_error", "foo.cleanup:foo_1"]
+            "foo.setup:foo_1",
+            "bad.setup_with_error",
+            "foo.cleanup:foo_1",
+        ]
 
     def test_bad_with_cleanup_error(self):
         @fixture
@@ -442,16 +477,22 @@ class TestUseFixture(object):
         with pytest.raises(FixtureCleanupError):
             with scoped_context_layer(context):
                 the_fixture1 = use_fixture(foo, context, checkpoints, name="foo_1")
-                the_fixture2 = use_fixture(bad_fixture, context, checkpoints, name="BAD")
+                the_fixture2 = use_fixture(
+                    bad_fixture, context, checkpoints, name="BAD"
+                )
                 the_fixture3 = use_fixture(foo, context, checkpoints, name="foo_3")
                 checkpoints.append("scoped-block")
 
         # -- VERIFY: Tries to perform all cleanups even when cleanup-error(s) occur.
         assert checkpoints == [
-            "foo.setup:foo_1", "bad.setup", "foo.setup:foo_3",
+            "foo.setup:foo_1",
+            "bad.setup",
+            "foo.setup:foo_3",
             "scoped-block",
-            "foo.cleanup:foo_3", "bad.cleanup_with_error", "foo.cleanup:foo_1"]
-
+            "foo.cleanup:foo_3",
+            "bad.cleanup_with_error",
+            "foo.cleanup:foo_1",
+        ]
 
     def test_bad_with_setup_and_cleanup_error(self):
         # -- GOOD: cleanup_fixture() part is called when setup-error occurs.
@@ -503,9 +544,7 @@ class TestUseFixtureByTag(object):
             checkpoints.append("scoped-block")
 
         # -- VERIFY:
-        assert checkpoints == [
-            "foo.setup", "scoped-block", "foo.cleanup"
-        ]
+        assert checkpoints == ["foo.setup", "scoped-block", "foo.cleanup"]
 
     def test_data_schema2(self):
         @fixture
@@ -557,9 +596,7 @@ class TestUseFixtureByTag(object):
                 self.fixture_args = args
                 self.fixture_kwargs = kwargs
 
-        fixture_registry = {
-            "fixture.foo": BadFixtureData(foo, 1, 2, 3, name="foo_1")
-        }
+        fixture_registry = {"fixture.foo": BadFixtureData(foo, 1, 2, 3, name="foo_1")}
 
         # -- PERFORM-TEST:
         context = make_runtime_context()
@@ -596,9 +633,11 @@ class TestCompositeFixture(object):
             checkpoints.append("scoped-block")
 
         assert checkpoints == [
-            "foo.setup:_1", "foo.setup:_2",
+            "foo.setup:_1",
+            "foo.setup:_2",
             "scoped-block",
-            "foo.cleanup:_2", "foo.cleanup:_1",
+            "foo.cleanup:_2",
+            "foo.cleanup:_1",
         ]
 
     def test_use_fixture_with_setup_error(self):
@@ -621,9 +660,10 @@ class TestCompositeFixture(object):
             bad_fixture = bad_with_setup_error
             the_fixture1 = use_fixture(fixture_foo, context, checkpoints, name="_1")
             the_fixture2 = use_fixture(bad_fixture, context, checkpoints, name="OOPS")
-            the_fixture3 = use_fixture(fixture_foo, context, checkpoints,
-                                       name="_3:NOT_REACHED")
-            return (the_fixture1, the_fixture2, the_fixture3) # NOT_REACHED
+            the_fixture3 = use_fixture(
+                fixture_foo, context, checkpoints, name="_3:NOT_REACHED"
+            )
+            return (the_fixture1, the_fixture2, the_fixture3)  # NOT_REACHED
 
         # -- PERFORM-TEST:
         context = make_runtime_context()
@@ -636,9 +676,7 @@ class TestCompositeFixture(object):
         # -- ENSURES:
         # * fixture1-cleanup is called even after fixture2-setup-error
         # * fixture3-setup/cleanup are not called due to fixture2-setup-error
-        assert checkpoints == [
-            "foo.setup:_1", "bad.setup_with_error", "foo.cleanup:_1"
-        ]
+        assert checkpoints == ["foo.setup:_1", "bad.setup_with_error", "foo.cleanup:_1"]
 
     def test_use_fixture_with_block_error(self):
         @fixture
@@ -669,11 +707,12 @@ class TestCompositeFixture(object):
         # * fixture2-cleanup/cleanup is called even scoped-block-error
         # * fixture-cleanup occurs in reversed setup-order
         assert checkpoints == [
-            "foo.setup:_1", "foo.setup:_2",
+            "foo.setup:_1",
+            "foo.setup:_2",
             "scoped-block_with_error",
-            "foo.cleanup:_2", "foo.cleanup:_1"
+            "foo.cleanup:_2",
+            "foo.cleanup:_1",
         ]
-
 
     def test_use_composite_fixture(self):
         @fixture
@@ -685,10 +724,13 @@ class TestCompositeFixture(object):
 
         @fixture
         def composite2(context, checkpoints, *args, **kwargs):
-            the_composite = use_composite_fixture_with(context, [
-                fixture_call_params(fixture_foo, checkpoints, name="_1"),
-                fixture_call_params(fixture_foo, checkpoints, name="_2"),
-            ])
+            the_composite = use_composite_fixture_with(
+                context,
+                [
+                    fixture_call_params(fixture_foo, checkpoints, name="_1"),
+                    fixture_call_params(fixture_foo, checkpoints, name="_2"),
+                ],
+            )
             return the_composite
 
         # -- PERFORM-TEST:
@@ -699,9 +741,11 @@ class TestCompositeFixture(object):
             checkpoints.append("scoped-block")
 
         assert checkpoints == [
-            "foo.setup:_1", "foo.setup:_2",
+            "foo.setup:_1",
+            "foo.setup:_2",
             "scoped-block",
-            "foo.cleanup:_2", "foo.cleanup:_1",
+            "foo.cleanup:_2",
+            "foo.cleanup:_1",
         ]
 
     def test_use_composite_fixture_with_setup_error(self):
@@ -722,11 +766,16 @@ class TestCompositeFixture(object):
         @fixture
         def composite3(context, checkpoints, *args, **kwargs):
             bad_fixture = bad_with_setup_error
-            the_composite = use_composite_fixture_with(context, [
-                fixture_call_params(fixture_foo, checkpoints, name="_1"),
-                fixture_call_params(bad_fixture, checkpoints, name="OOPS"),
-                fixture_call_params(fixture_foo, checkpoints, name="_3:NOT_REACHED"),
-            ])
+            the_composite = use_composite_fixture_with(
+                context,
+                [
+                    fixture_call_params(fixture_foo, checkpoints, name="_1"),
+                    fixture_call_params(bad_fixture, checkpoints, name="OOPS"),
+                    fixture_call_params(
+                        fixture_foo, checkpoints, name="_3:NOT_REACHED"
+                    ),
+                ],
+            )
             return the_composite
 
         # -- PERFORM-TEST:
@@ -740,9 +789,7 @@ class TestCompositeFixture(object):
         # -- ENSURES:
         # * fixture1-cleanup is called even after fixture2-setup-error
         # * fixture3-setup/cleanup are not called due to fixture2-setup-error
-        assert checkpoints == [
-            "foo.setup:_1", "bad.setup_with_error", "foo.cleanup:_1"
-        ]
+        assert checkpoints == ["foo.setup:_1", "bad.setup_with_error", "foo.cleanup:_1"]
 
     def test_use_composite_fixture_with_block_error(self):
         @fixture
@@ -754,10 +801,13 @@ class TestCompositeFixture(object):
 
         @fixture
         def composite2(context, checkpoints, *args, **kwargs):
-            the_composite = use_composite_fixture_with(context, [
-                fixture_call_params(fixture_foo, checkpoints, name="_1"),
-                fixture_call_params(fixture_foo, checkpoints, name="_2"),
-            ])
+            the_composite = use_composite_fixture_with(
+                context,
+                [
+                    fixture_call_params(fixture_foo, checkpoints, name="_1"),
+                    fixture_call_params(fixture_foo, checkpoints, name="_2"),
+                ],
+            )
             return the_composite
 
         # -- PERFORM-TEST:
@@ -775,9 +825,11 @@ class TestCompositeFixture(object):
         # * fixture2-cleanup/cleanup is called even scoped-block-error
         # * fixture-cleanup occurs in reversed setup-order
         assert checkpoints == [
-            "foo.setup:_1", "foo.setup:_2",
+            "foo.setup:_1",
+            "foo.setup:_2",
             "scoped-block_with_error",
-            "foo.cleanup:_2", "foo.cleanup:_1"
+            "foo.cleanup:_2",
+            "foo.cleanup:_1",
         ]
 
     # -- BAD-EXAMPLE: Ensure SIMPLISTIC-COMPOSITE works as expected
@@ -838,9 +890,11 @@ class TestCompositeFixture(object):
         # * fixture2-setup/cleanup is called when block-error occurs
         # * fixture-cleanups occurs in specified composite-cleanup order
         assert checkpoints == [
-            "foo.setup:_1", "foo.setup:_2",
+            "foo.setup:_1",
+            "foo.setup:_2",
             "scoped-block_with_error",
-            "foo.cleanup:_1", "foo.cleanup:_2"
+            "foo.cleanup:_1",
+            "foo.cleanup:_2",
         ]
 
 
@@ -889,7 +943,6 @@ class TestFixtureCleanup(object):
 
         # -- ENSURE: fixture-cleanup (foo.cleanup) is called (EARLY-CLEANUP).
         assert checkpoints == ["foo.setup.begin", "foo.cleanup.finally"]
-
 
     def test_setup_error_with_context_cleanup1_then_cleanup_is_called(self):
         # -- CASE: Fixture is normal function
@@ -956,9 +1009,7 @@ class TestFixtureCleanup(object):
                 checkpoints.append("NOT_REACHED")
 
         # -- ENSURE:
-        assert checkpoints == [
-            "foo.setup", "scoped-block_with_error", "foo.cleanup"
-        ]
+        assert checkpoints == ["foo.setup", "scoped-block_with_error", "foo.cleanup"]
 
     def test_block_eror_with_context_cleanup_then_cleanup_is_called(self):
         # -- CASE: Fixture is normal-function
@@ -980,6 +1031,4 @@ class TestFixtureCleanup(object):
                 checkpoints.append("NOT_REACHED")
 
         # -- ENSURE:
-        assert checkpoints == [
-            "bar.setup", "scoped-block_with_error", "cleanup_bar"
-        ]
+        assert checkpoints == ["bar.setup", "scoped-block_with_error", "cleanup_bar"]

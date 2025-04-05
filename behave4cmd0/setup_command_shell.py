@@ -16,6 +16,7 @@ from __future__ import absolute_import
 from .command_shell import Command
 from .command_shell_proc import BehaveWinCommandOutputProcessor
 
+
 def setup_command_shell_processors4behave():
     Command.POSTPROCESSOR_MAP["behave"] = []
     for processor_class in [BehaveWinCommandOutputProcessor]:

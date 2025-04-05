@@ -3,6 +3,7 @@
 
 import sys
 import six
+
 if six.PY2:
     # -- USE PYTHON2 BACKPORT: With unicode support
     import traceback2 as traceback
@@ -28,6 +29,7 @@ class ExceptionUtil(object):
 
     .. seealso:: PEP-3134 Chained excpetions
     """
+
     # pylint: disable=no-init
 
     @staticmethod
@@ -55,13 +57,14 @@ class ExceptionUtil(object):
     @classmethod
     def describe(cls, exception, use_traceback=False, prefix=""):
         # -- NORMAL CASE:
-        text = u"{prefix}{0}: {1}\n".format(exception.__class__.__name__,
-                                            exception, prefix=prefix)
+        text = "{prefix}{0}: {1}\n".format(
+            exception.__class__.__name__, exception, prefix=prefix
+        )
         if use_traceback:
             exc_traceback = cls.get_traceback(exception)
             if exc_traceback:
                 # -- NOTE: Chained-exception cause (see: PEP-3134).
-                text += u"".join(traceback.format_tb(exc_traceback))
+                text += "".join(traceback.format_tb(exc_traceback))
         return text
 
 
@@ -71,6 +74,7 @@ class ChainedExceptionUtil(ExceptionUtil):
 
     .. seealso:: PEP-3134 Chained excpetions
     """
+
     # pylint: disable=no-init
 
     @staticmethod
@@ -115,8 +119,7 @@ class ChainedExceptionUtil(ExceptionUtil):
         if style == "normal":
             prefix = "CAUSE: "
             for exc_cause in reversed(causes):
-                cause_text = ExceptionUtil.describe(exc_cause, use_traceback,
-                                                    prefix)
+                cause_text = ExceptionUtil.describe(exc_cause, use_traceback, prefix)
                 parts.append(cause_text)
                 if len(parts) == 1:
                     prefix = "CAUSES: "
@@ -124,10 +127,11 @@ class ChainedExceptionUtil(ExceptionUtil):
         else:
             parts.append(text)
             for exc_cause in causes:
-                cause_text = ExceptionUtil.describe(exc_cause, use_traceback,
-                                                    prefix="CAUSED-BY: ")
+                cause_text = ExceptionUtil.describe(
+                    exc_cause, use_traceback, prefix="CAUSED-BY: "
+                )
                 parts.append(cause_text)
-        return u"\n".join(parts)
+        return "\n".join(parts)
         # if exc_cause:
         #     cause_text =
         #     text += u"\n" + cause_text

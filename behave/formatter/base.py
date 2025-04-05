@@ -3,8 +3,10 @@
 # UNUSED: import sys
 # UNUSED: import codecs
 import os.path
-from behave.textutil import select_best_encoding, \
-    ensure_stream_with_encoder as _ensure_stream_with_encoder
+from behave.textutil import (
+    select_best_encoding,
+    ensure_stream_with_encoder as _ensure_stream_with_encoder,
+)
 
 
 class StreamOpener(object):
@@ -17,6 +19,7 @@ class StreamOpener(object):
       * the name (filename/dirname) of the output stream
       * let it decide if directory mode is used instead of file mode
     """
+
     # FORMER: default_encoding = "UTF-8"
     default_encoding = select_best_encoding()
 
@@ -28,7 +31,7 @@ class StreamOpener(object):
         self.name = filename
         self.stream = stream
         self.encoding = encoding
-        self.should_close_stream = not stream   # Only for not pre-opened ones.
+        self.should_close_stream = not stream  # Only for not pre-opened ones.
 
     @staticmethod
     def ensure_dir_exists(directory):
@@ -92,6 +95,7 @@ class Formatter(object):
             formatter.eof() # -- FEATURE-END
         formatter.close()
     """
+
     name = None
     description = None
 
@@ -185,4 +189,4 @@ class Formatter(object):
             # -- DELEGATE STREAM-CLOSING: To stream_opener
             assert self.stream is self.stream_opener.stream
             self.stream_opener.close()
-        self.stream = None      # -- MARK CLOSED.
+        self.stream = None  # -- MARK CLOSED.

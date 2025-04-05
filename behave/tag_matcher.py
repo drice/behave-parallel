@@ -112,14 +112,20 @@ class ActiveTagMatcher(TagMatcher):
                 exclude_reason = active_tag_matcher.exclude_reason
                 scenario.skip(exclude_reason)   #< LATE-EXCLUDE from run-set.
     """
+
     value_separator = "="
     tag_prefixes = ["active", "not_active", "use", "not", "only"]
     tag_schema = r"^(?P<prefix>%s)\.with_(?P<category>\w+(\.\w+)*)%s(?P<value>.*)$"
     ignore_unknown_categories = True
     use_exclude_reason = False
 
-    def __init__(self, value_provider, tag_prefixes=None,
-                 value_separator=None, ignore_unknown_categories=None):
+    def __init__(
+        self,
+        value_provider,
+        tag_prefixes=None,
+        value_separator=None,
+        ignore_unknown_categories=None,
+    ):
         if value_provider is None:
             value_provider = {}
         if tag_prefixes is None:
@@ -143,19 +149,18 @@ class ActiveTagMatcher(TagMatcher):
         return re.compile(expression)
 
     @classmethod
-    def make_category_tag(cls, category, value=None,
-                          tag_prefix=None, value_sep=None):
+    def make_category_tag(cls, category, value=None, tag_prefix=None, value_sep=None):
         """Build category tag (mostly for testing purposes).
         :return: Category tag as string (without leading AT char).
         """
         if tag_prefix is None:
-            tag_prefix = cls.tag_prefixes[0]    # -- USE: First as default.
+            tag_prefix = cls.tag_prefixes[0]  # -- USE: First as default.
         if value_sep is None:
             value_sep = cls.value_separator
         value = value or ""
         return "%s.with_%s%s%s" % (tag_prefix, category, value_sep, value)
 
-    def is_tag_negated(self, tag):      # pylint: disable=no-self-use
+    def is_tag_negated(self, tag):  # pylint: disable=no-self-use
         return tag.startswith("not")
 
     def is_tag_group_enabled(self, group_category, group_tag_pairs):
@@ -195,13 +200,13 @@ class ActiveTagMatcher(TagMatcher):
             tag_value = tag_match.group("value")
             assert category == group_category
 
-            is_category_tag_switched_on = operator.eq       # equal_to
+            is_category_tag_switched_on = operator.eq  # equal_to
             if self.is_tag_negated(tag_prefix):
-                is_category_tag_switched_on = operator.ne   # not_equal_to
+                is_category_tag_switched_on = operator.ne  # not_equal_to
 
             tag_enabled = is_category_tag_switched_on(tag_value, current_value)
             tags_enabled.append(tag_enabled)
-        return any(tags_enabled)    # -- PROVIDES: LOGICAL-OR expression
+        return any(tags_enabled)  # -- PROVIDES: LOGICAL-OR expression
 
     def should_exclude_with(self, tags):
         group_categories = self.group_active_tags_by_category(tags)
@@ -212,9 +217,9 @@ class ActiveTagMatcher(TagMatcher):
                     current_value = self.value_provider.get(group_category, None)
                     reason = "%s (but: %s)" % (group_category, current_value)
                     self.exclude_reason = reason
-                return True     # SHOULD-EXCLUDE: not enabled = not False
+                return True  # SHOULD-EXCLUDE: not enabled = not False
         # -- LOGICAL-AND: All parts are True
-        return False    # SHOULD-EXCLUDE: not enabled = not True
+        return False  # SHOULD-EXCLUDE: not enabled = not True
 
     def select_active_tags(self, tags):
         """Select all active tags that match the tag schema pattern.
@@ -335,16 +340,17 @@ class OnlyWithCategoryTagMatcher(TagMatcher):
             if active_tag_matcher.should_exclude_with(scenario.effective_tags):
                 scenario.skip()   #< LATE-EXCLUDE from run-set.
     """
+
     tag_prefix = "only.with_"
     value_separator = "="
 
     def __init__(self, category, value, tag_prefix=None, value_sep=None):
         warnings.warn("Use ActiveTagMatcher instead.", DeprecationWarning)
         super(OnlyWithCategoryTagMatcher, self).__init__()
-        self.active_tag = self.make_category_tag(category, value,
-                                                 tag_prefix, value_sep)
-        self.category_tag_prefix = self.make_category_tag(category, None,
-                                                          tag_prefix, value_sep)
+        self.active_tag = self.make_category_tag(category, value, tag_prefix, value_sep)
+        self.category_tag_prefix = self.make_category_tag(
+            category, None, tag_prefix, value_sep
+        )
 
     def should_exclude_with(self, tags):
         category_tags = self.select_category_tags(tags)
@@ -354,12 +360,10 @@ class OnlyWithCategoryTagMatcher(TagMatcher):
         return False
 
     def select_category_tags(self, tags):
-        return [tag  for tag in tags
-                if tag.startswith(self.category_tag_prefix)]
+        return [tag for tag in tags if tag.startswith(self.category_tag_prefix)]
 
     @classmethod
-    def make_category_tag(cls, category, value=None, tag_prefix=None,
-                          value_sep=None):
+    def make_category_tag(cls, category, value=None, tag_prefix=None, value_sep=None):
         if tag_prefix is None:
             tag_prefix = cls.tag_prefix
         if value_sep is None:
@@ -450,12 +454,11 @@ class OnlyWithAnyCategoryTagMatcher(TagMatcher):
         return any(exclude_decision_map.values())
 
     def select_category_tags(self, tags):
-        return [tag  for tag in tags
-                if tag.startswith(self.tag_prefix)]
+        return [tag for tag in tags if tag.startswith(self.tag_prefix)]
 
     def parse_category_tag(self, tag):
         assert tag and tag.startswith(self.tag_prefix)
-        category_value = tag[len(self.tag_prefix):]
+        category_value = tag[len(self.tag_prefix) :]
         if self.value_separator in category_value:
             category, value = category_value.split(self.value_separator, 1)
         else:

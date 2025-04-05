@@ -38,6 +38,7 @@ def realpath_with_context(path, context):
         path = os.path.join(context.workdir, os.path.normpath(path))
     return path
 
+
 def posixpath_normpath(pathname):
     """
     Convert path into POSIX path:
@@ -48,10 +49,10 @@ def posixpath_normpath(pathname):
     :param pathname: Pathname (as string)
     :return: Normalized POSIX path.
     """
-    backslash = '\\'
+    backslash = "\\"
     pathname2 = os.path.normpath(pathname) or "."
     if backslash in pathname2:
-        pathname2 = pathname2.replace(backslash, '/')
+        pathname2 = pathname2.replace(backslash, "/")
     return pathname2
 
 
@@ -63,7 +64,7 @@ def ensure_makedirs(directory, max_iterations=3):
         try:
             os.makedirs(directory)
         except OSError as e:
-            if iteration >= max_iterations: # XXX-BAD: Never occurs
+            if iteration >= max_iterations:  # XXX-BAD: Never occurs
                 raise
             else:
                 exception_text = "%s:%s" % (e.__class__.__name__, e)
@@ -71,9 +72,10 @@ def ensure_makedirs(directory, max_iterations=3):
         if os.path.isdir(directory):
             return
 
-    assert os.path.isdir(directory), \
-        "FAILED: ensure_makedirs(%r) (after %s iterations):\n%s" % \
-        (directory, max_iterations, exception_text)
+    assert os.path.isdir(directory), (
+        "FAILED: ensure_makedirs(%r) (after %s iterations):\n%s"
+        % (directory, max_iterations, exception_text)
+    )
 
 
 def read_file_contents(filename, context=None, encoding=None):
@@ -91,7 +93,7 @@ def read_file_contents(filename, context=None, encoding=None):
 #     ensure_workdir_exists(context)
 
 
-def create_textfile_with_contents(filename, contents, encoding='utf-8'):
+def create_textfile_with_contents(filename, contents, encoding="utf-8"):
     """
     Creates a textual file with the provided contents in the workdir.
     Overwrites an existing file.
@@ -131,7 +133,7 @@ def ensure_directory_exists(dirname, context=None):
         ensure_makedirs(real_dirname, mas_iterations)
 
     assert os.path.exists(real_dirname), "ENSURE dir exists: %s" % dirname
-    assert os.path.isdir(real_dirname),  "ENSURE isa dir: %s" % dirname
+    assert os.path.isdir(real_dirname), "ENSURE isa dir: %s" % dirname
 
 
 # def ensure_workdir_exists(context):

@@ -25,13 +25,13 @@ from hamcrest import assert_that, equal_to
 # -----------------------------------------------------------------------------
 def normalize_tags(tags):
     # -- STRIP: Leading '@' from tags.
-    return [TagExpression.normalize_tag(tag)  for tag in tags]
+    return [TagExpression.normalize_tag(tag) for tag in tags]
 
 
 # -----------------------------------------------------------------------------
 # STEP DEFINITIONS:
 # -----------------------------------------------------------------------------
-@given(u'I setup the current values for active tags with')
+@given("I setup the current values for active tags with")
 def step_given_setup_the_current_values_for_active_tags_with(context):
     assert context.table, "REQUIRE: table"
     context.table.require_columns(["category", "value"])
@@ -47,14 +47,16 @@ def step_given_setup_the_current_values_for_active_tags_with(context):
         active_values[category] = value
 
 
-@then(u'the following active tag combinations are enabled')
+@then("the following active tag combinations are enabled")
 def step_then_following_active_tags_combinations_are_enabled(context):
     assert context.table, "REQUIRE: table"
     assert context.active_value_provider, "REQUIRE: active_value_provider"
     context.table.require_columns(["tags", "enabled?"])
-    ignore_unknown_categories = getattr(context,
+    ignore_unknown_categories = getattr(
+        context,
         "active_tags_ignore_unknown_categories",
-        ActiveTagMatcher.ignore_unknown_categories)
+        ActiveTagMatcher.ignore_unknown_categories,
+    )
 
     table = context.table
     annotate_column_id = 0
@@ -77,10 +79,11 @@ def step_then_following_active_tags_combinations_are_enabled(context):
     assert_that(mismatched_rows, equal_to([]), "No mismatched rows:")
 
 
-@step(u'unknown categories are ignored in active tags')
+@step("unknown categories are ignored in active tags")
 def step_unknown_categories_are_ignored_in_active_tags(context):
     context.active_tags_ignore_unknown_categories = True
 
-@step(u'unknown categories are not ignored in active tags')
+
+@step("unknown categories are not ignored in active tags")
 def step_unknown_categories_are_not_ignored_in_active_tags(context):
     context.active_tags_ignore_unknown_categories = False

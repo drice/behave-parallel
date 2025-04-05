@@ -16,6 +16,7 @@ from types import ModuleType
 import os.path
 import sys
 from behave import step_registry as _step_registry
+
 # from behave import matchers as _matchers
 import six
 
@@ -26,10 +27,12 @@ import six
 def setup_api_with_step_decorators(module, step_registry):
     _step_registry.setup_step_decorators(module, step_registry)
 
+
 def setup_api_with_matcher_functions(module, matcher_factory):
     module.use_step_matcher = matcher_factory.use_step_matcher
     module.step_matcher = matcher_factory.use_step_matcher
     module.register_type = matcher_factory.register_type
+
 
 # -----------------------------------------------------------------------------
 # FAKE MODULE CLASSES: For step imports
@@ -48,9 +51,16 @@ class StepRegistryModule(FakeModule):
     """Provides a fake :mod:`behave.step_registry` module
     that can be used during step imports.
     """
+
     __all__ = [
-        "given", "when", "then", "step",
-        "Given", "When", "Then", "Step",
+        "given",
+        "when",
+        "then",
+        "step",
+        "Given",
+        "When",
+        "Then",
+        "Step",
     ]
 
     def __init__(self, step_registry):
@@ -119,7 +129,6 @@ class BehaveModule(FakeModule):
 
 
 class StepImportModuleContext(object):
-
     def __init__(self, step_container):
         self.step_registry = step_container.step_registry
         self.matcher_factory = step_container.matcher_factory
@@ -139,8 +148,10 @@ class StepImportModuleContext(object):
     def reset_current_matcher(self):
         self.matcher_factory.use_default_step_matcher()
 
+
 _step_import_lock = Lock()
 unknown = object()
+
 
 @contextmanager
 def use_step_import_modules(step_container):

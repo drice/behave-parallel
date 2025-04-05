@@ -17,34 +17,39 @@ class TestParseUserDefine(object):
         parts = parse_user_define("boolean_flag")
         assert parts == ("boolean_flag", "true")
 
-
-    @pytest.mark.parametrize("text", [
-        "  person=Alice",
-        "person=Alice  ",
-        "person = Alice",
-    ])
+    @pytest.mark.parametrize(
+        "text",
+        [
+            "  person=Alice",
+            "person=Alice  ",
+            "person = Alice",
+        ],
+    )
     def test_parse__name_value_with_padded_whitespace(self, text):
         parts = parse_user_define(text)
         assert parts == ("person", "Alice")
 
-
-    @pytest.mark.parametrize("text", [
-        '"person=Alice and Bob"',
-        "'person=Alice and Bob'",
-    ])
+    @pytest.mark.parametrize(
+        "text",
+        [
+            '"person=Alice and Bob"',
+            "'person=Alice and Bob'",
+        ],
+    )
     def test_parse__name_value_with_quoted_name_value_pair(self, text):
         parts = parse_user_define(text)
         assert parts == ("person", "Alice and Bob")
 
-    @pytest.mark.parametrize("text", [
-        'person="Alice and Bob"',
-        "person='Alice and Bob'",
-    ])
+    @pytest.mark.parametrize(
+        "text",
+        [
+            'person="Alice and Bob"',
+            "person='Alice and Bob'",
+        ],
+    )
     def test_parse__name_value_with_quoted_value(self, text):
         parts = parse_user_define(text)
         assert parts == ("person", "Alice and Bob")
-
-
 
 
 class TestUserData(object):
@@ -108,12 +113,11 @@ class TestUserData(object):
         assert isinstance(value, int)
         assert value == 123
 
-
     def test_getint__with_known_param_and_valid_text(self):
         userdata = UserData(param="42")
         value = userdata.getint("param")
         assert isinstance(value, int)
-        assert value ==  42
+        assert value == 42
 
     def test_getint__with_known_param_and_invalid_text_raises_ValueError(self):
         userdata = UserData(param="__BAD_NUMBER__")
@@ -154,10 +158,7 @@ class TestUserData(object):
         assert isinstance(value, float)
         assert value == 1.2
 
-
-    @pytest.mark.parametrize("text", [
-        "true", "TRUE", "True", "yes", "on", "1"
-    ])
+    @pytest.mark.parametrize("text", ["true", "TRUE", "True", "yes", "on", "1"])
     def test_getbool__with_known_param_and_valid_true_text(self, text):
         true_text = text
         userdata = UserData(param=true_text)
@@ -165,9 +166,7 @@ class TestUserData(object):
         assert isinstance(value, bool), "text=%s" % true_text
         assert value is True
 
-    @pytest.mark.parametrize("text", [
-        "false", "FALSE", "False", "no", "off", "0"
-    ])
+    @pytest.mark.parametrize("text", ["false", "FALSE", "False", "no", "off", "0"])
     def test_getbool__with_known_param_and_valid_false_text(self, text):
         false_text = text
         userdata = UserData(param=false_text)
@@ -193,7 +192,6 @@ class TestUserData(object):
 
 
 class TestUserDataNamespace(object):
-
     def test_make_scoped(self):
         scoped_name = UserDataNamespace.make_scoped("my.scope", "param")
         assert scoped_name == "my.scope.param"
@@ -258,14 +256,14 @@ class TestUserDataNamespace(object):
     def test_getbool__returns_default_when_scoped_param_not_exists(self):
         userdata = UserData({})
         config = UserDataNamespace("my.scope", userdata)
-        assert config.getint("UNKNOWN_PARAM", True)  == True
+        assert config.getint("UNKNOWN_PARAM", True) == True
         assert config.getint("UNKNOWN_PARAM", False) == False
 
     def test_contains__when_scoped_param_exists(self):
         userdata = UserData({"my.scope.param": 12})
         config = UserDataNamespace("my.scope", userdata)
         assert "param" in config
-        assert not("param" not in config)
+        assert not ("param" not in config)
 
     def test_contains__when_scoped_param_not_exists(self):
         userdata = UserData({"my.scope.param": 12})
@@ -301,18 +299,22 @@ class TestUserDataNamespace(object):
 
     def test_length__with_scoped_params(self):
         userdata1 = UserData({"my.scope.param1": "123"})
-        userdata2 = UserData({
-            "my.other_scope.param1": "123",
-            "my.scope.param1": "123",
-            "my.scope.param2": "456",
-        })
-        userdata3 = UserData({
-            "my.other_scope.param1": "123",
-            "my.scope.param1": "123",
-            "my.scope.param2": "456",
-            "my.scope.param3": "789",
-            "my.other_scope.param2": "123",
-        })
+        userdata2 = UserData(
+            {
+                "my.other_scope.param1": "123",
+                "my.scope.param1": "123",
+                "my.scope.param2": "456",
+            }
+        )
+        userdata3 = UserData(
+            {
+                "my.other_scope.param1": "123",
+                "my.scope.param1": "123",
+                "my.scope.param2": "456",
+                "my.scope.param3": "789",
+                "my.other_scope.param2": "123",
+            }
+        )
         config = UserDataNamespace("my.scope")
         config.data = userdata1
         assert len(config) == 1
@@ -322,41 +324,49 @@ class TestUserDataNamespace(object):
         assert len(config) == 3
 
     def test_scoped_keys__with_scoped_params(self):
-        userdata = UserData({
-            "my.other_scope.param1": "123",
-            "my.scope.param1": "123",
-            "my.scope.param2": "456",
-            "my.other_scope.param2": "123",
-        })
+        userdata = UserData(
+            {
+                "my.other_scope.param1": "123",
+                "my.scope.param1": "123",
+                "my.scope.param2": "456",
+                "my.other_scope.param2": "123",
+            }
+        )
         config = UserDataNamespace("my.scope", userdata)
         assert sorted(config.scoped_keys()) == ["my.scope.param1", "my.scope.param2"]
 
     def test_keys__with_scoped_params(self):
-        userdata = UserData({
-            "my.other_scope.param1": "__OTHER1__",
-            "my.scope.param1": "123",
-            "my.scope.param2": "456",
-            "my.other_scope.param2": "__OTHER2__",
-        })
+        userdata = UserData(
+            {
+                "my.other_scope.param1": "__OTHER1__",
+                "my.scope.param1": "123",
+                "my.scope.param2": "456",
+                "my.other_scope.param2": "__OTHER2__",
+            }
+        )
         config = UserDataNamespace("my.scope", userdata)
         assert sorted(config.keys()) == ["param1", "param2"]
 
     def test_values__with_scoped_params(self):
-        userdata = UserData({
-            "my.other_scope.param1": "__OTHER1__",
-            "my.scope.param1": "123",
-            "my.scope.param2": "456",
-            "my.other_scope.param2": "__OTHER2__",
-        })
+        userdata = UserData(
+            {
+                "my.other_scope.param1": "__OTHER1__",
+                "my.scope.param1": "123",
+                "my.scope.param2": "456",
+                "my.other_scope.param2": "__OTHER2__",
+            }
+        )
         config = UserDataNamespace("my.scope", userdata)
         assert sorted(config.values()) == ["123", "456"]
 
     def test_items__with_scoped_params(self):
-        userdata = UserData({
-            "my.other_scope.param1": "__OTHER1__",
-            "my.scope.param1": "123",
-            "my.scope.param2": "456",
-            "my.other_scope.param2": "__OTHER2__",
-        })
+        userdata = UserData(
+            {
+                "my.other_scope.param1": "__OTHER1__",
+                "my.scope.param1": "123",
+                "my.scope.param2": "456",
+                "my.other_scope.param2": "__OTHER2__",
+            }
+        )
         config = UserDataNamespace("my.scope", userdata)
         assert sorted(config.items()) == [("param1", "123"), ("param2", "456")]

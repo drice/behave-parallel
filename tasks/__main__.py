@@ -67,4 +67,5 @@ os.environ["INVOKE_TASKS_USE_VENDOR_BUNDLES"] = "yes"
 # -----------------------------------------------------------------------------
 if __name__ == "__main__":
     from invoke.main import program
+
     sys.exit(program.run())

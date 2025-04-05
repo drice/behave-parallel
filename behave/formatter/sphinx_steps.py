@@ -23,9 +23,11 @@ import sys
 from behave.formatter.steps import AbstractStepsFormatter
 from behave.formatter import sphinx_util
 from behave.model import Table
+
 try:
     # -- NEEDED FOR: step-labels (and step-refs)
     from docutils.nodes import fully_normalize_name
+
     has_docutils = True
 except ImportError:
     has_docutils = False
@@ -44,7 +46,6 @@ class StepsModule(object):
         self.step_definitions = step_definitions or []
         self._name = None
         self._filename = None
-
 
     @property
     def name(self):
@@ -104,6 +105,7 @@ class SphinxStepsDocumentGenerator(object):
 
     .. seealso:: http://sphinx-doc.org/
     """
+
     default_step_definition_doc = """\
 .. todo::
     Step definition description is missing.
@@ -143,7 +145,7 @@ class SphinxStepsDocumentGenerator(object):
         step_text = step_definition.pattern
         if "`" in step_text:
             step_text = step_text.replace("`", r"\`")
-        return u"%s %s" % (step_type_text, step_text)
+        return "%s %s" % (step_type_text, step_text)
 
     def ensure_destdir_exists(self):
         assert self.destdir
@@ -167,16 +169,16 @@ class SphinxStepsDocumentGenerator(object):
             if not step_module:
                 filename = inspect.getfile(step_definition.func)
                 module_name = inspect.getmodulename(filename)
-                assert module_name, \
-                    "step_definition: %s" % step_definition.location
+                assert module_name, "step_definition: %s" % step_definition.location
                 step_module = StepsModule(module_name)
                 step_modules_map[step_filename] = step_module
             step_module.append(step_definition)
 
         step_modules = sorted(step_modules_map.values(), key=attrgetter("name"))
         for module in step_modules:
-            step_definitions = sorted(module.step_definitions,
-                                      key=attrgetter("location"))
+            step_definitions = sorted(
+                module.step_definitions, key=attrgetter("location")
+            )
             module.step_definitions = step_definitions
         return step_modules
 
@@ -209,8 +211,9 @@ The following step definitions are provided here.
 ----
 
 """)
-        entries = sorted([self.step_document_prefix + module.name
-                          for module in step_modules])
+        entries = sorted(
+            [self.step_document_prefix + module.name for module in step_modules]
+        )
         document.write_toctree(entries, maxdepth=1)
         document.close()
         if self.stdout_mode:
@@ -245,14 +248,14 @@ The following step definitions are provided here.
 
     def write_step_module_overview(self, step_definitions):
         assert self.document
-        headings = [u"Step Definition", u"Given", u"When", u"Then", u"Step"]
+        headings = ["Step Definition", "Given", "When", "Then", "Step"]
         table = Table(headings)
         step_type_cols = {
             # -- pylint: disable=bad-whitespace
-            "given": [u"  x", u"  ",  u"  ",  u"  "],
-            "when":  [u"  ",  u"  x", u"  ",  u"  "],
-            "then":  [u"  ",  u"  ",  u"  x", u"  "],
-            "step":  [u"  x", u"  x", u"  x", u"  x"],
+            "given": ["  x", "  ", "  ", "  "],
+            "when": ["  ", "  x", "  ", "  "],
+            "then": ["  ", "  ", "  x", "  "],
+            "step": ["  x", "  x", "  x", "  x"],
         }
         for step_definition in step_definitions:
             row = [self.describe_step_definition(step_definition)]
@@ -306,12 +309,12 @@ The following step definitions are provided here.
             # EXAMPLE: See also :ref:`When my step does "{something}"`.
             step_label = fully_normalize_name(step_text)
             # SKIP-HERE: self.document.write(".. _%s:\n\n" % step_label)
-        self.document.write_heading(heading, level=2, index_id=index_id,
-                                    label=step_label)
+        self.document.write_heading(
+            heading, level=2, index_id=index_id, label=step_label
+        )
         step_definition_doc = self.make_step_definition_doc(step)
         self.document.write("%s\n" % step_definition_doc)
         self.document.write("\n")
-
 
 
 # -----------------------------------------------------------------------------
@@ -329,6 +332,7 @@ class SphinxStepsFormatter(AbstractStepsFormatter):
         Supports dry-run mode.
         Supports destination directory mode to write multiple documents.
     """
+
     name = "sphinx.steps"
     description = "Generate sphinx-based documentation for step definitions."
     doc_generator_class = SphinxStepsDocumentGenerator

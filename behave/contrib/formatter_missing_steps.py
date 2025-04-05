@@ -40,6 +40,7 @@ class MissingStepsFormatter(StepsUsageFormatter):
 
             {step_snippets}
     """
+
     name = "missing-steps"
     description = "Writes implementation for missing step definitions."
     template = STEP_MODULE_TEMPLATE
@@ -51,7 +52,7 @@ class MissingStepsFormatter(StepsUsageFormatter):
         self.init_from_userdata(config.userdata)
 
     def init_from_userdata(self, userdata):
-        scoped_name = "%s.%s" %(self.scope, "template")
+        scoped_name = "%s.%s" % (self.scope, "template")
         template_text = userdata.get(scoped_name, self.template)
         self.template = template_text
 
@@ -72,9 +73,10 @@ class MissingStepsFormatter(StepsUsageFormatter):
         """Writes missing step implementations by using step snippets."""
         step_snippets = make_undefined_step_snippets(self.undefined_steps)
         encoding = self.stream.encoding or "UTF-8"
-        function_separator = u"\n\n\n"
+        function_separator = "\n\n\n"
         step_snippets_text = function_separator.join(step_snippets)
-        module_text = self.template.format(encoding=encoding,
-                                           step_snippets=step_snippets_text)
+        module_text = self.template.format(
+            encoding=encoding, step_snippets=step_snippets_text
+        )
         self.stream.write(module_text)
         self.stream.write("\n")

@@ -105,9 +105,9 @@ def iscoroutinefunction(func):
     # -- NOTE: inspect.iscoroutinefunction() is available since Python 3.5
     #    Checks also if @asyncio.coroutine decorator is not used.
     # pylint: disable=no-member
-    return (getattr(func, "_is_coroutine", False) or
-            (hasattr(inspect, "iscoroutinefunction") and
-             inspect.iscoroutinefunction(func)))
+    return getattr(func, "_is_coroutine", False) or (
+        hasattr(inspect, "iscoroutinefunction") and inspect.iscoroutinefunction(func)
+    )
 
 
 def is_context_manager(func):
@@ -159,7 +159,7 @@ def _setup_fixture(fixture_func, context, *fixture_args, **fixture_kwargs):
         # -- CASE: Fixture function is a two-step generator (setup, cleanup).
         def cleanup_fixture():
             try:
-                next(func_it)           # CLEANUP-FIXTURE PART
+                next(func_it)  # CLEANUP-FIXTURE PART
                 # -- USE func_it: From outer scope (here).
             except StopIteration:
                 return False
@@ -176,7 +176,7 @@ def _setup_fixture(fixture_func, context, *fixture_args, **fixture_kwargs):
         #  NOTE: cleanup_fixture() is called when context layer is removed.
         func_it = fixture_func(context, *fixture_args, **fixture_kwargs)
         context.add_cleanup(cleanup_fixture)
-        setup_result = next(func_it) # SETUP-FIXTURE PART (may raise error)
+        setup_result = next(func_it)  # SETUP-FIXTURE PART (may raise error)
     else:
         # -- CASE: Fixture is a simple function (setup-only)
         # NOTE: No cleanup is registered (not needed by intention of user)
@@ -348,7 +348,6 @@ def use_composite_fixture_with(context, fixture_funcs_with_params):
     return composite_fixture
 
 
-
 # -------------------------------------------------------------------------------
 # DECORATORS:
 # -------------------------------------------------------------------------------
@@ -381,6 +380,7 @@ def fixture(func=None, name=None, pattern=None):
         * :func:`contextlib.contextmanager` decorator
         * `@pytest.fixture`_
     """
+
     def mark_as_fixture(func, name=None, pattern=None):
         func.name = name
         func.pattern = pattern
@@ -392,6 +392,7 @@ def fixture(func=None, name=None, pattern=None):
         # CASE: @fixture(name="foo")
         def decorator(func):
             return mark_as_fixture(func, name, pattern=pattern)
+
         return decorator
     elif callable(func):
         # CASE: @fixture

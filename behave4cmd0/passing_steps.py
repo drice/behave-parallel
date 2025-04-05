@@ -17,15 +17,17 @@ EXAMPLES:
 from __future__ import absolute_import
 from behave import step, then
 
+
 # -----------------------------------------------------------------------------
 # STEPS FOR: passing
 # -----------------------------------------------------------------------------
-@step('{word:w} step passes')
+@step("{word:w} step passes")
 def step_passes(context, word):
     """
     Step that always fails, mostly needed in examples.
     """
     pass
+
 
 @then('it should pass because "{reason}"')
 def then_it_should_pass_because(context, reason):
@@ -33,4 +35,3 @@ def then_it_should_pass_because(context, reason):
     Self documenting step that indicates some reason.
     """
     pass
-

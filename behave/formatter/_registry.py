@@ -12,14 +12,17 @@ import six
 # -----------------------------------------------------------------------------
 _formatter_registry = LazyDict()
 
+
 def format_iter():
     return iter(_formatter_registry.keys())
+
 
 def format_items(resolved=False):
     if resolved:
         # -- ENSURE: All formatter classes are loaded (and resolved).
         _formatter_registry.load_all(strict=False)
     return iter(_formatter_registry.items())
+
 
 def register_as(name, formatter_class):
     """
@@ -33,8 +36,9 @@ def register_as(name, formatter_class):
     """
     if not isinstance(name, six.string_types):
         # -- REORDER-PARAMS: Used old ordering before behave-1.2.5 (2015).
-        warnings.warn("Use parameter ordering: name, formatter_class (for: %s)"\
-                      % formatter_class)
+        warnings.warn(
+            "Use parameter ordering: name, formatter_class (for: %s)" % formatter_class
+        )
         _formatter_class = name
         name = formatter_class
         formatter_class = _formatter_class
@@ -43,12 +47,15 @@ def register_as(name, formatter_class):
         # -- SPEEDUP-STARTUP: Only import formatter_class when used.
         scoped_formatter_class_name = formatter_class
         formatter_class = LazyObject(scoped_formatter_class_name)
-    assert (isinstance(formatter_class, LazyObject) or
-            issubclass(formatter_class, Formatter))
+    assert isinstance(formatter_class, LazyObject) or issubclass(
+        formatter_class, Formatter
+    )
     _formatter_registry[name] = formatter_class
+
 
 def register(formatter_class):
     register_as(formatter_class.name, formatter_class)
+
 
 def register_formats(formats):
     """Register many format items into the registry.
@@ -57,6 +64,7 @@ def register_formats(formats):
     """
     for formatter_name, formatter_class_name in formats:
         register_as(formatter_name, formatter_class_name)
+
 
 def load_formatter_class(scoped_class_name):
     """Load a formatter class by using its scoped class name.

@@ -15,8 +15,14 @@ from behave.textutil import text as _text
 # names = names + " " + names.title()
 # __all__ = names.split()
 __all__ = [
-    "given", "when", "then", "step",    # PREFERRED.
-    "Given", "When", "Then", "Step"     # Also possible.
+    "given",
+    "when",
+    "then",
+    "step",  # PREFERRED.
+    "Given",
+    "When",
+    "Then",
+    "Step",  # Also possible.
 ]
 
 
@@ -35,9 +41,11 @@ class StepRegistry(object):
 
     @staticmethod
     def same_step_definition(step, other_pattern, other_location):
-        return (step.pattern == other_pattern and
-                step.location == other_location and
-                other_location.filename != "<string>")
+        return (
+            step.pattern == other_pattern
+            and step.location == other_location
+            and other_location.filename != "<string>"
+        )
 
     def add_step_definition(self, keyword, step_text, func):
         step_location = Match.make_location(func)
@@ -49,12 +57,12 @@ class StepRegistry(object):
                 # -- EXACT-STEP: Same step function is already registered.
                 # This may occur when a step module imports another one.
                 return
-            elif existing.match(step_text):     # -- SIMPLISTIC
-                message = u"%s has already been defined in\n  existing step %s"
-                new_step = u"@%s('%s')" % (step_type, step_text)
+            elif existing.match(step_text):  # -- SIMPLISTIC
+                message = "%s has already been defined in\n  existing step %s"
+                new_step = "@%s('%s')" % (step_type, step_text)
                 existing.step_type = step_type
                 existing_step = existing.describe()
-                existing_step += u" at %s" % existing.location
+                existing_step += " at %s" % existing.location
                 raise AmbiguousStep(message % (new_step, existing_step))
         step_definitions.append(get_matcher(func, step_text))
 
@@ -91,11 +99,14 @@ class StepRegistry(object):
             def wrapper(func):
                 self.add_step_definition(step_type, step_text, func)
                 return func
+
             return wrapper
+
         return decorator
 
 
 registry = StepRegistry()
+
 
 # -- Create the decorators
 # pylint: disable=redefined-outer-name
@@ -105,6 +116,7 @@ def setup_step_decorators(run_context=None, registry=registry):
     for step_type in ("given", "when", "then", "step"):
         step_decorator = registry.make_decorator(step_type)
         run_context[step_type.title()] = run_context[step_type] = step_decorator
+
 
 # -----------------------------------------------------------------------------
 # MODULE INIT:

@@ -39,6 +39,7 @@ class RerunFormatter(Formatter):
     during the last test run. This output can be used to rerun the tests
     with the failed scenarios.
     """
+
     name = "rerun"
     description = "Emits scenario file locations of failing scenarios"
 
@@ -88,11 +89,11 @@ class RerunFormatter(Formatter):
     def report_scenario_failures(self):
         assert self.failed_scenarios
         # -- SECTION: Banner
-        message = u"# -- RERUN: %d failing scenarios during last test run.\n"
+        message = "# -- RERUN: %d failing scenarios during last test run.\n"
         self.stream.write(message % len(self.failed_scenarios))
         if self.show_timestamp:
             now = datetime.now().replace(microsecond=0)
-            self.stream.write("# NOW: %s\n"% now.isoformat(" "))
+            self.stream.write("# NOW: %s\n" % now.isoformat(" "))
 
         # -- SECTION: Textual summary in comments.
         if self.show_failed_scenarios_descriptions:
@@ -100,15 +101,14 @@ class RerunFormatter(Formatter):
             for index, scenario in enumerate(self.failed_scenarios):
                 if current_feature != scenario.filename:
                     if current_feature is not None:
-                        self.stream.write(u"#\n")
+                        self.stream.write("#\n")
                     current_feature = scenario.filename
                     short_filename = relpath(scenario.filename, os.getcwd())
-                    self.stream.write(u"# %s\n" % short_filename)
-                self.stream.write(u"#  %4d:  %s\n" % \
-                                  (scenario.line, scenario.name))
+                    self.stream.write("# %s\n" % short_filename)
+                self.stream.write("#  %4d:  %s\n" % (scenario.line, scenario.name))
             self.stream.write("\n")
 
         # -- SECTION: Scenario file locations, ala: "alice.feature:10"
         for scenario in self.failed_scenarios:
-            self.stream.write(u"%s\n" % scenario.location)
+            self.stream.write("%s\n" % scenario.location)
         self.stream.write("\n")

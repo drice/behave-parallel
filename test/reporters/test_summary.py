@@ -18,7 +18,7 @@ class TestFormatStatus(object):
             Status.undefined.name: 0,
         }
 
-        assert format_summary('fnord', summary).startswith('1 fnord passed')
+        assert format_summary("fnord", summary).startswith("1 fnord passed")
 
     def test_passed_entry_is_pluralised(self):
         summary = {
@@ -28,7 +28,7 @@ class TestFormatStatus(object):
             Status.undefined.name: 0,
         }
 
-        assert format_summary('fnord', summary).startswith('10 fnords passed')
+        assert format_summary("fnord", summary).startswith("10 fnords passed")
 
     def test_remaining_fields_are_present(self):
         summary = {
@@ -38,11 +38,11 @@ class TestFormatStatus(object):
             Status.undefined.name: 3,
         }
 
-        output = format_summary('fnord', summary)
+        output = format_summary("fnord", summary)
 
-        assert '1 skipped' in output
-        assert '2 failed' in output
-        assert '3 undefined' in output
+        assert "1 skipped" in output
+        assert "2 failed" in output
+        assert "3 undefined" in output
 
     def test_missing_fields_are_not_present(self):
         summary = {
@@ -51,14 +51,15 @@ class TestFormatStatus(object):
             Status.failed.name: 2,
         }
 
-        output = format_summary('fnord', summary)
+        output = format_summary("fnord", summary)
 
-        assert '1 skipped' in output
-        assert '2 failed' in output
+        assert "1 skipped" in output
+        assert "2 failed" in output
         assert Status.undefined.name not in output
 
+
 class TestSummaryReporter(object):
-    @patch('sys.stdout')
+    @patch("sys.stdout")
     def test_duration_is_totalled_up_and_outputted(self, stdout):
         features = [Mock(), Mock(), Mock(), Mock()]
         features[0].duration = 1.9
@@ -86,13 +87,12 @@ class TestSummaryReporter(object):
         minutes = int(reporter.duration / 60.0)
         seconds = reporter.duration % 60
 
-        assert '%dm' % (minutes,) in output
-        assert '%02.1f' % (seconds,) in output
+        assert "%dm" % (minutes,) in output
+        assert "%02.1f" % (seconds,) in output
 
-    @patch('sys.stdout')
-    @patch('behave.reporter.summary.format_summary')
-    def test_feature_status_is_collected_and_reported(self, format_summary,
-                                                      stdout):
+    @patch("sys.stdout")
+    @patch("behave.reporter.summary.format_summary")
+    def test_feature_status_is_collected_and_reported(self, format_summary, stdout):
         features = [Mock(), Mock(), Mock(), Mock(), Mock()]
         features[0].duration = 1.9
         features[0].status = Status.passed
@@ -124,12 +124,11 @@ class TestSummaryReporter(object):
             Status.untested.name: 1,
         }
 
-        eq_(format_summary.call_args_list[0][0], ('feature', expected))
+        eq_(format_summary.call_args_list[0][0], ("feature", expected))
 
-    @patch('sys.stdout')
-    @patch('behave.reporter.summary.format_summary')
-    def test_scenario_status_is_collected_and_reported(self, format_summary,
-                                                       stdout):
+    @patch("sys.stdout")
+    @patch("behave.reporter.summary.format_summary")
+    def test_scenario_status_is_collected_and_reported(self, format_summary, stdout):
         feature = Mock()
         scenarios = [Mock(), Mock(), Mock(), Mock(), Mock()]
         scenarios[0].status = Status.failed
@@ -160,16 +159,21 @@ class TestSummaryReporter(object):
             Status.untested.name: 1,
         }
 
-        eq_(format_summary.call_args_list[1][0], ('scenario', expected))
+        eq_(format_summary.call_args_list[1][0], ("scenario", expected))
 
-    @patch('behave.reporter.summary.format_summary')
-    @patch('sys.stdout')
-    def test_scenario_outline_status_is_collected_and_reported(self, stdout,
-                                                               format_summary):
+    @patch("behave.reporter.summary.format_summary")
+    @patch("sys.stdout")
+    def test_scenario_outline_status_is_collected_and_reported(
+        self, stdout, format_summary
+    ):
         feature = Mock()
-        scenarios = [ ScenarioOutline(u"<string>", 0, u"scenario_outline", u"name"),
-                      Mock(), Mock(), Mock() ]
-        subscenarios = [ Mock(), Mock(), Mock(), Mock() ]
+        scenarios = [
+            ScenarioOutline("<string>", 0, "scenario_outline", "name"),
+            Mock(),
+            Mock(),
+            Mock(),
+        ]
+        subscenarios = [Mock(), Mock(), Mock(), Mock()]
         subscenarios[0].status = Status.passed
         subscenarios[0].__iter__ = Mock(return_value=iter([]))
         subscenarios[1].status = Status.failed
@@ -201,14 +205,13 @@ class TestSummaryReporter(object):
             Status.failed.name: 3,
             Status.skipped.name: 2,
             Status.untested.name: 0,
-            }
+        }
 
-        eq_(format_summary.call_args_list[1][0], ('scenario', expected))
+        eq_(format_summary.call_args_list[1][0], ("scenario", expected))
 
-    @patch('sys.stdout')
-    @patch('behave.reporter.summary.format_summary')
-    def test_step_status_is_collected_and_reported(self, format_summary,
-                                                   stdout):
+    @patch("sys.stdout")
+    @patch("behave.reporter.summary.format_summary")
+    def test_step_status_is_collected_and_reported(self, format_summary, stdout):
         feature = Mock()
         scenario = Mock()
         steps = [Mock(), Mock(), Mock(), Mock(), Mock()]
@@ -243,4 +246,4 @@ class TestSummaryReporter(object):
             Status.undefined.name: 1,
         }
 
-        eq_(format_summary.call_args_list[2][0], ('step', expected))
+        eq_(format_summary.call_args_list[2][0], ("step", expected))

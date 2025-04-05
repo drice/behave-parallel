@@ -44,12 +44,12 @@ from .testing_support_async import AsyncStepTheory
 _python_version = float("%s.%s" % sys.version_info[:2])
 py35_or_newer = pytest.mark.skipif(_python_version < 3.5, reason="Needs Python >= 3.5")
 
+
 # -----------------------------------------------------------------------------
 # TESTSUITE:
 # -----------------------------------------------------------------------------
 @py35_or_newer
 class TestAsyncStepDecoratorPy35(object):
-
     def test_step_decorator_async_run_until_complete1(self):
         step_container = SimpleStepContainer()
         with use_step_import_modules(step_container):
@@ -88,16 +88,15 @@ class TestAsyncStepRunPy35(object):
             from behave import given, when
             from behave.api.async_step import async_run_until_complete
 
-            @given('an async-step passes')
+            @given("an async-step passes")
             @async_run_until_complete
             async def given_async_step_passes(context):
                 context.traced_steps.append("async-step1")
 
-            @when('an async-step passes')
+            @when("an async-step passes")
             @async_run_until_complete
             async def when_async_step_passes(context):
                 context.traced_steps.append("async-step2")
-
 
         # -- RUN ASYNC-STEP: Verify that async-steps can be executed.
         context = Context(runner=Runner(config={}))
@@ -105,7 +104,6 @@ class TestAsyncStepRunPy35(object):
         given_async_step_passes(context)
         when_async_step_passes(context)
         assert context.traced_steps == ["async-step1", "async-step2"]
-
 
     def test_async_step_fails(self):
         """ENSURE: Failures in async-steps are detected correctly."""
@@ -116,7 +114,7 @@ class TestAsyncStepRunPy35(object):
             from behave import when
             from behave.api.async_step import async_run_until_complete
 
-            @when('an async-step fails')
+            @when("an async-step fails")
             @async_run_until_complete
             async def when_async_step_fails(context):
                 assert False, "XFAIL in async-step"
@@ -125,7 +123,6 @@ class TestAsyncStepRunPy35(object):
         context = Context(runner=Runner(config={}))
         with pytest.raises(AssertionError):
             when_async_step_fails(context)
-
 
     def test_async_step_raises_exception(self):
         """ENSURE: Failures in async-steps are detected correctly."""
@@ -136,10 +133,10 @@ class TestAsyncStepRunPy35(object):
             from behave import when
             from behave.api.async_step import async_run_until_complete
 
-            @when('an async-step raises exception')
+            @when("an async-step raises exception")
             @async_run_until_complete
             async def when_async_step_raises_exception(context):
-                1 / 0   # XFAIL-HERE: Raises ZeroDivisionError
+                1 / 0  # XFAIL-HERE: Raises ZeroDivisionError
 
         # -- RUN ASYNC-STEP: Verify that raised exception is detected.
         context = Context(runner=Runner(config={}))

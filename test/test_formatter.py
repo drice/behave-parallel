@@ -7,7 +7,7 @@ import tempfile
 import unittest
 import six
 from mock import Mock, patch
-from nose.tools import *    # pylint: disable=wildcard-import, unused-wildcard-import
+from nose.tools import *  # pylint: disable=wildcard-import, unused-wildcard-import
 
 from behave.formatter._registry import make_formatters
 from behave.formatter import pretty
@@ -31,7 +31,7 @@ class TestGetTerminalSize(unittest.TestCase):
         if self.ioctl_patch:
             self.ioctl_patch.stop()
 
-    def test_windows_fallback(self):    # pylint: disable=no-self-use
+    def test_windows_fallback(self):  # pylint: disable=no-self-use
         platform = sys.platform
         sys.platform = "windows"
 
@@ -39,9 +39,10 @@ class TestGetTerminalSize(unittest.TestCase):
 
         sys.platform = platform
 
-    def test_termios_fallback(self):    # pylint: disable=no-self-use
+    def test_termios_fallback(self):  # pylint: disable=no-self-use
         try:
             import termios
+
             return
         except ImportError:
             pass
@@ -54,7 +55,7 @@ class TestGetTerminalSize(unittest.TestCase):
         except ImportError:
             return
 
-        def raiser(*args, **kwargs):    # pylint: disable=unused-argument
+        def raiser(*args, **kwargs):  # pylint: disable=unused-argument
             raise Exception("yeehar!")
 
         self.ioctl.side_effect = raiser
@@ -97,7 +98,7 @@ def _tf():
 
 
 class FormatterTests(unittest.TestCase):
-    formatter_name = "plain"    # SANE DEFAULT, overwritten by concrete classes
+    formatter_name = "plain"  # SANE DEFAULT, overwritten by concrete classes
 
     def setUp(self):
         self.config = Mock()
@@ -106,6 +107,7 @@ class FormatterTests(unittest.TestCase):
         self.config.format = [self.formatter_name]
 
     _line = 0
+
     @property
     def line(self):
         self._line += 1
@@ -117,22 +119,36 @@ class FormatterTests(unittest.TestCase):
         f.uri("<string>")
         return f
 
-    def _feature(self, keyword=u"k\xe9yword", name=u"name", tags=None,
-                 location=u"location", # pylint: disable=unused-argument
-                 description=None, scenarios=None, background=None):
+    def _feature(
+        self,
+        keyword="k\xe9yword",
+        name="name",
+        tags=None,
+        location="location",  # pylint: disable=unused-argument
+        description=None,
+        scenarios=None,
+        background=None,
+    ):
         if tags is None:
-            tags = [u"spam", u"ham"]
+            tags = ["spam", "ham"]
         if description is None:
-            description = [u"description"]
+            description = ["description"]
         if scenarios is None:
             scenarios = []
         line = self.line
         tags = [Tag(name, line) for name in tags]
-        return Feature("<string>", line, keyword, name, tags=tags,
-                       description=description, scenarios=scenarios,
-                       background=background)
+        return Feature(
+            "<string>",
+            line,
+            keyword,
+            name,
+            tags=tags,
+            description=description,
+            scenarios=scenarios,
+            background=background,
+        )
 
-    def _scenario(self, keyword=u"k\xe9yword", name=u"name", tags=None, steps=None):
+    def _scenario(self, keyword="k\xe9yword", name="name", tags=None, steps=None):
         if tags is None:
             tags = []
         if steps is None:
@@ -141,13 +157,18 @@ class FormatterTests(unittest.TestCase):
         tags = [Tag(name, line) for name in tags]
         return Scenario("<string>", line, keyword, name, tags=tags, steps=steps)
 
-    def _step(self, keyword=u"k\xe9yword", step_type="given", name=u"name",
-              text=None, table=None):
+    def _step(
+        self,
+        keyword="k\xe9yword",
+        step_type="given",
+        name="name",
+        text=None,
+        table=None,
+    ):
         line = self.line
-        return Step("<string>", line, keyword, step_type, name, text=text,
-                    table=table)
+        return Step("<string>", line, keyword, step_type, name, text=text, table=table)
 
-    def _match(self, arguments=None):   # pylint: disable=no-self-use
+    def _match(self, arguments=None):  # pylint: disable=no-self-use
         def dummy():
             pass
 
@@ -199,7 +220,7 @@ class TestTagsCount(FormatterTests):
     def test_tag_counts(self):
         p = self._formatter(_tf(), self.config)
 
-        s = self._scenario(tags=[u"ham", u"foo"])
+        s = self._scenario(tags=["ham", "foo"])
         f = self._feature(scenarios=[s])  # feature.tags= ham, spam
         p.feature(f)
         p.scenario(s)
@@ -213,11 +234,10 @@ class MultipleFormattersTests(FormatterTests):
     def setUp(self):
         self.config = Mock()
         self.config.color = True
-        self.config.outputs = [StreamOpener(stream=sys.stdout)
-                               for i in self.formatters]
+        self.config.outputs = [StreamOpener(stream=sys.stdout) for i in self.formatters]
         self.config.format = self.formatters
 
-    def _formatters(self, file_object, config): # pylint: disable=no-self-use
+    def _formatters(self, file_object, config):  # pylint: disable=no-self-use
         stream_opener = StreamOpener(stream=file_object)
         formatters = make_formatters(config, [stream_opener])
         for f in formatters:
@@ -258,8 +278,10 @@ class MultipleFormattersTests(FormatterTests):
 class TestPrettyAndPlain(MultipleFormattersTests):
     formatters = ["pretty", "plain"]
 
+
 class TestPrettyAndJSON(MultipleFormattersTests):
     formatters = ["pretty", "json"]
+
 
 class TestJSONAndPlain(MultipleFormattersTests):
     formatters = ["json", "plain"]

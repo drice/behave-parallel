@@ -9,6 +9,7 @@ import pytest
 import codecs
 import six
 
+
 # -----------------------------------------------------------------------------
 # TEST SUPPORT:
 # -----------------------------------------------------------------------------
@@ -29,6 +30,7 @@ class ConvertableToUnicode(object):
         text_value31 = str(obj1)
         text_value32 = str(obj2)
     """
+
     encoding = "utf-8"
 
     def __init__(self, text, encoding=None):
@@ -98,6 +100,7 @@ class ConvertableToPy2String(object):
                 text = codecs.encode(text, self.encoding)
             return text
 
+
 # def raise_exception(exception_class, *args):
 #     raise exception_class(*args)
 #
@@ -115,8 +118,8 @@ class ConvertableToPy2String(object):
 xfail = pytest.mark.xfail
 requires_python2 = pytest.mark.skipif(not six.PY2, reason="requires python2")
 
-UNICODE_TEXT_VALUES1 = [u"Alice", u"Bob"]
-UNICODE_TEXT_VALUES = [u"Café", u"100€ (Euro)", u"Frühaufsteher"]
+UNICODE_TEXT_VALUES1 = ["Alice", "Bob"]
+UNICODE_TEXT_VALUES = ["Café", "100€ (Euro)", "Frühaufsteher"]
 BYTES_TEXT_TUPLES_WITH_UTF8_ENCODING = [
     (codecs.encode(_text, "utf-8"), _text) for _text in UNICODE_TEXT_VALUES
 ]
@@ -132,17 +135,20 @@ class TestTextConversion(object):
         assert actual_text == value
         assert id(actual_text) == value_id  # PARANOID check w/ unicode copy.
 
-    @pytest.mark.parametrize("bytes_value, expected_text",
-                             BYTES_TEXT_TUPLES_WITH_UTF8_ENCODING)
+    @pytest.mark.parametrize(
+        "bytes_value, expected_text", BYTES_TEXT_TUPLES_WITH_UTF8_ENCODING
+    )
     def test_text__with_bytes_value(self, bytes_value, expected_text):
         actual_text = text(bytes_value)
         assert actual_text == expected_text
 
-
-    @pytest.mark.parametrize("text_value, encoding", [
-        (u"Ärgernis", "UTF-8"),
-        (u"Übermut", "UTF-8"),
-    ])
+    @pytest.mark.parametrize(
+        "text_value, encoding",
+        [
+            ("Ärgernis", "UTF-8"),
+            ("Übermut", "UTF-8"),
+        ],
+    )
     def test_text__with_bytes_value_and_encoding(self, text_value, encoding):
         bytes_value = text_value.encode(encoding)
         assert isinstance(bytes_value, bytes)
@@ -151,7 +157,8 @@ class TestTextConversion(object):
         assert isinstance(actual, six.text_type)
         assert actual == text_value
 
-    def test_text__with_exception_traceback(self): pass
+    def test_text__with_exception_traceback(self):
+        pass
 
     @pytest.mark.parametrize("text_value", UNICODE_TEXT_VALUES)
     def test_text__with_object_convertable_to_unicode(self, text_value):
@@ -184,6 +191,7 @@ class TestTextConversion(object):
     def test_text__with_object_convertable_to_py2string_only(self, text_value):
         class ConvertableToPy2String(object):
             """Lacks feature: convertable-to-unicode (only: to-string)"""
+
             def __init__(self, message=""):
                 self.message = message or ""
                 if self.message and isinstance(self.message, six.text_type):
@@ -195,8 +203,8 @@ class TestTextConversion(object):
 
         obj = ConvertableToPy2String(text_value.encode("UTF-8"))
         actual = text(obj)
-        print(u"actual: %s" % actual)
-        print(u"text_value: %s" % text_value)
+        print("actual: %s" % actual)
+        print("text_value: %s" % text_value)
         assert actual == text_value
 
 
@@ -204,24 +212,21 @@ class TestObjectToTextConversion(object):
     """Unit tests for the :func:`behave.textutil.text()` function.
     Explore case with object-to-text conversion.
     """
+
     ENCODING = "UTF-8"
 
     # -- CASE: object=exception
-    @pytest.mark.parametrize("message", [
-        u"Ärgernis", u"Übermütig"
-    ])
+    @pytest.mark.parametrize("message", ["Ärgernis", "Übermütig"])
     def test_text__with_assert_failed_and_unicode_message(self, message):
         with pytest.raises(AssertionError) as e:
             assert False, message
 
         text2 = text(e)
-        expected = u"AssertionError: %s" % message
+        expected = "AssertionError: %s" % message
         assert text2.endswith(expected)
 
     @requires_python2
-    @pytest.mark.parametrize("message", [
-        u"Ärgernis", u"Übermütig"
-    ])
+    @pytest.mark.parametrize("message", ["Ärgernis", "Übermütig"])
     def test_text__with_assert_failed_and_bytes_message(self, message):
         # -- ONLY PYTHON2: Use case makes no sense for Python 3.
         bytes_message = message.encode(self.ENCODING)
@@ -232,37 +237,46 @@ class TestObjectToTextConversion(object):
             except UnicodeDecodeError as uni_error:
                 # -- SINCE: Python 2.7.15
                 decode_error_occured = True
-                expected_decode_error = "'ascii' codec can't decode byte 0xc3 in position 0"
+                expected_decode_error = (
+                    "'ascii' codec can't decode byte 0xc3 in position 0"
+                )
                 assert expected_decode_error in str(uni_error)
                 assert False, bytes_message.decode(self.ENCODING)
 
         print("decode_error_occured(ascii)=%s" % decode_error_occured)
         text2 = text(e)
-        expected = u"AssertionError: %s" % message
+        expected = "AssertionError: %s" % message
         assert text2.endswith(expected)
 
-    @pytest.mark.parametrize("exception_class, message", [
-        (AssertionError, u"Ärgernis"),
-        (RuntimeError, u"Übermütig"),
-    ])
-    def test_text__with_raised_exception_and_unicode_message(self,
-                                                             exception_class,
-                                                             message):
+    @pytest.mark.parametrize(
+        "exception_class, message",
+        [
+            (AssertionError, "Ärgernis"),
+            (RuntimeError, "Übermütig"),
+        ],
+    )
+    def test_text__with_raised_exception_and_unicode_message(
+        self, exception_class, message
+    ):
         with pytest.raises(exception_class) as e:
             raise exception_class(message)
 
         text2 = text(e)
-        expected = u"%s: %s" % (exception_class.__name__, message)
+        expected = "%s: %s" % (exception_class.__name__, message)
         assert isinstance(text2, six.text_type)
         assert text2.endswith(expected)
 
     @requires_python2
-    @pytest.mark.parametrize("exception_class, message", [
-        (AssertionError, u"Ärgernis"),
-        (RuntimeError, u"Übermütig"),
-    ])
-    def test_text__with_raised_exception_and_bytes_message(self, exception_class,
-                                                           message):
+    @pytest.mark.parametrize(
+        "exception_class, message",
+        [
+            (AssertionError, "Ärgernis"),
+            (RuntimeError, "Übermütig"),
+        ],
+    )
+    def test_text__with_raised_exception_and_bytes_message(
+        self, exception_class, message
+    ):
         # -- ONLY PYTHON2: Use case makes no sense for Python 3.
         bytes_message = message.encode(self.ENCODING)
         with pytest.raises(exception_class) as e:
@@ -270,9 +284,9 @@ class TestObjectToTextConversion(object):
 
         text2 = text(e)
         unicode_message = bytes_message.decode(self.ENCODING)
-        expected = u"%s: %s" % (exception_class.__name__, unicode_message)
+        expected = "%s: %s" % (exception_class.__name__, unicode_message)
         assert isinstance(text2, six.text_type)
         assert text2.endswith(expected)
         # -- DIAGNOSTICS:
-        print(u"text2: "+ text2)
-        print(u"expected: " + expected)
+        print("text2: " + text2)
+        print("expected: " + expected)

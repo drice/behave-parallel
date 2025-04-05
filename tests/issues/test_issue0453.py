@@ -26,6 +26,7 @@ from hamcrest.core import assert_that, equal_to
 from hamcrest.library import contains_string
 import six
 import pytest
+
 if six.PY2:
     import traceback2 as traceback
 else:
@@ -33,7 +34,8 @@ else:
 
 
 def problematic_step_impl(context):
-    raise Exception(u"по русски")
+    raise Exception("по русски")
+
 
 @pytest.mark.parametrize("encoding", [None, "UTF-8", "unicode_escape"])
 def test_issue(encoding):
@@ -50,13 +52,13 @@ def test_issue(encoding):
     """
     context = None
     text2 = ""
-    expected_text = u"по русски"
+    expected_text = "по русски"
     try:
         problematic_step_impl(context)
     except Exception:
-        text2 =  traceback.format_exc()
+        text2 = traceback.format_exc()
 
     text3 = text(text2, encoding)
-    print(u"EXCEPTION-TEXT: %s" % text3)
-    assert_that(text3, contains_string(u'raise Exception(u"по русски"'))
-    assert_that(text3, contains_string(u"Exception: по русски"))
+    print("EXCEPTION-TEXT: %s" % text3)
+    assert_that(text3, contains_string('raise Exception(u"по русски"'))
+    assert_that(text3, contains_string("Exception: по русски"))

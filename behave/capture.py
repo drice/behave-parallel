@@ -10,6 +10,7 @@ from six import StringIO, PY2
 from behave.log_capture import LoggingCapture
 from behave.textutil import text as _text
 
+
 def add_text_to(value, more_text, separator="\n"):
     if more_text:
         if value:
@@ -23,8 +24,9 @@ def add_text_to(value, more_text, separator="\n"):
 
 class Captured(object):
     """Stores and aggregates captured output data."""
-    empty = u""
-    linesep = u"\n"
+
+    empty = ""
+    linesep = "\n"
 
     def __init__(self, stdout=None, stderr=None, log_output=None):
         self.stdout = stdout or self.empty
@@ -38,9 +40,11 @@ class Captured(object):
 
     # -- PYTHON2:
     if PY2:
+
         def __nonzero__(self):
             return bool(self.stdout or self.stderr or self.log_output)
     else:
+
         def __bool__(self):
             return bool(self.stdout or self.stderr or self.log_output)
 
@@ -63,8 +67,9 @@ class Captured(object):
         assert isinstance(captured, Captured)
         self.stdout = add_text_to(self.stdout, captured.stdout, self.linesep)
         self.stderr = add_text_to(self.stderr, captured.stderr, self.linesep)
-        self.log_output = add_text_to(self.log_output, captured.log_output,
-                                      self.linesep)
+        self.log_output = add_text_to(
+            self.log_output, captured.log_output, self.linesep
+        )
         return self
 
     def make_report(self):
@@ -87,10 +92,10 @@ class Captured(object):
     def __add__(self, other):
         """Supports incremental add::
 
-            captured1 = Captured("Hello")
-            captured2 = Captured("World")
-            captured3 = captured1 + captured2
-            assert captured3.stdout == "Hello\nWorld"
+        captured1 = Captured("Hello")
+        captured2 = Captured("World")
+        captured3 = captured1 + captured2
+        assert captured3.stdout == "Hello\nWorld"
         """
         new_data = Captured(self.stdout, self.stderr, self.log_output)
         return new_data.add(other)
@@ -98,29 +103,31 @@ class Captured(object):
     def __iadd__(self, other):
         """Supports incremental add::
 
-            captured1 = Captured("Hello")
-            captured2 = Captured("World")
-            captured1 += captured2
-            assert captured1.stdout == "Hello\nWorld"
+        captured1 = Captured("Hello")
+        captured2 = Captured("World")
+        captured1 += captured2
+        assert captured1.stdout == "Hello\nWorld"
         """
         return self.add(other)
 
     def send_status(self):
-        ret = {'stdout': self.stdout,
-               'stderr': self.stderr,
-               'log_output': self.log_output,
-               }
+        ret = {
+            "stdout": self.stdout,
+            "stderr": self.stderr,
+            "log_output": self.log_output,
+        }
         return ret
 
     def recv_status(self, value):
         assert not self, "Captured already has content"
-        for k in 'stdout', 'stderr', 'log_output':
+        for k in "stdout", "stderr", "log_output":
             if k in value:
                 setattr(self, k, value[k])
 
 
 class CaptureController(object):
     """Simplifies the lifecycle to capture output from various sources."""
+
     def __init__(self, config):
         self.config = config
         self.stdout_capture = None
@@ -215,6 +222,7 @@ class CaptureController(object):
         #         output = _text(output)
         #         report += u"\nCaptured logging:\n" + output
         # return report
+
 
 # -----------------------------------------------------------------------------
 # UTILITY FUNCTIONS:

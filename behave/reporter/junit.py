@@ -84,9 +84,9 @@ from behave.userdata import UserDataNamespace
 import six
 
 
-def CDATA(text=None):   # pylint: disable=invalid-name
+def CDATA(text=None):  # pylint: disable=invalid-name
     # -- issue #70: remove_ansi_escapes(text)
-    element = ElementTree.Element('![CDATA[')
+    element = ElementTree.Element("![CDATA[")
     element.text = ansi_escapes.strip_escapes(text)
     return element
 
@@ -96,29 +96,36 @@ class ElementTreeWithCDATA(ElementTree.ElementTree):
     def _write(self, file, node, encoding, namespaces):
         """This method is for ElementTree <= 1.2.6"""
 
-        if node.tag == '![CDATA[':
+        if node.tag == "![CDATA[":
             text = node.text.encode(encoding)
             file.write("\n<![CDATA[%s]]>\n" % text)
         else:
-            ElementTree.ElementTree._write(self, file, node, encoding,
-                                           namespaces)
+            ElementTree.ElementTree._write(self, file, node, encoding, namespaces)
 
-if hasattr(ElementTree, '_serialize'):
+
+if hasattr(ElementTree, "_serialize"):
     # pylint: disable=protected-access
-    def _serialize_xml2(write, elem, encoding, qnames, namespaces,
-                        orig=ElementTree._serialize_xml):
-        if elem.tag == '![CDATA[':
-            write("\n<%s%s]]>\n" % \
-                  (elem.tag, elem.text.encode(encoding, "xmlcharrefreplace")))
+    def _serialize_xml2(
+        write, elem, encoding, qnames, namespaces, orig=ElementTree._serialize_xml
+    ):
+        if elem.tag == "![CDATA[":
+            write(
+                "\n<%s%s]]>\n"
+                % (elem.tag, elem.text.encode(encoding, "xmlcharrefreplace"))
+            )
             return
         return orig(write, elem, encoding, qnames, namespaces)
 
-    def _serialize_xml3(write, elem, qnames, namespaces,
-                        short_empty_elements=None,
-                        orig=ElementTree._serialize_xml):
-        if elem.tag == '![CDATA[':
-            write("\n<{tag}{text}]]>\n".format(
-                tag=elem.tag, text=elem.text))
+    def _serialize_xml3(
+        write,
+        elem,
+        qnames,
+        namespaces,
+        short_empty_elements=None,
+        orig=ElementTree._serialize_xml,
+    ):
+        if elem.tag == "![CDATA[":
+            write("\n<{tag}{text}]]>\n".format(tag=elem.tag, text=elem.text))
             return
         if short_empty_elements:
             # python >=3.3
@@ -128,20 +135,19 @@ if hasattr(ElementTree, '_serialize'):
             return orig(write, elem, qnames, namespaces)
 
     if six.PY3:
-        ElementTree._serialize_xml = \
-            ElementTree._serialize['xml'] = _serialize_xml3
+        ElementTree._serialize_xml = ElementTree._serialize["xml"] = _serialize_xml3
     elif six.PY2:
-        ElementTree._serialize_xml = \
-            ElementTree._serialize['xml'] = _serialize_xml2
+        ElementTree._serialize_xml = ElementTree._serialize["xml"] = _serialize_xml2
 
 
 class FeatureReportData(object):
     """
     Provides value object to collect JUnit report data from a Feature.
     """
+
     def __init__(self, feature, filename, classname=None):
         if not classname and filename:
-            classname = filename.replace('/', '.')
+            classname = filename.replace("/", ".")
         self.feature = feature
         self.filename = filename
         self.classname = classname
@@ -160,16 +166,16 @@ class FeatureReportData(object):
 
 
 class JUnitReporter(Reporter):
-    """Generates JUnit-like XML test report for behave.
-    """
+    """Generates JUnit-like XML test report for behave."""
+
     # -- XML REPORT:
     userdata_scope = "behave.reporter.junit"
-    show_timings = True     # -- Show step timings.
+    show_timings = True  # -- Show step timings.
     show_skipped_always = False
     show_timestamp = True
     show_hostname = True
     # -- XML REPORT PART: Describe scenarios
-    show_scenarios = True   # Show scenario descriptions.
+    show_scenarios = True  # Show scenario descriptions.
     show_tags = True
     show_multiline = True
 
@@ -196,20 +202,21 @@ class JUnitReporter(Reporter):
         self.show_tags = config.getbool("show_tags", self.show_tags)
         self.show_timings = config.getbool("show_timings", self.show_timings)
         self.show_timestamp = config.getbool("show_timestamp", self.show_timestamp)
-        self.show_skipped_always = config.getbool("show_skipped_always",
-                                              self.show_skipped_always)
+        self.show_skipped_always = config.getbool(
+            "show_skipped_always", self.show_skipped_always
+        )
 
     def make_feature_filename(self, feature):
         filename = None
         for path in self.config.paths:
             if feature.filename.startswith(path):
-                filename = feature.filename[len(path) + 1:]
+                filename = feature.filename[len(path) + 1 :]
                 break
         if not filename:
             # -- NOTE: Directory path (subdirs) are taken into account.
             filename = feature.location.relpath(self.config.base_dir)
-        filename = filename.rsplit('.', 1)[0]
-        filename = filename.replace('\\', '/').replace('/', '.')
+        filename = filename.rsplit(".", 1)[0]
+        filename = filename.replace("\\", "/").replace("/", ".")
         return _text(filename)
 
     @property
@@ -227,9 +234,9 @@ class JUnitReporter(Reporter):
         report = FeatureReportData(feature, feature_filename)
         now = datetime.now()
 
-        suite = ElementTree.Element(u'testsuite')
+        suite = ElementTree.Element("testsuite")
         feature_name = feature.name or feature_filename
-        suite.set(u'name', u'%s.%s' % (classname, feature_name))
+        suite.set("name", "%s.%s" % (classname, feature_name))
 
         # -- BUILD-TESTCASES: From scenarios
         for scenario in feature:
@@ -243,16 +250,16 @@ class JUnitReporter(Reporter):
         for testcase in report.testcases:
             suite.append(testcase)
 
-        suite.set(u'tests', _text(report.counts_tests))
-        suite.set(u'errors', _text(report.counts_errors))
-        suite.set(u'failures', _text(report.counts_failed))
-        suite.set(u'skipped', _text(report.counts_skipped))  # WAS: skips
-        suite.set(u'time', _text(round(feature.duration, 6)))
+        suite.set("tests", _text(report.counts_tests))
+        suite.set("errors", _text(report.counts_errors))
+        suite.set("failures", _text(report.counts_failed))
+        suite.set("skipped", _text(report.counts_skipped))  # WAS: skips
+        suite.set("time", _text(round(feature.duration, 6)))
         # -- SINCE: behave-1.2.6.dev0
         if self.show_timestamp:
-            suite.set(u'timestamp', _text(now.isoformat()))
+            suite.set("timestamp", _text(now.isoformat()))
         if self.show_hostname:
-            suite.set(u'hostname', _text(gethostname()))
+            suite.set("hostname", _text(gethostname()))
 
         if not os.path.exists(self.config.junit_directory):
             # -- ENSURE: Create multiple directory levels at once.
@@ -260,7 +267,7 @@ class JUnitReporter(Reporter):
 
         tree = ElementTreeWithCDATA(suite)
         report_dirname = self.config.junit_directory
-        report_basename = u'TESTS-%s.xml' % feature_filename
+        report_basename = "TESTS-%s.xml" % feature_filename
         report_filename = os.path.join(report_dirname, report_basename)
         tree.write(codecs.open(report_filename, "wb"), "UTF-8")
 
@@ -289,21 +296,23 @@ class JUnitReporter(Reporter):
             status: Use enum value instead of string (or string).
         """
         for step in steps:
-            assert isinstance(step, Step), \
-                "TYPE-MISMATCH: step.class=%s"  % step.__class__.__name__
+            assert isinstance(step, Step), (
+                "TYPE-MISMATCH: step.class=%s" % step.__class__.__name__
+            )
             if step.status == status:
                 return step
         # -- OTHERWISE: No step with the given status found.
         # KeyError("Step with status={0} not found".format(status))
         return None
+
     # pylint: enable=line-too-long
 
     def describe_step(self, step):
         status_text = _text(step.status.name)
         if self.show_timings:
-            status_text += u" in %0.3fs" % step.duration
-        text = u'%s %s ... ' % (step.keyword, step.name)
-        text += u'%s\n' % status_text
+            status_text += " in %0.3fs" % step.duration
+        text = "%s %s ... " % (step.keyword, step.name)
+        text += "%s\n" % status_text
         if self.show_multiline:
             prefix = make_indentation(2)
             if step.text:
@@ -317,9 +326,9 @@ class JUnitReporter(Reporter):
 
     @classmethod
     def describe_tags(cls, tags):
-        text = u''
+        text = ""
         if tags:
-            text = u'@'+ u' @'.join(tags)
+            text = "@" + " @".join(tags)
         return text
 
     def describe_scenario(self, scenario):
@@ -329,12 +338,12 @@ class JUnitReporter(Reporter):
         :param scenario:  Scenario that was tested.
         :return: Textual description of the scenario.
         """
-        header_line = u'\n@scenario.begin\n'
+        header_line = "\n@scenario.begin\n"
         if self.show_tags and scenario.tags:
-            header_line += u'\n  %s\n' % self.describe_tags(scenario.tags)
-        header_line += u'  %s: %s\n' % (scenario.keyword, scenario.name)
-        footer_line = u'\n@scenario.end\n' + u'-' * 80 + '\n'
-        text = u''
+            header_line += "\n  %s\n" % self.describe_tags(scenario.tags)
+        header_line += "  %s: %s\n" % (scenario.keyword, scenario.name)
+        footer_line = "\n@scenario.end\n" + "-" * 80 + "\n"
+        text = ""
         for step in scenario:
             text += self.describe_step(step)
         step_indentation = make_indentation(4)
@@ -371,11 +380,11 @@ class JUnitReporter(Reporter):
         if not feature_name:
             feature_name = self.make_feature_filename(feature)
 
-        case = ElementTree.Element('testcase')
-        case.set(u"classname", u"%s.%s" % (classname, feature_name))
-        case.set(u"name", scenario.name or "")
-        case.set(u"status", scenario.status.name)
-        case.set(u"time", _text(round(scenario.duration, 6)))
+        case = ElementTree.Element("testcase")
+        case.set("classname", "%s.%s" % (classname, feature_name))
+        case.set("name", scenario.name or "")
+        case.set("status", scenario.status.name)
+        case.set("time", _text(round(scenario.duration, 6)))
 
         step = None
         failing_step = None
@@ -398,56 +407,54 @@ class JUnitReporter(Reporter):
             failure = ElementTree.Element(element_name)
             if step:
                 step_text = self.describe_step(step).rstrip()
-                text = u"\nFailing step: %s\nLocation: %s\n" % \
-                       (step_text, step.location)
+                text = "\nFailing step: %s\nLocation: %s\n" % (step_text, step.location)
                 message = _text(step.exception)
-                failure.set(u'type', step.exception.__class__.__name__)
-                failure.set(u'message', message)
+                failure.set("type", step.exception.__class__.__name__)
+                failure.set("message", message)
                 text += _text(step.error_message)
             else:
                 # -- MAYBE: Hook failure before any step is executed.
                 failure_type = "UnknownError"
                 if scenario.exception:
                     failure_type = scenario.exception.__class__.__name__
-                failure.set(u'type', failure_type)
-                failure.set(u'message', scenario.error_message or "")
-                traceback_lines = [u"Traceback:\n"] + scenario.exc_traceback
-                text = _text(u"".join(traceback_lines))
+                failure.set("type", failure_type)
+                failure.set("message", scenario.error_message or "")
+                traceback_lines = ["Traceback:\n"] + scenario.exc_traceback
+                text = _text("".join(traceback_lines))
             failure.append(CDATA(text))
             case.append(failure)
-        elif (scenario.status in (Status.skipped, Status.untested)
-              and self.show_skipped):
+        elif scenario.status in (Status.skipped, Status.untested) and self.show_skipped:
             report.counts_skipped += 1
             step = self.select_step_with_status(Status.undefined, scenario)
             if step:
                 # -- UNDEFINED-STEP:
                 report.counts_failed += 1
-                failure = ElementTree.Element(u"failure")
-                failure.set(u"type", u"undefined")
-                failure.set(u"message", (u"Undefined Step: %s" % step.name))
+                failure = ElementTree.Element("failure")
+                failure.set("type", "undefined")
+                failure.set("message", ("Undefined Step: %s" % step.name))
                 case.append(failure)
             else:
-                skip = ElementTree.Element(u'skipped')
+                skip = ElementTree.Element("skipped")
                 case.append(skip)
 
         # Create stdout section for each test case
-        stdout = ElementTree.Element(u"system-out")
-        text = u""
+        stdout = ElementTree.Element("system-out")
+        text = ""
         if self.show_scenarios:
             text = self.describe_scenario(scenario)
 
         # Append the captured standard output
         if scenario.captured.stdout:
             output = _text(scenario.captured.stdout)
-            text += u"\nCaptured stdout:\n%s\n" % output
+            text += "\nCaptured stdout:\n%s\n" % output
         stdout.append(CDATA(text))
         case.append(stdout)
 
         # Create stderr section for each test case
         if scenario.captured.stderr:
-            stderr = ElementTree.Element(u"system-err")
+            stderr = ElementTree.Element("system-err")
             output = _text(scenario.captured.stderr)
-            text = u"\nCaptured stderr:\n%s\n" % output
+            text = "\nCaptured stderr:\n%s\n" % output
             stderr.append(CDATA(text))
             case.append(stderr)
 
@@ -460,10 +467,12 @@ class JUnitReporter(Reporter):
             assert isinstance(scenario, Scenario)
             self._process_scenario(scenario, report)
 
+
 # -----------------------------------------------------------------------------
 # SUPPORT:
 # -----------------------------------------------------------------------------
 def gethostname():
     """Return hostname of local host (as string)"""
     import socket
+
     return socket.gethostname()

@@ -16,6 +16,7 @@ from __future__ import print_function
 import json
 import sys
 import os.path
+
 try:
     import b2c
 except ImportError:
@@ -26,8 +27,10 @@ except ImportError:
 
 NAME = os.path.basename(__file__)
 
-def convert_behave_to_cucumber_json(behave_filename, cucumber_filename,
-                                    encoding="UTF-8", pretty=True):
+
+def convert_behave_to_cucumber_json(
+    behave_filename, cucumber_filename, encoding="UTF-8", pretty=True
+):
     """Convert behave JSON dialect into cucumber JSON dialect.
 
     .. param behave_filename:       Input filename with behave JSON data.
@@ -45,6 +48,7 @@ def convert_behave_to_cucumber_json(behave_filename, cucumber_filename,
             json.dump(cucumber_json, output_file, **dump_kwargs)
     return 0
 
+
 def main(args=None):
     """Main function to run the script."""
     if args is None:
@@ -57,6 +61,7 @@ def main(args=None):
     behave_filename = args[0]
     cucumber_filename = args[1]
     return convert_behave_to_cucumber_json(behave_filename, cucumber_filename)
+
 
 # -- AUTO-MAIN:
 if __name__ == "__main__":

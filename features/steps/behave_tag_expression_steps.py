@@ -37,18 +37,24 @@ class ModelElement(object):
         self.name = name
         self.tags = tags or []
 
+
 # -----------------------------------------------------------------------------
 # TYPE CONVERTERS:
 # -----------------------------------------------------------------------------
 def convert_tag_expression(text):
     parts = text.strip().split()
     return TagExpression(parts)
+
+
 register_type(TagExpression=convert_tag_expression)
+
 
 def convert_yesno(text):
     text = text.strip().lower()
     assert text in convert_yesno.choices
     return text in convert_yesno.true_choices
+
+
 convert_yesno.choices = ("yes", "no", "true", "false")
 convert_yesno.true_choices = ("yes", "true")
 
@@ -67,6 +73,7 @@ def step_given_the_tag_expression(context, tag_expression):
     """
     context.tag_expression = tag_expression
 
+
 @given('the default tags "{default_tags:TagExpression}"')
 def step_given_the_tag_expression(context, default_tags):
     """
@@ -81,7 +88,8 @@ def step_given_the_tag_expression(context, default_tags):
     if tag_expression is None:
         context.tag_expression = default_tags
 
-@then('the tag expression selects elements with tags')
+
+@then("the tag expression selects elements with tags")
 def step_then_tag_expression_selects_elements_with_tags(context):
     """
     Checks if a tag expression selects an element with the given tags.
@@ -96,7 +104,7 @@ def step_then_tag_expression_selects_elements_with_tags(context):
     context.table.require_columns(["tags", "selected?"])
     tag_expression = context.tag_expression
     expected = []
-    actual   = []
+    actual = []
     for row in context.table.rows:
         element_tags = convert_model_element_tags(row["tags"])
         expected_element_selected = convert_yesno(row["selected?"])
@@ -108,7 +116,7 @@ def step_then_tag_expression_selects_elements_with_tags(context):
     assert_that(actual, equal_to(expected))
 
 
-@given('the model elements with name and tags')
+@given("the model elements with name and tags")
 def step_given_named_model_elements_with_tags(context):
     """
     .. code-block:: gherkin
@@ -138,7 +146,7 @@ def step_given_named_model_elements_with_tags(context):
     context.model_elements = model_elements
 
 
-@then('the tag expression selects model elements with')
+@then("the tag expression selects model elements with")
 def step_given_named_model_elements_with_tags(context):
     """
     .. code-block:: gherkin
@@ -162,5 +170,8 @@ def step_given_named_model_elements_with_tags(context):
             if tag_expression.check(model_element.tags):
                 actual_selected.append(model_element.name)
 
-        assert_that(actual_selected, equal_to(expected_selected_names),
-            "tag_expression=%s (row=%s)" % (tag_expression_text, row_index))
+        assert_that(
+            actual_selected,
+            equal_to(expected_selected_names),
+            "tag_expression=%s (row=%s)" % (tag_expression_text, row_index),
+        )

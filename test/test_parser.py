@@ -1,26 +1,28 @@
-#-*- coding: UTF-8 -*-
+# -*- coding: UTF-8 -*-
 
 from __future__ import absolute_import
 from nose.tools import *
 
 from behave import i18n, model, parser
 
+
 class Common(object):
     def compare_steps(self, steps, expected):
         have = [(s.step_type, s.keyword, s.name, s.text, s.table) for s in steps]
         eq_(have, expected)
 
+
 class TestParser(Common):
     def test_parses_feature_name(self):
-        feature = parser.parse_feature(u"Feature: Stuff\n")
+        feature = parser.parse_feature("Feature: Stuff\n")
         eq_(feature.name, "Stuff")
 
     def test_parses_feature_name_without_newline(self):
-        feature = parser.parse_feature(u"Feature: Stuff")
+        feature = parser.parse_feature("Feature: Stuff")
         eq_(feature.name, "Stuff")
 
     def test_parses_feature_description(self):
-        doc = u"""
+        doc = """
 Feature: Stuff
   In order to thing
   As an entity
@@ -28,11 +30,13 @@ Feature: Stuff
 """.strip()
         feature = parser.parse_feature(doc)
         eq_(feature.name, "Stuff")
-        eq_(feature.description,
-            ["In order to thing", "As an entity", "I want to do stuff"])
+        eq_(
+            feature.description,
+            ["In order to thing", "As an entity", "I want to do stuff"],
+        )
 
     def test_parses_feature_with_a_tag(self):
-        doc = u"""
+        doc = """
 @foo
 Feature: Stuff
   In order to thing
@@ -41,12 +45,14 @@ Feature: Stuff
 """.strip()
         feature = parser.parse_feature(doc)
         eq_(feature.name, "Stuff")
-        eq_(feature.description,
-            ["In order to thing", "As an entity", "I want to do stuff"])
-        eq_(feature.tags, [model.Tag(u'foo', 1)])
+        eq_(
+            feature.description,
+            ["In order to thing", "As an entity", "I want to do stuff"],
+        )
+        eq_(feature.tags, [model.Tag("foo", 1)])
 
     def test_parses_feature_with_more_tags(self):
-        doc = u"""
+        doc = """
 @foo @bar @baz @qux @winkle_pickers @number8
 Feature: Stuff
   In order to thing
@@ -55,13 +61,20 @@ Feature: Stuff
 """.strip()
         feature = parser.parse_feature(doc)
         eq_(feature.name, "Stuff")
-        eq_(feature.description,
-            ["In order to thing", "As an entity", "I want to do stuff"])
-        eq_(feature.tags, [model.Tag(name, 1)
-            for name in (u'foo', u'bar', u'baz', u'qux', u'winkle_pickers', u'number8')])
+        eq_(
+            feature.description,
+            ["In order to thing", "As an entity", "I want to do stuff"],
+        )
+        eq_(
+            feature.tags,
+            [
+                model.Tag(name, 1)
+                for name in ("foo", "bar", "baz", "qux", "winkle_pickers", "number8")
+            ],
+        )
 
     def test_parses_feature_with_a_tag_and_comment(self):
-        doc = u"""
+        doc = """
 @foo    # Comment: ...
 Feature: Stuff
   In order to thing
@@ -70,12 +83,14 @@ Feature: Stuff
 """.strip()
         feature = parser.parse_feature(doc)
         eq_(feature.name, "Stuff")
-        eq_(feature.description,
-            ["In order to thing", "As an entity", "I want to do stuff"])
-        eq_(feature.tags, [model.Tag(u'foo', 1)])
+        eq_(
+            feature.description,
+            ["In order to thing", "As an entity", "I want to do stuff"],
+        )
+        eq_(feature.tags, [model.Tag("foo", 1)])
 
     def test_parses_feature_with_more_tags_and_comment(self):
-        doc = u"""
+        doc = """
 @foo @bar @baz @qux @winkle_pickers # Comment: @number8
 Feature: Stuff
   In order to thing
@@ -84,14 +99,21 @@ Feature: Stuff
 """.strip()
         feature = parser.parse_feature(doc)
         eq_(feature.name, "Stuff")
-        eq_(feature.description,
-            ["In order to thing", "As an entity", "I want to do stuff"])
-        eq_(feature.tags, [model.Tag(name, 1)
-                           for name in (u'foo', u'bar', u'baz', u'qux', u'winkle_pickers')])
+        eq_(
+            feature.description,
+            ["In order to thing", "As an entity", "I want to do stuff"],
+        )
+        eq_(
+            feature.tags,
+            [
+                model.Tag(name, 1)
+                for name in ("foo", "bar", "baz", "qux", "winkle_pickers")
+            ],
+        )
         # -- NOT A TAG: u'number8'
 
     def test_parses_feature_with_background(self):
-        doc = u"""
+        doc = """
 Feature: Stuff
   Background:
     Given there is stuff
@@ -100,15 +122,18 @@ Feature: Stuff
 """.lstrip()
         feature = parser.parse_feature(doc)
         eq_(feature.name, "Stuff")
-        assert(feature.background)
-        self.compare_steps(feature.background.steps, [
-            ('given', 'Given', 'there is stuff', None, None),
-            ('when', 'When', 'I do stuff', None, None),
-            ('then', 'Then', 'stuff happens', None, None),
-        ])
+        assert feature.background
+        self.compare_steps(
+            feature.background.steps,
+            [
+                ("given", "Given", "there is stuff", None, None),
+                ("when", "When", "I do stuff", None, None),
+                ("then", "Then", "stuff happens", None, None),
+            ],
+        )
 
     def test_parses_feature_with_description_and_background(self):
-        doc = u"""
+        doc = """
 Feature: Stuff
   This... is... STUFF!
 
@@ -120,15 +145,18 @@ Feature: Stuff
         feature = parser.parse_feature(doc)
         eq_(feature.name, "Stuff")
         eq_(feature.description, ["This... is... STUFF!"])
-        assert(feature.background)
-        self.compare_steps(feature.background.steps, [
-            ('given', 'Given', 'there is stuff', None, None),
-            ('when', 'When', 'I do stuff', None, None),
-            ('then', 'Then', 'stuff happens', None, None),
-        ])
+        assert feature.background
+        self.compare_steps(
+            feature.background.steps,
+            [
+                ("given", "Given", "there is stuff", None, None),
+                ("when", "When", "I do stuff", None, None),
+                ("then", "Then", "stuff happens", None, None),
+            ],
+        )
 
     def test_parses_feature_with_a_scenario(self):
-        doc = u"""
+        doc = """
 Feature: Stuff
 
   Scenario: Doing stuff
@@ -138,16 +166,19 @@ Feature: Stuff
 """.lstrip()
         feature = parser.parse_feature(doc)
         eq_(feature.name, "Stuff")
-        assert(len(feature.scenarios) == 1)
-        eq_(feature.scenarios[0].name, 'Doing stuff')
-        self.compare_steps(feature.scenarios[0].steps, [
-            ('given', 'Given', 'there is stuff', None, None),
-            ('when', 'When', 'I do stuff', None, None),
-            ('then', 'Then', 'stuff happens', None, None),
-        ])
+        assert len(feature.scenarios) == 1
+        eq_(feature.scenarios[0].name, "Doing stuff")
+        self.compare_steps(
+            feature.scenarios[0].steps,
+            [
+                ("given", "Given", "there is stuff", None, None),
+                ("when", "When", "I do stuff", None, None),
+                ("then", "Then", "stuff happens", None, None),
+            ],
+        )
 
     def test_parses_lowercase_step_keywords(self):
-        doc = u"""
+        doc = """
 Feature: Stuff
 
   Scenario: Doing stuff
@@ -157,16 +188,19 @@ Feature: Stuff
 """.lstrip()
         feature = parser.parse_feature(doc)
         eq_(feature.name, "Stuff")
-        assert(len(feature.scenarios) == 1)
-        eq_(feature.scenarios[0].name, 'Doing stuff')
-        self.compare_steps(feature.scenarios[0].steps, [
-            ('given', 'Given', 'there is stuff', None, None),
-            ('when', 'When', 'I do stuff', None, None),
-            ('then', 'Then', 'stuff happens', None, None),
-        ])
+        assert len(feature.scenarios) == 1
+        eq_(feature.scenarios[0].name, "Doing stuff")
+        self.compare_steps(
+            feature.scenarios[0].steps,
+            [
+                ("given", "Given", "there is stuff", None, None),
+                ("when", "When", "I do stuff", None, None),
+                ("then", "Then", "stuff happens", None, None),
+            ],
+        )
 
     def test_parses_ja_keywords(self):
-        doc = u"""
+        doc = """
 機能: Stuff
 
   シナリオ: Doing stuff
@@ -174,18 +208,21 @@ Feature: Stuff
     もしI do stuff
     ならばstuff happens
 """.lstrip()
-        feature = parser.parse_feature(doc, language='ja')
+        feature = parser.parse_feature(doc, language="ja")
         eq_(feature.name, "Stuff")
-        assert(len(feature.scenarios) == 1)
-        eq_(feature.scenarios[0].name, 'Doing stuff')
-        self.compare_steps(feature.scenarios[0].steps, [
-            ('given', u'前提', 'there is stuff', None, None),
-            ('when', u'もし', 'I do stuff', None, None),
-            ('then', u'ならば', 'stuff happens', None, None),
-        ])
+        assert len(feature.scenarios) == 1
+        eq_(feature.scenarios[0].name, "Doing stuff")
+        self.compare_steps(
+            feature.scenarios[0].steps,
+            [
+                ("given", "前提", "there is stuff", None, None),
+                ("when", "もし", "I do stuff", None, None),
+                ("then", "ならば", "stuff happens", None, None),
+            ],
+        )
 
     def test_parses_feature_with_description_and_background_and_scenario(self):
-        doc = u"""
+        doc = """
 Feature: Stuff
   Oh my god, it's full of stuff...
 
@@ -200,21 +237,27 @@ Feature: Stuff
         feature = parser.parse_feature(doc)
         eq_(feature.name, "Stuff")
         eq_(feature.description, ["Oh my god, it's full of stuff..."])
-        assert(feature.background)
-        self.compare_steps(feature.background.steps, [
-            ('given', 'Given', 'I found some stuff', None, None),
-        ])
+        assert feature.background
+        self.compare_steps(
+            feature.background.steps,
+            [
+                ("given", "Given", "I found some stuff", None, None),
+            ],
+        )
 
-        assert(len(feature.scenarios) == 1)
-        eq_(feature.scenarios[0].name, 'Doing stuff')
-        self.compare_steps(feature.scenarios[0].steps, [
-            ('given', 'Given', 'there is stuff', None, None),
-            ('when', 'When', 'I do stuff', None, None),
-            ('then', 'Then', 'stuff happens', None, None),
-        ])
+        assert len(feature.scenarios) == 1
+        eq_(feature.scenarios[0].name, "Doing stuff")
+        self.compare_steps(
+            feature.scenarios[0].steps,
+            [
+                ("given", "Given", "there is stuff", None, None),
+                ("when", "When", "I do stuff", None, None),
+                ("then", "Then", "stuff happens", None, None),
+            ],
+        )
 
     def test_parses_feature_with_multiple_scenarios(self):
-        doc = u"""
+        doc = """
 Feature: Stuff
 
   Scenario: Doing stuff
@@ -233,29 +276,38 @@ Feature: Stuff
         feature = parser.parse_feature(doc)
         eq_(feature.name, "Stuff")
 
-        assert(len(feature.scenarios) == 3)
+        assert len(feature.scenarios) == 3
 
-        eq_(feature.scenarios[0].name, 'Doing stuff')
-        self.compare_steps(feature.scenarios[0].steps, [
-            ('given', 'Given', 'there is stuff', None, None),
-            ('when', 'When', 'I do stuff', None, None),
-            ('then', 'Then', 'stuff happens', None, None),
-        ])
+        eq_(feature.scenarios[0].name, "Doing stuff")
+        self.compare_steps(
+            feature.scenarios[0].steps,
+            [
+                ("given", "Given", "there is stuff", None, None),
+                ("when", "When", "I do stuff", None, None),
+                ("then", "Then", "stuff happens", None, None),
+            ],
+        )
 
-        eq_(feature.scenarios[1].name, 'Doing other stuff')
-        self.compare_steps(feature.scenarios[1].steps, [
-            ('when', 'When', 'stuff happens', None, None),
-            ('then', 'Then', 'I am stuffed', None, None),
-        ])
+        eq_(feature.scenarios[1].name, "Doing other stuff")
+        self.compare_steps(
+            feature.scenarios[1].steps,
+            [
+                ("when", "When", "stuff happens", None, None),
+                ("then", "Then", "I am stuffed", None, None),
+            ],
+        )
 
-        eq_(feature.scenarios[2].name, 'Doing different stuff')
-        self.compare_steps(feature.scenarios[2].steps, [
-            ('given', 'Given', 'stuff', None, None),
-            ('then', 'Then', 'who gives a stuff', None, None),
-        ])
+        eq_(feature.scenarios[2].name, "Doing different stuff")
+        self.compare_steps(
+            feature.scenarios[2].steps,
+            [
+                ("given", "Given", "stuff", None, None),
+                ("then", "Then", "who gives a stuff", None, None),
+            ],
+        )
 
     def test_parses_feature_with_multiple_scenarios_with_tags(self):
-        doc = u"""
+        doc = """
 Feature: Stuff
 
   Scenario: Doing stuff
@@ -276,31 +328,42 @@ Feature: Stuff
         feature = parser.parse_feature(doc)
         eq_(feature.name, "Stuff")
 
-        assert(len(feature.scenarios) == 3)
+        assert len(feature.scenarios) == 3
 
-        eq_(feature.scenarios[0].name, 'Doing stuff')
-        self.compare_steps(feature.scenarios[0].steps, [
-            ('given', 'Given', 'there is stuff', None, None),
-            ('when', 'When', 'I do stuff', None, None),
-            ('then', 'Then', 'stuff happens', None, None),
-        ])
+        eq_(feature.scenarios[0].name, "Doing stuff")
+        self.compare_steps(
+            feature.scenarios[0].steps,
+            [
+                ("given", "Given", "there is stuff", None, None),
+                ("when", "When", "I do stuff", None, None),
+                ("then", "Then", "stuff happens", None, None),
+            ],
+        )
 
-        eq_(feature.scenarios[1].name, 'Doing other stuff')
-        eq_(feature.scenarios[1].tags, [model.Tag(u'one_tag', 1)])
-        self.compare_steps(feature.scenarios[1].steps, [
-            ('when', 'When', 'stuff happens', None, None),
-            ('then', 'Then', 'I am stuffed', None, None),
-        ])
+        eq_(feature.scenarios[1].name, "Doing other stuff")
+        eq_(feature.scenarios[1].tags, [model.Tag("one_tag", 1)])
+        self.compare_steps(
+            feature.scenarios[1].steps,
+            [
+                ("when", "When", "stuff happens", None, None),
+                ("then", "Then", "I am stuffed", None, None),
+            ],
+        )
 
-        eq_(feature.scenarios[2].name, 'Doing different stuff')
-        eq_(feature.scenarios[2].tags, [model.Tag(n, 1) for n in (u'lots', u'of', u'tags')])
-        self.compare_steps(feature.scenarios[2].steps, [
-            ('given', 'Given', 'stuff', None, None),
-            ('then', 'Then', 'who gives a stuff', None, None),
-        ])
+        eq_(feature.scenarios[2].name, "Doing different stuff")
+        eq_(
+            feature.scenarios[2].tags, [model.Tag(n, 1) for n in ("lots", "of", "tags")]
+        )
+        self.compare_steps(
+            feature.scenarios[2].steps,
+            [
+                ("given", "Given", "stuff", None, None),
+                ("then", "Then", "who gives a stuff", None, None),
+            ],
+        )
 
     def test_parses_feature_with_multiple_scenarios_and_other_bits(self):
-        doc = u"""
+        doc = """
 Feature: Stuff
   Stuffing
 
@@ -324,34 +387,44 @@ Feature: Stuff
         eq_(feature.name, "Stuff")
         eq_(feature.description, ["Stuffing"])
 
-        assert(feature.background)
-        self.compare_steps(feature.background.steps, [
-            ('given', 'Given', "you're all stuffed", None, None)
-        ])
+        assert feature.background
+        self.compare_steps(
+            feature.background.steps,
+            [("given", "Given", "you're all stuffed", None, None)],
+        )
 
-        assert(len(feature.scenarios) == 3)
+        assert len(feature.scenarios) == 3
 
-        eq_(feature.scenarios[0].name, 'Doing stuff')
-        self.compare_steps(feature.scenarios[0].steps, [
-            ('given', 'Given', 'there is stuff', None, None),
-            ('when', 'When', 'I do stuff', None, None),
-            ('then', 'Then', 'stuff happens', None, None),
-        ])
+        eq_(feature.scenarios[0].name, "Doing stuff")
+        self.compare_steps(
+            feature.scenarios[0].steps,
+            [
+                ("given", "Given", "there is stuff", None, None),
+                ("when", "When", "I do stuff", None, None),
+                ("then", "Then", "stuff happens", None, None),
+            ],
+        )
 
-        eq_(feature.scenarios[1].name, 'Doing other stuff')
-        self.compare_steps(feature.scenarios[1].steps, [
-            ('when', 'When', 'stuff happens', None, None),
-            ('then', 'Then', 'I am stuffed', None, None),
-        ])
+        eq_(feature.scenarios[1].name, "Doing other stuff")
+        self.compare_steps(
+            feature.scenarios[1].steps,
+            [
+                ("when", "When", "stuff happens", None, None),
+                ("then", "Then", "I am stuffed", None, None),
+            ],
+        )
 
-        eq_(feature.scenarios[2].name, 'Doing different stuff')
-        self.compare_steps(feature.scenarios[2].steps, [
-            ('given', 'Given', 'stuff', None, None),
-            ('then', 'Then', 'who gives a stuff', None, None),
-        ])
+        eq_(feature.scenarios[2].name, "Doing different stuff")
+        self.compare_steps(
+            feature.scenarios[2].steps,
+            [
+                ("given", "Given", "stuff", None, None),
+                ("then", "Then", "who gives a stuff", None, None),
+            ],
+        )
 
     def test_parses_feature_with_a_scenario_with_and_and_but(self):
-        doc = u"""
+        doc = """
 Feature: Stuff
 
   Scenario: Doing stuff
@@ -363,18 +436,21 @@ Feature: Stuff
 """.lstrip()
         feature = parser.parse_feature(doc)
         eq_(feature.name, "Stuff")
-        assert(len(feature.scenarios) == 1)
-        eq_(feature.scenarios[0].name, 'Doing stuff')
-        self.compare_steps(feature.scenarios[0].steps, [
-            ('given', 'Given', 'there is stuff', None, None),
-            ('given', 'And', 'some other stuff', None, None),
-            ('when', 'When', 'I do stuff', None, None),
-            ('then', 'Then', 'stuff happens', None, None),
-            ('then', 'But', 'not the bad stuff', None, None),
-        ])
+        assert len(feature.scenarios) == 1
+        eq_(feature.scenarios[0].name, "Doing stuff")
+        self.compare_steps(
+            feature.scenarios[0].steps,
+            [
+                ("given", "Given", "there is stuff", None, None),
+                ("given", "And", "some other stuff", None, None),
+                ("when", "When", "I do stuff", None, None),
+                ("then", "Then", "stuff happens", None, None),
+                ("then", "But", "not the bad stuff", None, None),
+            ],
+        )
 
     def test_parses_feature_with_a_step_with_a_string_argument(self):
-        doc = u'''
+        doc = '''
 Feature: Stuff
 
   Scenario: Doing stuff
@@ -388,15 +464,18 @@ Feature: Stuff
 '''.lstrip()
         feature = parser.parse_feature(doc)
         eq_(feature.name, "Stuff")
-        assert(len(feature.scenarios) == 1)
-        eq_(feature.scenarios[0].name, 'Doing stuff')
-        self.compare_steps(feature.scenarios[0].steps, [
-            ('given', 'Given', 'there is stuff', "So\nMuch\nStuff", None),
-            ('then', 'Then', 'stuff happens', None, None),
-        ])
+        assert len(feature.scenarios) == 1
+        eq_(feature.scenarios[0].name, "Doing stuff")
+        self.compare_steps(
+            feature.scenarios[0].steps,
+            [
+                ("given", "Given", "there is stuff", "So\nMuch\nStuff", None),
+                ("then", "Then", "stuff happens", None, None),
+            ],
+        )
 
     def test_parses_string_argument_correctly_handle_whitespace(self):
-        doc = u'''
+        doc = '''
 Feature: Stuff
 
   Scenario: Doing stuff
@@ -412,16 +491,19 @@ Feature: Stuff
 '''.lstrip()
         feature = parser.parse_feature(doc)
         eq_(feature.name, "Stuff")
-        assert(len(feature.scenarios) == 1)
-        eq_(feature.scenarios[0].name, 'Doing stuff')
+        assert len(feature.scenarios) == 1
+        eq_(feature.scenarios[0].name, "Doing stuff")
         string = "So\n  Much\n    Stuff\n  Has\nIndents"
-        self.compare_steps(feature.scenarios[0].steps, [
-            ('given', 'Given', 'there is stuff', string, None),
-            ('then', 'Then', 'stuff happens', None, None),
-        ])
+        self.compare_steps(
+            feature.scenarios[0].steps,
+            [
+                ("given", "Given", "there is stuff", string, None),
+                ("then", "Then", "stuff happens", None, None),
+            ],
+        )
 
     def test_parses_feature_with_a_step_with_a_string_with_blank_lines(self):
-        doc = u'''
+        doc = '''
 Feature: Stuff
 
   Scenario: Doing stuff
@@ -438,17 +520,20 @@ Feature: Stuff
 '''.lstrip()
         feature = parser.parse_feature(doc)
         eq_(feature.name, "Stuff")
-        assert(len(feature.scenarios) == 1)
-        eq_(feature.scenarios[0].name, 'Doing stuff')
-        self.compare_steps(feature.scenarios[0].steps, [
-            ('given', 'Given', 'there is stuff', "So\n\nMuch\n\n\nStuff", None),
-            ('then', 'Then', 'stuff happens', None, None),
-        ])
+        assert len(feature.scenarios) == 1
+        eq_(feature.scenarios[0].name, "Doing stuff")
+        self.compare_steps(
+            feature.scenarios[0].steps,
+            [
+                ("given", "Given", "there is stuff", "So\n\nMuch\n\n\nStuff", None),
+                ("then", "Then", "stuff happens", None, None),
+            ],
+        )
 
     # MORE-JE-ADDED:
     def test_parses_string_argument_without_stripping_empty_lines(self):
         # -- ISSUE 44: Parser removes comments in multiline text string.
-        doc = u'''
+        doc = '''
 Feature: Multiline
 
   Scenario: Multiline Text with Comments
@@ -466,18 +551,21 @@ Feature: Multiline
 '''.lstrip()
         feature = parser.parse_feature(doc)
         eq_(feature.name, "Multiline")
-        assert(len(feature.scenarios) == 1)
+        assert len(feature.scenarios) == 1
         eq_(feature.scenarios[0].name, "Multiline Text with Comments")
         text1 = ""
         text2 = "Alpha.\n\nOmega."
-        self.compare_steps(feature.scenarios[0].steps, [
-            ('given', 'Given', 'a multiline argument with', text1, None),
-            ('given', 'And',   'a multiline argument with', text2, None),
-            ('then', 'Then', 'empty middle lines are not stripped', None, None),
-        ])
+        self.compare_steps(
+            feature.scenarios[0].steps,
+            [
+                ("given", "Given", "a multiline argument with", text1, None),
+                ("given", "And", "a multiline argument with", text2, None),
+                ("then", "Then", "empty middle lines are not stripped", None, None),
+            ],
+        )
 
     def test_parses_feature_with_a_step_with_a_string_with_comments(self):
-        doc = u'''
+        doc = '''
 Feature: Stuff
 
   Scenario: Doing stuff
@@ -491,16 +579,18 @@ Feature: Stuff
 '''.lstrip()
         feature = parser.parse_feature(doc)
         eq_(feature.name, "Stuff")
-        assert(len(feature.scenarios) == 1)
-        eq_(feature.scenarios[0].name, 'Doing stuff')
-        self.compare_steps(feature.scenarios[0].steps, [
-            ('given', 'Given', 'there is stuff', "So\nMuch\n# Derp",
-                None),
-            ('then', 'Then', 'stuff happens', None, None),
-        ])
+        assert len(feature.scenarios) == 1
+        eq_(feature.scenarios[0].name, "Doing stuff")
+        self.compare_steps(
+            feature.scenarios[0].steps,
+            [
+                ("given", "Given", "there is stuff", "So\nMuch\n# Derp", None),
+                ("then", "Then", "stuff happens", None, None),
+            ],
+        )
 
     def test_parses_feature_with_a_step_with_a_table_argument(self):
-        doc = u'''
+        doc = """
 Feature: Stuff
 
   Scenario: Doing stuff
@@ -510,27 +600,30 @@ Feature: Stuff
       | lint          | low         | high           |
       | green         | variable    | awkward        |
     Then stuff is in buckets
-'''.lstrip()
+""".lstrip()
         feature = parser.parse_feature(doc)
         eq_(feature.name, "Stuff")
-        assert(len(feature.scenarios) == 1)
-        eq_(feature.scenarios[0].name, 'Doing stuff')
+        assert len(feature.scenarios) == 1
+        eq_(feature.scenarios[0].name, "Doing stuff")
         table = model.Table(
-            [u'type of stuff', u'awesomeness', u'ridiculousness'],
+            ["type of stuff", "awesomeness", "ridiculousness"],
             0,
             [
-                [u'fluffy', u'large', u'frequent'],
-                [u'lint', u'low', u'high'],
-                [u'green', u'variable', u'awkward'],
-            ]
+                ["fluffy", "large", "frequent"],
+                ["lint", "low", "high"],
+                ["green", "variable", "awkward"],
+            ],
         )
-        self.compare_steps(feature.scenarios[0].steps, [
-            ('given', 'Given', 'we classify stuff', None, table),
-            ('then', 'Then', 'stuff is in buckets', None, None),
-        ])
+        self.compare_steps(
+            feature.scenarios[0].steps,
+            [
+                ("given", "Given", "we classify stuff", None, table),
+                ("then", "Then", "stuff is in buckets", None, None),
+            ],
+        )
 
     def test_parses_feature_with_table_and_escaped_pipe_in_cell_values(self):
-        doc = u'''
+        doc = """
 Feature:
   Scenario:
     Given we have special cell values:
@@ -539,25 +632,28 @@ Feature:
       | bob    |\|one     |
       | charly |     one\||
       | doro   | one\|two\|three\|four |
-'''.lstrip()
+""".lstrip()
         feature = parser.parse_feature(doc)
-        assert(len(feature.scenarios) == 1)
+        assert len(feature.scenarios) == 1
         table = model.Table(
-            [u"name", u"value"],
+            ["name", "value"],
             0,
             [
-                [u"alice",  u"one|two"],
-                [u"bob",    u"|one"],
-                [u"charly", u"one|"],
-                [u"doro",   u"one|two|three|four"],
-            ]
+                ["alice", "one|two"],
+                ["bob", "|one"],
+                ["charly", "one|"],
+                ["doro", "one|two|three|four"],
+            ],
         )
-        self.compare_steps(feature.scenarios[0].steps, [
-            ('given', 'Given', 'we have special cell values', None, table),
-        ])
+        self.compare_steps(
+            feature.scenarios[0].steps,
+            [
+                ("given", "Given", "we have special cell values", None, table),
+            ],
+        )
 
     def test_parses_feature_with_a_scenario_outline(self):
-        doc = u'''
+        doc = """
 Feature: Stuff
 
   Scenario Outline: Doing all sorts of stuff
@@ -571,33 +667,36 @@ Feature: Stuff
       | cotton     | thread   |
       | wood       | paper    |
       | explosives | hilarity |
-'''.lstrip()
+""".lstrip()
         feature = parser.parse_feature(doc)
         eq_(feature.name, "Stuff")
 
-        assert(len(feature.scenarios) == 1)
-        eq_(feature.scenarios[0].name, 'Doing all sorts of stuff')
+        assert len(feature.scenarios) == 1
+        eq_(feature.scenarios[0].name, "Doing all sorts of stuff")
 
         table = model.Table(
-            [u'Stuff', u'Things'],
+            ["Stuff", "Things"],
             0,
             [
-                [u'wool', u'felt'],
-                [u'cotton', u'thread'],
-                [u'wood', u'paper'],
-                [u'explosives', u'hilarity'],
-            ]
+                ["wool", "felt"],
+                ["cotton", "thread"],
+                ["wood", "paper"],
+                ["explosives", "hilarity"],
+            ],
         )
-        eq_(feature.scenarios[0].examples[0].name, 'Some stuff')
+        eq_(feature.scenarios[0].examples[0].name, "Some stuff")
         eq_(feature.scenarios[0].examples[0].table, table)
-        self.compare_steps(feature.scenarios[0].steps, [
-            ('given', 'Given', 'we have <Stuff>', None, None),
-            ('when', 'When', 'we do stuff', None, None),
-            ('then', 'Then', 'we have <Things>', None, None),
-        ])
+        self.compare_steps(
+            feature.scenarios[0].steps,
+            [
+                ("given", "Given", "we have <Stuff>", None, None),
+                ("when", "When", "we do stuff", None, None),
+                ("then", "Then", "we have <Things>", None, None),
+            ],
+        )
 
     def test_parses_feature_with_a_scenario_outline_with_multiple_examples(self):
-        doc = u'''
+        doc = """
 Feature: Stuff
 
   Scenario Outline: Doing all sorts of stuff
@@ -614,42 +713,45 @@ Feature: Stuff
       | Stuff      | Things   |
       | wood       | paper    |
       | explosives | hilarity |
-'''.lstrip()
+""".lstrip()
         feature = parser.parse_feature(doc)
         eq_(feature.name, "Stuff")
 
-        assert(len(feature.scenarios) == 1)
-        eq_(feature.scenarios[0].name, 'Doing all sorts of stuff')
-        self.compare_steps(feature.scenarios[0].steps, [
-            ('given', 'Given', 'we have <Stuff>', None, None),
-            ('when', 'When', 'we do stuff', None, None),
-            ('then', 'Then', 'we have <Things>', None, None),
-        ])
+        assert len(feature.scenarios) == 1
+        eq_(feature.scenarios[0].name, "Doing all sorts of stuff")
+        self.compare_steps(
+            feature.scenarios[0].steps,
+            [
+                ("given", "Given", "we have <Stuff>", None, None),
+                ("when", "When", "we do stuff", None, None),
+                ("then", "Then", "we have <Things>", None, None),
+            ],
+        )
 
         table = model.Table(
-            [u'Stuff', u'Things'],
+            ["Stuff", "Things"],
             0,
             [
-                [u'wool', u'felt'],
-                [u'cotton', u'thread'],
-            ]
+                ["wool", "felt"],
+                ["cotton", "thread"],
+            ],
         )
-        eq_(feature.scenarios[0].examples[0].name, 'Some stuff')
+        eq_(feature.scenarios[0].examples[0].name, "Some stuff")
         eq_(feature.scenarios[0].examples[0].table, table)
 
         table = model.Table(
-            [u'Stuff', u'Things'],
+            ["Stuff", "Things"],
             0,
             [
-                [u'wood', u'paper'],
-                [u'explosives', u'hilarity'],
-            ]
+                ["wood", "paper"],
+                ["explosives", "hilarity"],
+            ],
         )
-        eq_(feature.scenarios[0].examples[1].name, 'Some other stuff')
+        eq_(feature.scenarios[0].examples[1].name, "Some other stuff")
         eq_(feature.scenarios[0].examples[1].table, table)
 
     def test_parses_feature_with_a_scenario_outline_with_tags(self):
-        doc = u'''
+        doc = """
 Feature: Stuff
 
   @stuff @derp
@@ -664,35 +766,38 @@ Feature: Stuff
       | cotton     | thread   |
       | wood       | paper    |
       | explosives | hilarity |
-'''.lstrip()
+""".lstrip()
         feature = parser.parse_feature(doc)
         eq_(feature.name, "Stuff")
 
-        assert(len(feature.scenarios) == 1)
-        eq_(feature.scenarios[0].name, 'Doing all sorts of stuff')
-        eq_(feature.scenarios[0].tags, [model.Tag(u'stuff', 1), model.Tag(u'derp', 1)])
-        self.compare_steps(feature.scenarios[0].steps, [
-            ('given', 'Given', 'we have <Stuff>', None, None),
-            ('when', 'When', 'we do stuff', None, None),
-            ('then', 'Then', 'we have <Things>', None, None),
-        ])
+        assert len(feature.scenarios) == 1
+        eq_(feature.scenarios[0].name, "Doing all sorts of stuff")
+        eq_(feature.scenarios[0].tags, [model.Tag("stuff", 1), model.Tag("derp", 1)])
+        self.compare_steps(
+            feature.scenarios[0].steps,
+            [
+                ("given", "Given", "we have <Stuff>", None, None),
+                ("when", "When", "we do stuff", None, None),
+                ("then", "Then", "we have <Things>", None, None),
+            ],
+        )
 
         table = model.Table(
-            [u'Stuff', u'Things'],
+            ["Stuff", "Things"],
             0,
             [
-                [u'wool', u'felt'],
-                [u'cotton', u'thread'],
-                [u'wood', u'paper'],
-                [u'explosives', u'hilarity'],
-            ]
+                ["wool", "felt"],
+                ["cotton", "thread"],
+                ["wood", "paper"],
+                ["explosives", "hilarity"],
+            ],
         )
-        eq_(feature.scenarios[0].examples[0].name, 'Some stuff')
+        eq_(feature.scenarios[0].examples[0].name, "Some stuff")
         eq_(feature.scenarios[0].examples[0].table, table)
 
     def test_parses_scenario_outline_with_tagged_examples1(self):
         # -- CASE: Examples with 1 tag-line (= 1 tag)
-        doc = u'''
+        doc = """
 Feature: Alice
 
   @foo
@@ -704,39 +809,43 @@ Feature: Alice
       | Stuff      | Things   |
       | wool       | felt     |
       | cotton     | thread   |
-'''.lstrip()
+""".lstrip()
         feature = parser.parse_feature(doc)
         eq_(feature.name, "Alice")
 
-        assert(len(feature.scenarios) == 1)
+        assert len(feature.scenarios) == 1
         scenario_outline = feature.scenarios[0]
         eq_(scenario_outline.name, "Bob")
-        eq_(scenario_outline.tags, [model.Tag(u"foo", 1)])
-        self.compare_steps(scenario_outline.steps, [
-            ("given", "Given", "we have <Stuff>", None, None),
-        ])
+        eq_(scenario_outline.tags, [model.Tag("foo", 1)])
+        self.compare_steps(
+            scenario_outline.steps,
+            [
+                ("given", "Given", "we have <Stuff>", None, None),
+            ],
+        )
 
         table = model.Table(
-            [u"Stuff", u"Things"], 0,
+            ["Stuff", "Things"],
+            0,
             [
-                [u"wool", u"felt"],
-                [u"cotton", u"thread"],
-            ]
+                ["wool", "felt"],
+                ["cotton", "thread"],
+            ],
         )
         eq_(scenario_outline.examples[0].name, "Charly")
         eq_(scenario_outline.examples[0].table, table)
-        eq_(scenario_outline.examples[0].tags, [model.Tag(u"bar", 1)])
+        eq_(scenario_outline.examples[0].tags, [model.Tag("bar", 1)])
 
         # -- ScenarioOutline.scenarios:
         # Inherit tags from ScenarioOutline and Examples element.
         eq_(len(scenario_outline.scenarios), 2)
-        expected_tags = [model.Tag(u"foo", 1), model.Tag(u"bar", 1)]
+        expected_tags = [model.Tag("foo", 1), model.Tag("bar", 1)]
         eq_(set(scenario_outline.scenarios[0].tags), set(expected_tags))
         eq_(set(scenario_outline.scenarios[1].tags), set(expected_tags))
 
     def test_parses_scenario_outline_with_tagged_examples2(self):
         # -- CASE: Examples with multiple tag-lines (= 2 tag-lines)
-        doc = u'''
+        doc = """
 Feature: Alice
 
   @foo
@@ -749,43 +858,43 @@ Feature: Alice
       | Stuff      | Things   |
       | wool       | felt     |
       | cotton     | thread   |
-'''.lstrip()
+""".lstrip()
         feature = parser.parse_feature(doc)
         eq_(feature.name, "Alice")
 
-        assert(len(feature.scenarios) == 1)
+        assert len(feature.scenarios) == 1
         scenario_outline = feature.scenarios[0]
         eq_(scenario_outline.name, "Bob")
-        eq_(scenario_outline.tags, [model.Tag(u"foo", 1)])
-        self.compare_steps(scenario_outline.steps, [
-            ("given", "Given", "we have <Stuff>", None, None),
-        ])
+        eq_(scenario_outline.tags, [model.Tag("foo", 1)])
+        self.compare_steps(
+            scenario_outline.steps,
+            [
+                ("given", "Given", "we have <Stuff>", None, None),
+            ],
+        )
 
         table = model.Table(
-            [u"Stuff", u"Things"], 0,
+            ["Stuff", "Things"],
+            0,
             [
-                [u"wool", u"felt"],
-                [u"cotton", u"thread"],
-            ]
+                ["wool", "felt"],
+                ["cotton", "thread"],
+            ],
         )
         eq_(scenario_outline.examples[0].name, "Charly")
         eq_(scenario_outline.examples[0].table, table)
-        expected_tags = [model.Tag(u"bar", 1), model.Tag(u"baz", 1)]
+        expected_tags = [model.Tag("bar", 1), model.Tag("baz", 1)]
         eq_(scenario_outline.examples[0].tags, expected_tags)
 
         # -- ScenarioOutline.scenarios:
         # Inherit tags from ScenarioOutline and Examples element.
         eq_(len(scenario_outline.scenarios), 2)
-        expected_tags = [
-            model.Tag(u"foo", 1),
-            model.Tag(u"bar", 1),
-            model.Tag(u"baz", 1)
-        ]
+        expected_tags = [model.Tag("foo", 1), model.Tag("bar", 1), model.Tag("baz", 1)]
         eq_(set(scenario_outline.scenarios[0].tags), set(expected_tags))
         eq_(set(scenario_outline.scenarios[1].tags), set(expected_tags))
 
     def test_parses_feature_with_the_lot(self):
-        doc = u'''
+        doc = '''
 # This one's got comments too.
 
 @derp
@@ -850,99 +959,113 @@ Feature: Stuff
 '''.lstrip()
         feature = parser.parse_feature(doc)
         eq_(feature.name, "Stuff")
-        eq_(feature.tags, [model.Tag(u'derp', 1)])
-        eq_(feature.description, ['In order to test my parser',
-                                  'As a test runner',
-                                  'I want to run tests'])
+        eq_(feature.tags, [model.Tag("derp", 1)])
+        eq_(
+            feature.description,
+            ["In order to test my parser", "As a test runner", "I want to run tests"],
+        )
 
-        assert(feature.background)
-        self.compare_steps(feature.background.steps, [
-            ('given', 'Given', 'this is a test', None, None)
-        ])
+        assert feature.background
+        self.compare_steps(
+            feature.background.steps, [("given", "Given", "this is a test", None, None)]
+        )
 
-        assert(len(feature.scenarios) == 4)
+        assert len(feature.scenarios) == 4
 
-        eq_(feature.scenarios[0].name, 'Testing stuff')
-        eq_(feature.scenarios[0].tags, [model.Tag(u'fred', 1)])
-        string = '\n'.join([
-            'Yarr, my hovercraft be full of stuff.',
-            "Also, I be feelin' this pirate schtick be a mite overdone, " + \
-                "me hearties.",
-            '    Also: rum.'
-        ])
-        self.compare_steps(feature.scenarios[0].steps, [
-            ('given', 'Given', 'we are testing', None, None),
-            ('given', 'And', 'this is only a test', None, None),
-            ('given', 'But', 'this is an important test', None, None),
-            ('when', 'When', 'we test with a multiline string', string, None),
-            ('then', 'Then', 'we want it to work', None, None),
-        ])
+        eq_(feature.scenarios[0].name, "Testing stuff")
+        eq_(feature.scenarios[0].tags, [model.Tag("fred", 1)])
+        string = "\n".join(
+            [
+                "Yarr, my hovercraft be full of stuff.",
+                "Also, I be feelin' this pirate schtick be a mite overdone, "
+                + "me hearties.",
+                "    Also: rum.",
+            ]
+        )
+        self.compare_steps(
+            feature.scenarios[0].steps,
+            [
+                ("given", "Given", "we are testing", None, None),
+                ("given", "And", "this is only a test", None, None),
+                ("given", "But", "this is an important test", None, None),
+                ("when", "When", "we test with a multiline string", string, None),
+                ("then", "Then", "we want it to work", None, None),
+            ],
+        )
 
-        eq_(feature.scenarios[1].name, 'Gosh this is long')
+        eq_(feature.scenarios[1].name, "Gosh this is long")
         eq_(feature.scenarios[1].tags, [])
         table = model.Table(
-            [u'length', u'width', u'height'],
+            ["length", "width", "height"],
             0,
             [
-                [u'1', u'2', u'3'],
-                [u'4', u'5', u'6'],
-            ]
+                ["1", "2", "3"],
+                ["4", "5", "6"],
+            ],
         )
-        eq_(feature.scenarios[1].examples[0].name, 'Initial')
+        eq_(feature.scenarios[1].examples[0].name, "Initial")
         eq_(feature.scenarios[1].examples[0].table, table)
         table = model.Table(
-            [u'length', u'width', u'height'],
+            ["length", "width", "height"],
             0,
             [
-                [u'7', u'8', u'9'],
-            ]
+                ["7", "8", "9"],
+            ],
         )
-        eq_(feature.scenarios[1].examples[1].name, 'Subsequent')
+        eq_(feature.scenarios[1].examples[1].name, "Subsequent")
         eq_(feature.scenarios[1].examples[1].table, table)
-        self.compare_steps(feature.scenarios[1].steps, [
-            ('given', 'Given', 'this is <length>', None, None),
-            ('then', 'Then', 'we want it to be <width>', None, None),
-            ('then', 'But', 'not <height>', None, None),
-        ])
+        self.compare_steps(
+            feature.scenarios[1].steps,
+            [
+                ("given", "Given", "this is <length>", None, None),
+                ("then", "Then", "we want it to be <width>", None, None),
+                ("then", "But", "not <height>", None, None),
+            ],
+        )
 
         eq_(feature.scenarios[2].name, "This one doesn't have a tag")
         eq_(feature.scenarios[2].tags, [])
-        self.compare_steps(feature.scenarios[2].steps, [
-            ('given', 'Given', "we don't have a tag", None, None),
-            ('then', 'Then', "we don't really mind", None, None),
-        ])
+        self.compare_steps(
+            feature.scenarios[2].steps,
+            [
+                ("given", "Given", "we don't have a tag", None, None),
+                ("then", "Then", "we don't really mind", None, None),
+            ],
+        )
 
         table = model.Table(
-            [u'Stuff', u'Things'],
+            ["Stuff", "Things"],
             0,
             [
-                [u'wool', u'felt'],
-                [u'cotton', u'thread'],
-                [u'wood', u'paper'],
-                [u'explosives', u'hilarity'],
-            ]
+                ["wool", "felt"],
+                ["cotton", "thread"],
+                ["wood", "paper"],
+                ["explosives", "hilarity"],
+            ],
         )
-        eq_(feature.scenarios[3].name, 'Doing all sorts of stuff')
-        eq_(feature.scenarios[3].tags, [model.Tag(u'stuff', 1), model.Tag(u'derp', 1)])
-        eq_(feature.scenarios[3].examples[0].name, 'Some stuff')
+        eq_(feature.scenarios[3].name, "Doing all sorts of stuff")
+        eq_(feature.scenarios[3].tags, [model.Tag("stuff", 1), model.Tag("derp", 1)])
+        eq_(feature.scenarios[3].examples[0].name, "Some stuff")
         eq_(feature.scenarios[3].examples[0].table, table)
         table = model.Table(
-            [u'a', u'b', u'c', u'd', u'e'],
+            ["a", "b", "c", "d", "e"],
             0,
             [
-                [u'1', u'2', u'3', u'4', u'5'],
-                [u'6', u'7', u'8', u'9', u'10'],
-            ]
+                ["1", "2", "3", "4", "5"],
+                ["6", "7", "8", "9", "10"],
+            ],
         )
-        self.compare_steps(feature.scenarios[3].steps, [
-            ('given', 'Given', 'we have <Stuff>', None, None),
-            ('when', 'When', 'we do stuff with a table', None, table),
-            ('then', 'Then', 'we have <Things>', None, None),
-        ])
-
+        self.compare_steps(
+            feature.scenarios[3].steps,
+            [
+                ("given", "Given", "we have <Stuff>", None, None),
+                ("when", "When", "we do stuff with a table", None, table),
+                ("then", "Then", "we have <Things>", None, None),
+            ],
+        )
 
     def test_fails_to_parse_when_and_is_out_of_order(self):
-        doc = u"""
+        doc = """
 Feature: Stuff
 
   Scenario: Failing at stuff
@@ -951,7 +1074,7 @@ Feature: Stuff
         assert_raises(parser.ParserError, parser.parse_feature, doc)
 
     def test_fails_to_parse_when_but_is_out_of_order(self):
-        doc = u"""
+        doc = """
 Feature: Stuff
 
   Scenario: Failing at stuff
@@ -960,7 +1083,7 @@ Feature: Stuff
         assert_raises(parser.ParserError, parser.parse_feature, doc)
 
     def test_fails_to_parse_when_examples_is_in_the_wrong_place(self):
-        doc = u"""
+        doc = """
 Feature: Stuff
 
   Scenario: Failing at stuff
@@ -971,9 +1094,10 @@ Feature: Stuff
 """.lstrip()
         assert_raises(parser.ParserError, parser.parse_feature, doc)
 
+
 class TestForeign(Common):
     def test_first_line_comment_sets_language(self):
-        doc = u"""
+        doc = """
 # language: fr
 Fonctionnalit\xe9: testing stuff
   Oh my god, it's full of stuff...
@@ -985,7 +1109,7 @@ Fonctionnalit\xe9: testing stuff
 
     def test_multiple_language_comments(self):
         # -- LAST LANGUAGE is used.
-        doc = u"""
+        doc = """
 # language: en
 # language: fr
 Fonctionnalit\xe9: testing stuff
@@ -997,7 +1121,7 @@ Fonctionnalit\xe9: testing stuff
         eq_(feature.description, ["Oh my god, it's full of stuff..."])
 
     def test_language_comment_wins_over_commandline(self):
-        doc = u"""
+        doc = """
 # language: fr
 Fonctionnalit\xe9: testing stuff
   Oh my god, it's full of stuff...
@@ -1008,7 +1132,7 @@ Fonctionnalit\xe9: testing stuff
         eq_(feature.description, ["Oh my god, it's full of stuff..."])
 
     def test_whitespace_before_first_line_comment_still_sets_language(self):
-        doc = u"""
+        doc = """
 
 
 # language: cs
@@ -1021,7 +1145,7 @@ Po\u017eadavek: testing stuff
         eq_(feature.description, ["Oh my god, it's full of stuff..."])
 
     def test_anything_before_language_comment_makes_it_not_count(self):
-        doc = u"""
+        doc = """
 
 @wombles
 # language: cy-GB
@@ -1032,21 +1156,24 @@ Arwedd: testing stuff
         assert_raises(parser.ParserError, parser.parse_feature, doc)
 
     def test_defaults_to_DEFAULT_LANGUAGE(self):
-        feature_kwd = i18n.languages[parser.DEFAULT_LANGUAGE]['feature'][0]
-        doc = u"""
+        feature_kwd = i18n.languages[parser.DEFAULT_LANGUAGE]["feature"][0]
+        doc = (
+            """
 
 @wombles
 # language: cs
 %s: testing stuff
   Oh my god, it's full of stuff...
-""" % feature_kwd
+"""
+            % feature_kwd
+        )
 
         feature = parser.parse_feature(doc)
         eq_(feature.name, "testing stuff")
         eq_(feature.description, ["Oh my god, it's full of stuff..."])
 
     def test_whitespace_in_the_language_comment_is_flexible_1(self):
-        doc = u"""
+        doc = """
 #language:da
 Egenskab: testing stuff
   Oh my god, it's full of stuff...
@@ -1057,7 +1184,7 @@ Egenskab: testing stuff
         eq_(feature.description, ["Oh my god, it's full of stuff..."])
 
     def test_whitespace_in_the_language_comment_is_flexible_2(self):
-        doc = u"""
+        doc = """
 # language:de
 Funktionalit\xe4t: testing stuff
   Oh my god, it's full of stuff...
@@ -1068,7 +1195,7 @@ Funktionalit\xe4t: testing stuff
         eq_(feature.description, ["Oh my god, it's full of stuff..."])
 
     def test_whitespace_in_the_language_comment_is_flexible_3(self):
-        doc = u"""
+        doc = """
 #language: en-lol
 OH HAI: testing stuff
   Oh my god, it's full of stuff...
@@ -1079,7 +1206,7 @@ OH HAI: testing stuff
         eq_(feature.description, ["Oh my god, it's full of stuff..."])
 
     def test_whitespace_in_the_language_comment_is_flexible_4(self):
-        doc = u"""
+        doc = """
 #       language:     lv
 F\u012b\u010da: testing stuff
   Oh my god, it's full of stuff...
@@ -1090,7 +1217,7 @@ F\u012b\u010da: testing stuff
         eq_(feature.description, ["Oh my god, it's full of stuff..."])
 
     def test_parses_french(self):
-        doc = u"""
+        doc = """
 Fonctionnalit\xe9: testing stuff
   Oh my god, it's full of stuff...
 
@@ -1105,23 +1232,29 @@ Fonctionnalit\xe9: testing stuff
     Soit I am testing stuff
     Alors it will work
 """.lstrip()
-        feature = parser.parse_feature(doc, 'fr')
+        feature = parser.parse_feature(doc, "fr")
         eq_(feature.name, "testing stuff")
         eq_(feature.description, ["Oh my god, it's full of stuff..."])
-        assert(feature.background)
-        self.compare_steps(feature.background.steps, [
-            ('given', 'Soit', 'I found some stuff', None, None),
-        ])
+        assert feature.background
+        self.compare_steps(
+            feature.background.steps,
+            [
+                ("given", "Soit", "I found some stuff", None, None),
+            ],
+        )
 
-        assert(len(feature.scenarios) == 2)
-        eq_(feature.scenarios[0].name, 'test stuff')
-        self.compare_steps(feature.scenarios[0].steps, [
-            ('given', 'Soit', 'I am testing stuff', None, None),
-            ('then', 'Alors', 'it should work', None, None),
-        ])
+        assert len(feature.scenarios) == 2
+        eq_(feature.scenarios[0].name, "test stuff")
+        self.compare_steps(
+            feature.scenarios[0].steps,
+            [
+                ("given", "Soit", "I am testing stuff", None, None),
+                ("then", "Alors", "it should work", None, None),
+            ],
+        )
 
     def test_parses_french_multi_word(self):
-        doc = u"""
+        doc = """
 Fonctionnalit\xe9: testing stuff
   Oh my god, it's full of stuff...
 
@@ -1129,20 +1262,24 @@ Fonctionnalit\xe9: testing stuff
     Etant donn\xe9 I am testing stuff
     Alors it should work
 """.lstrip()
-        feature = parser.parse_feature(doc, 'fr')
+        feature = parser.parse_feature(doc, "fr")
         eq_(feature.name, "testing stuff")
         eq_(feature.description, ["Oh my god, it's full of stuff..."])
 
-        assert(len(feature.scenarios) == 1)
-        eq_(feature.scenarios[0].name, 'test stuff')
-        self.compare_steps(feature.scenarios[0].steps, [
-            ('given', u'Etant donn\xe9', 'I am testing stuff', None, None),
-            ('then', 'Alors', 'it should work', None, None),
-        ])
+        assert len(feature.scenarios) == 1
+        eq_(feature.scenarios[0].name, "test stuff")
+        self.compare_steps(
+            feature.scenarios[0].steps,
+            [
+                ("given", "Etant donn\xe9", "I am testing stuff", None, None),
+                ("then", "Alors", "it should work", None, None),
+            ],
+        )
+
     test_parses_french_multi_word.go = 1
 
     def test_properly_handles_whitespace_on_keywords_that_do_not_want_it(self):
-        doc = u"""
+        doc = """
 # language: zh-TW
 
 \u529f\u80fd: I have no idea what I'm saying
@@ -1159,20 +1296,22 @@ Fonctionnalit\xe9: testing stuff
         eq_(feature.name, "I have no idea what I'm saying")
 
         eq_(len(feature.scenarios), 1)
-        eq_(feature.scenarios[0].name, 'No clue whatsoever')
-        self.compare_steps(feature.scenarios[0].steps, [
-            ('given', u'\u5047\u8a2d', "I've got no idea", None, None),
-            ('when', u'\u7576', 'I say things', None, None),
-            ('when', u'\u800c\u4e14', "People don't understand", None, None),
-            ('then', u'\u90a3\u9ebc', "People should laugh", None, None),
-            ('then', u'\u4f46\u662f', "I should take it well", None, None),
-        ])
+        eq_(feature.scenarios[0].name, "No clue whatsoever")
+        self.compare_steps(
+            feature.scenarios[0].steps,
+            [
+                ("given", "\u5047\u8a2d", "I've got no idea", None, None),
+                ("when", "\u7576", "I say things", None, None),
+                ("when", "\u800c\u4e14", "People don't understand", None, None),
+                ("then", "\u90a3\u9ebc", "People should laugh", None, None),
+                ("then", "\u4f46\u662f", "I should take it well", None, None),
+            ],
+        )
 
 
 class TestParser4ScenarioDescription(Common):
-
     def test_parse_scenario_description(self):
-        doc = u'''
+        doc = """
 Feature: Scenario Description
 
   Scenario: With scenario description
@@ -1185,27 +1324,32 @@ Feature: Scenario Description
       Given we have stuff
       When we do stuff
       Then we have things
-'''.lstrip()
+""".lstrip()
         feature = parser.parse_feature(doc)
         eq_(feature.name, "Scenario Description")
 
-        assert(len(feature.scenarios) == 1)
+        assert len(feature.scenarios) == 1
         eq_(feature.scenarios[0].name, "With scenario description")
         eq_(feature.scenarios[0].tags, [])
-        eq_(feature.scenarios[0].description, [
-            "First line of scenario description.",
-            "Second line of scenario description.",
-            "Third line of scenario description (after an empty line).",
-        ])
-        self.compare_steps(feature.scenarios[0].steps, [
-            ('given', 'Given', 'we have stuff', None, None),
-            ('when', 'When', 'we do stuff', None, None),
-            ('then', 'Then', 'we have things', None, None),
-        ])
-
+        eq_(
+            feature.scenarios[0].description,
+            [
+                "First line of scenario description.",
+                "Second line of scenario description.",
+                "Third line of scenario description (after an empty line).",
+            ],
+        )
+        self.compare_steps(
+            feature.scenarios[0].steps,
+            [
+                ("given", "Given", "we have stuff", None, None),
+                ("when", "When", "we do stuff", None, None),
+                ("then", "Then", "we have things", None, None),
+            ],
+        )
 
     def test_parse_scenario_with_description_but_without_steps(self):
-        doc = u'''
+        doc = """
 Feature: Scenario Description
 
   Scenario: With description but without steps
@@ -1217,31 +1361,38 @@ Feature: Scenario Description
       Given we have stuff
       When we do stuff
       Then we have things
-'''.lstrip()
+""".lstrip()
         feature = parser.parse_feature(doc)
         eq_(feature.name, "Scenario Description")
 
-        assert(len(feature.scenarios) == 2)
+        assert len(feature.scenarios) == 2
         eq_(feature.scenarios[0].name, "With description but without steps")
         eq_(feature.scenarios[0].tags, [])
-        eq_(feature.scenarios[0].description, [
-            "First line of scenario description.",
-            "Second line of scenario description.",
-        ])
+        eq_(
+            feature.scenarios[0].description,
+            [
+                "First line of scenario description.",
+                "Second line of scenario description.",
+            ],
+        )
         eq_(feature.scenarios[0].steps, [])
 
         eq_(feature.scenarios[1].name, "Another one")
         eq_(feature.scenarios[1].tags, [])
         eq_(feature.scenarios[1].description, [])
-        self.compare_steps(feature.scenarios[1].steps, [
-            ('given', 'Given', 'we have stuff', None, None),
-            ('when', 'When', 'we do stuff', None, None),
-            ('then', 'Then', 'we have things', None, None),
-        ])
+        self.compare_steps(
+            feature.scenarios[1].steps,
+            [
+                ("given", "Given", "we have stuff", None, None),
+                ("when", "When", "we do stuff", None, None),
+                ("then", "Then", "we have things", None, None),
+            ],
+        )
 
-
-    def test_parse_scenario_with_description_but_without_steps_followed_by_scenario_with_tags(self):
-        doc = u'''
+    def test_parse_scenario_with_description_but_without_steps_followed_by_scenario_with_tags(
+        self,
+    ):
+        doc = """
 Feature: Scenario Description
 
   Scenario: With description but without steps
@@ -1254,30 +1405,36 @@ Feature: Scenario Description
       Given we have stuff
       When we do stuff
       Then we have things
-'''.lstrip()
+""".lstrip()
         feature = parser.parse_feature(doc)
         eq_(feature.name, "Scenario Description")
 
-        assert(len(feature.scenarios) == 2)
+        assert len(feature.scenarios) == 2
         eq_(feature.scenarios[0].name, "With description but without steps")
         eq_(feature.scenarios[0].tags, [])
-        eq_(feature.scenarios[0].description, [
-            "First line of scenario description.",
-            "Second line of scenario description.",
-        ])
+        eq_(
+            feature.scenarios[0].description,
+            [
+                "First line of scenario description.",
+                "Second line of scenario description.",
+            ],
+        )
         eq_(feature.scenarios[0].steps, [])
 
         eq_(feature.scenarios[1].name, "Another one")
         eq_(feature.scenarios[1].tags, ["foo", "bar"])
         eq_(feature.scenarios[1].description, [])
-        self.compare_steps(feature.scenarios[1].steps, [
-            ('given', 'Given', 'we have stuff', None, None),
-            ('when', 'When', 'we do stuff', None, None),
-            ('then', 'Then', 'we have things', None, None),
-        ])
+        self.compare_steps(
+            feature.scenarios[1].steps,
+            [
+                ("given", "Given", "we have stuff", None, None),
+                ("when", "When", "we do stuff", None, None),
+                ("then", "Then", "we have things", None, None),
+            ],
+        )
 
     def test_parse_two_scenarios_with_description(self):
-        doc = u'''
+        doc = """
 Feature: Scenario Description
 
   Scenario: One with description but without steps
@@ -1292,68 +1449,74 @@ Feature: Scenario Description
       Given we have stuff
       When we do stuff
       Then we have things
-'''.lstrip()
+""".lstrip()
         feature = parser.parse_feature(doc)
         eq_(feature.name, "Scenario Description")
 
-        assert(len(feature.scenarios) == 2)
+        assert len(feature.scenarios) == 2
         eq_(feature.scenarios[0].name, "One with description but without steps")
         eq_(feature.scenarios[0].tags, [])
-        eq_(feature.scenarios[0].description, [
-            "First line of scenario description.",
-            "Second line of scenario description.",
-        ])
+        eq_(
+            feature.scenarios[0].description,
+            [
+                "First line of scenario description.",
+                "Second line of scenario description.",
+            ],
+        )
         eq_(feature.scenarios[0].steps, [])
 
         eq_(feature.scenarios[1].name, "Two with description and with steps")
         eq_(feature.scenarios[1].tags, [])
-        eq_(feature.scenarios[1].description, [
-            "Another line of scenario description.",
-        ])
-        self.compare_steps(feature.scenarios[1].steps, [
-            ('given', 'Given', 'we have stuff', None, None),
-            ('when', 'When', 'we do stuff', None, None),
-            ('then', 'Then', 'we have things', None, None),
-        ])
+        eq_(
+            feature.scenarios[1].description,
+            [
+                "Another line of scenario description.",
+            ],
+        )
+        self.compare_steps(
+            feature.scenarios[1].steps,
+            [
+                ("given", "Given", "we have stuff", None, None),
+                ("when", "When", "we do stuff", None, None),
+                ("then", "Then", "we have things", None, None),
+            ],
+        )
 
 
 def parse_tags(line):
     the_parser = parser.Parser()
     return the_parser.parse_tags(line.strip())
 
-class TestParser4Tags(Common):
 
+class TestParser4Tags(Common):
     def test_parse_tags_with_one_tag(self):
-        tags = parse_tags('@one  ')
+        tags = parse_tags("@one  ")
         eq_(len(tags), 1)
         eq_(tags[0], "one")
 
     def test_parse_tags_with_more_tags(self):
-        tags = parse_tags('@one  @two.three-four  @xxx')
+        tags = parse_tags("@one  @two.three-four  @xxx")
         eq_(len(tags), 3)
-        eq_(tags, [model.Tag(name, 1)
-            for name in (u'one', u'two.three-four', u'xxx' )])
+        eq_(tags, [model.Tag(name, 1) for name in ("one", "two.three-four", "xxx")])
 
     def test_parse_tags_with_tag_and_comment(self):
-        tags = parse_tags('@one  # @fake-tag-in-comment xxx')
+        tags = parse_tags("@one  # @fake-tag-in-comment xxx")
         eq_(len(tags), 1)
         eq_(tags[0], "one")
 
     def test_parse_tags_with_tags_and_comment(self):
-        tags = parse_tags('@one  @two.three-four  @xxx # @fake-tag-in-comment xxx')
+        tags = parse_tags("@one  @two.three-four  @xxx # @fake-tag-in-comment xxx")
         eq_(len(tags), 3)
-        eq_(tags, [model.Tag(name, 1)
-                   for name in (u'one', u'two.three-four', u'xxx' )])
+        eq_(tags, [model.Tag(name, 1) for name in ("one", "two.three-four", "xxx")])
 
     @raises(parser.ParserError)
     def test_parse_tags_with_invalid_tags(self):
-        parse_tags('@one  invalid.tag boom')
+        parse_tags("@one  invalid.tag boom")
 
 
 class TestParser4Background(Common):
-
     def test_parse_background(self):
-        doc = u'''
+        doc = """
 Feature: Background
 
   A feature description line 1.
@@ -1367,32 +1530,40 @@ Feature: Background
     Given we have stuff
     When we do stuff
     Then we have things
-'''.lstrip()
+""".lstrip()
         feature = parser.parse_feature(doc)
         eq_(feature.name, "Background")
-        eq_(feature.description, [
-            "A feature description line 1.",
-            "A feature description line 2.",
-        ])
+        eq_(
+            feature.description,
+            [
+                "A feature description line 1.",
+                "A feature description line 2.",
+            ],
+        )
         assert feature.background is not None
         eq_(feature.background.name, "One")
-        self.compare_steps(feature.background.steps, [
-            ('given', 'Given', 'we init stuff', None, None),
-            ('when', 'When', 'we init more stuff', None, None),
-        ])
+        self.compare_steps(
+            feature.background.steps,
+            [
+                ("given", "Given", "we init stuff", None, None),
+                ("when", "When", "we init more stuff", None, None),
+            ],
+        )
 
-        assert(len(feature.scenarios) == 1)
+        assert len(feature.scenarios) == 1
         eq_(feature.scenarios[0].name, "One")
         eq_(feature.scenarios[0].tags, [])
-        self.compare_steps(feature.scenarios[0].steps, [
-            ('given', 'Given', 'we have stuff', None, None),
-            ('when', 'When', 'we do stuff', None, None),
-            ('then', 'Then', 'we have things', None, None),
-        ])
-
+        self.compare_steps(
+            feature.scenarios[0].steps,
+            [
+                ("given", "Given", "we have stuff", None, None),
+                ("when", "When", "we do stuff", None, None),
+                ("then", "Then", "we have things", None, None),
+            ],
+        )
 
     def test_parse_background_with_tags_should_fail(self):
-        doc = u'''
+        doc = """
 Feature: Background with tags
   Expect that a ParserError occurs
   because Background does not support tags/tagging.
@@ -1401,12 +1572,11 @@ Feature: Background with tags
   @here
   Background: One
     Given we init stuff
-'''.lstrip()
+""".lstrip()
         assert_raises(parser.ParserError, parser.parse_feature, doc)
 
-
     def test_parse_two_background_should_fail(self):
-        doc = u'''
+        doc = """
 Feature: Two Backgrounds
   Expect that a ParserError occurs
   because at most one Background is supported.
@@ -1416,12 +1586,11 @@ Feature: Two Backgrounds
 
   Background: Two
     When we init more stuff
-'''.lstrip()
+""".lstrip()
         assert_raises(parser.ParserError, parser.parse_feature, doc)
 
-
     def test_parse_background_after_scenario_should_fail(self):
-        doc = u'''
+        doc = """
 Feature: Background after Scenario
   Expect that a ParserError occurs
   because Background is only allowed before any Scenario.
@@ -1431,12 +1600,11 @@ Feature: Background after Scenario
 
   Background: Two
     When we init more stuff
-'''.lstrip()
+""".lstrip()
         assert_raises(parser.ParserError, parser.parse_feature, doc)
 
-
     def test_parse_background_after_scenario_outline_should_fail(self):
-        doc = u'''
+        doc = """
 Feature: Background after ScenarioOutline
   Expect that a ParserError occurs
   because Background is only allowed before any ScenarioOuline.
@@ -1449,7 +1617,7 @@ Feature: Background after ScenarioOutline
 
   Background: Two
     When we init more stuff
-'''.lstrip()
+""".lstrip()
         assert_raises(parser.ParserError, parser.parse_feature, doc)
 
 
@@ -1459,26 +1627,34 @@ class TestParser4Steps(Common):
     """
 
     def test_parse_steps_with_simple_steps(self):
-        doc = u'''
+        doc = """
 Given a simple step
 When I have another simple step
  And I have another simple step
 Then every step will be parsed without errors
-'''.lstrip()
+""".lstrip()
         steps = parser.parse_steps(doc)
         eq_(len(steps), 4)
         # -- EXPECTED STEP DATA:
         #     SCHEMA: step_type, keyword, name, text, table
-        self.compare_steps(steps, [
-            ("given", "Given", "a simple step", None, None),
-            ("when",  "When",  "I have another simple step", None, None),
-            ("when",  "And",   "I have another simple step", None, None),
-            ("then",  "Then",  "every step will be parsed without errors",
-                                None, None),
-        ])
+        self.compare_steps(
+            steps,
+            [
+                ("given", "Given", "a simple step", None, None),
+                ("when", "When", "I have another simple step", None, None),
+                ("when", "And", "I have another simple step", None, None),
+                (
+                    "then",
+                    "Then",
+                    "every step will be parsed without errors",
+                    None,
+                    None,
+                ),
+            ],
+        )
 
     def test_parse_steps_with_multiline_text(self):
-        doc = u'''
+        doc = '''
 Given a step with multi-line text:
     """
     Lorem ipsum
@@ -1497,15 +1673,23 @@ Then every step will be parsed without errors
         #     SCHEMA: step_type, keyword, name, text, table
         text1 = "Lorem ipsum\nIpsum lorem"
         text2 = "Ipsum lorem\nLorem ipsum"
-        self.compare_steps(steps, [
-            ("given", "Given", "a step with multi-line text", text1, None),
-            ("when",  "When",  "I have a step with multi-line text", text2, None),
-            ("then",  "Then",  "every step will be parsed without errors",
-             None, None),
-        ])
+        self.compare_steps(
+            steps,
+            [
+                ("given", "Given", "a step with multi-line text", text1, None),
+                ("when", "When", "I have a step with multi-line text", text2, None),
+                (
+                    "then",
+                    "Then",
+                    "every step will be parsed without errors",
+                    None,
+                    None,
+                ),
+            ],
+        )
 
     def test_parse_steps_when_last_step_has_multiline_text(self):
-        doc = u'''
+        doc = '''
 Given a simple step
 Then the last step has multi-line text:
     """
@@ -1518,13 +1702,16 @@ Then the last step has multi-line text:
         # -- EXPECTED STEP DATA:
         #     SCHEMA: step_type, keyword, name, text, table
         text2 = "Lorem ipsum\nIpsum lorem"
-        self.compare_steps(steps, [
-            ("given", "Given", "a simple step", None, None),
-            ("then",  "Then",  "the last step has multi-line text", text2, None),
-        ])
+        self.compare_steps(
+            steps,
+            [
+                ("given", "Given", "a simple step", None, None),
+                ("then", "Then", "the last step has multi-line text", text2, None),
+            ],
+        )
 
     def test_parse_steps_with_table(self):
-        doc = u'''
+        doc = """
 Given a step with a table:
     | Name  | Age |
     | Alice |  12 |
@@ -1536,55 +1723,78 @@ When I have a step with a table:
     | Spain   | Madrid  |
     | USA     | Washington |
 Then every step will be parsed without errors
-'''.lstrip()
+""".lstrip()
         steps = parser.parse_steps(doc)
         eq_(len(steps), 3)
         # -- EXPECTED STEP DATA:
         #     SCHEMA: step_type, keyword, name, text, table
-        table1 = model.Table([u"Name", u"Age"], 0, [
-            [ u"Alice", u"12" ],
-            [ u"Bob",   u"23" ],
-            ])
-        table2 = model.Table([u"Country", u"Capital"], 0, [
-            [ u"France",   u"Paris" ],
-            [ u"Germany",  u"Berlin" ],
-            [ u"Spain",    u"Madrid" ],
-            [ u"USA",      u"Washington" ],
-            ])
-        self.compare_steps(steps, [
-            ("given", "Given", "a step with a table", None, table1),
-            ("when",  "When",  "I have a step with a table", None, table2),
-            ("then",  "Then",  "every step will be parsed without errors",
-             None, None),
-        ])
+        table1 = model.Table(
+            ["Name", "Age"],
+            0,
+            [
+                ["Alice", "12"],
+                ["Bob", "23"],
+            ],
+        )
+        table2 = model.Table(
+            ["Country", "Capital"],
+            0,
+            [
+                ["France", "Paris"],
+                ["Germany", "Berlin"],
+                ["Spain", "Madrid"],
+                ["USA", "Washington"],
+            ],
+        )
+        self.compare_steps(
+            steps,
+            [
+                ("given", "Given", "a step with a table", None, table1),
+                ("when", "When", "I have a step with a table", None, table2),
+                (
+                    "then",
+                    "Then",
+                    "every step will be parsed without errors",
+                    None,
+                    None,
+                ),
+            ],
+        )
 
     def test_parse_steps_when_last_step_has_a_table(self):
-        doc = u'''
+        doc = """
 Given a simple step
 Then the last step has a final table:
     | Name   | City |
     | Alonso | Barcelona |
     | Bred   | London  |
-'''.lstrip()
+""".lstrip()
         steps = parser.parse_steps(doc)
         eq_(len(steps), 2)
         # -- EXPECTED STEP DATA:
         #     SCHEMA: step_type, keyword, name, text, table
-        table2 = model.Table([u"Name", u"City"], 0, [
-            [ u"Alonso", u"Barcelona" ],
-            [ u"Bred",   u"London" ],
-            ])
-        self.compare_steps(steps, [
-            ("given", "Given", "a simple step", None, None),
-            ("then",  "Then",  "the last step has a final table", None, table2),
-        ])
+        table2 = model.Table(
+            ["Name", "City"],
+            0,
+            [
+                ["Alonso", "Barcelona"],
+                ["Bred", "London"],
+            ],
+        )
+        self.compare_steps(
+            steps,
+            [
+                ("given", "Given", "a simple step", None, None),
+                ("then", "Then", "the last step has a final table", None, table2),
+            ],
+        )
 
     @raises(parser.ParserError)
     def test_parse_steps_with_malformed_table(self):
-        doc = u'''
+        doc = """
 Given a step with a malformed table:
     | Name   | City |
     | Alonso | Barcelona | 2004 |
     | Bred   | London    | 2010 |
-'''.lstrip()
+""".lstrip()
         steps = parser.parse_steps(doc)

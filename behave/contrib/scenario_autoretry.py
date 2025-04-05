@@ -49,17 +49,18 @@ def patch_scenario_with_autoretry(scenario, max_attempts=3):
     :param scenario:        Scenario or ScenarioOutline to patch.
     :param max_attempts:    How many times the scenario can be run.
     """
+
     def scenario_run_with_retries(scenario_run, *args, **kwargs):
-        for attempt in range(1, max_attempts+1):
+        for attempt in range(1, max_attempts + 1):
             if not scenario_run(*args, **kwargs):
                 if attempt > 1:
-                    message = u"AUTO-RETRY SCENARIO PASSED (after {0} attempts)"
+                    message = "AUTO-RETRY SCENARIO PASSED (after {0} attempts)"
                     print(message.format(attempt))
-                return False    # -- NOT-FAILED = PASSED
+                return False  # -- NOT-FAILED = PASSED
             # -- SCENARIO FAILED:
             if attempt < max_attempts:
-                print(u"AUTO-RETRY SCENARIO (attempt {0})".format(attempt))
-        message = u"AUTO-RETRY SCENARIO FAILED (after {0} attempts)"
+                print("AUTO-RETRY SCENARIO (attempt {0})".format(attempt))
+        message = "AUTO-RETRY SCENARIO FAILED (after {0} attempts)"
         print(message.format(max_attempts))
         return True
 

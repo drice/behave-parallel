@@ -33,10 +33,9 @@ install:
 
 script:
   - python --version
-  - pytest test tests
-  - behave -f progress --junit features/
-  - behave -f progress --junit tools/test-features/
-  - behave -f progress --junit issue.features/
+  # Run tests via tox to use the defined environments
+  # This ensures consistency with local testing
+  - tox -e py  # This will run the default python 3 version Travis provides matching one in envlist
 
 after_failure:
   - echo "FAILURE DETAILS (from XML reports):"

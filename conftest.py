@@ -10,6 +10,7 @@ Add project-specific information.
 import behave
 import pytest
 
+
 @pytest.fixture(autouse=True)
 def _annotate_environment(request):
     """Add project-specific information to test-run environment:
@@ -24,4 +25,3 @@ def _annotate_environment(request):
         # -- PROVIDED-BY: pytest-html
         behave_version = behave.__version__
         environment.append(("behave", behave_version))
-

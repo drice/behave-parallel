@@ -29,4 +29,3 @@ def test_issue__getattr_with_protected_unknown_context_attribute_raises_no_error
 
     assert value == "__UNKNOWN__"
     # -- ENSURED: No exception is raised, neither KeyError nor AttributeError
-

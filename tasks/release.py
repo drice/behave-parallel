@@ -59,7 +59,7 @@ from ._dry_run import DryRunContext
 # TASKS:
 # -----------------------------------------------------------------------------
 @task
-def checklist(ctx=None):    # pylint: disable=unused-argument
+def checklist(ctx=None):  # pylint: disable=unused-argument
     """Checklist for releasing this project."""
     checklist_text = """PRE-RELEASE CHECKLIST:
 [ ]  Everything is checked in
@@ -80,8 +80,7 @@ POST-RELEASE CHECKLIST:
 """
     steps = dict(x1=None, x2=None, x3=None, x4=None, x5=None, x6=None)
     yesno_map = {True: "x", False: "_", None: " "}
-    answers = {name: yesno_map[value]
-               for name, value in steps.items()}
+    answers = {name: yesno_map[value] for name, value in steps.items()}
     print(checklist_text.format(**answers))
 
 
@@ -91,8 +90,7 @@ def bump_version(ctx, new_version, version_part=None, dry_run=False):
     version_part = version_part or "minor"
     if dry_run:
         ctx = DryRunContext(ctx)
-    ctx.run("bumpversion --new-version={} {}".format(new_version,
-                                                     version_part))
+    ctx.run("bumpversion --new-version={} {}".format(new_version, version_part))
 
 
 @task(name="build", aliases=["build_packages"])
@@ -103,15 +101,14 @@ def build_packages(ctx, hide=False):
 
 
 @task
-def prepare(ctx, new_version=None, version_part=None, hide=True,
-            dry_run=False):
+def prepare(ctx, new_version=None, version_part=None, hide=True, dry_run=False):
     """Prepare the release: bump version, build packages, ..."""
     if new_version is not None:
-        bump_version(ctx, new_version, version_part=version_part,
-                     dry_run=dry_run)
+        bump_version(ctx, new_version, version_part=version_part, dry_run=dry_run)
     build_packages(ctx, hide=hide)
     packages = ensure_packages_exist(ctx, check_only=True)
     print_packages(packages)
+
 
 # -- NOT-NEEDED:
 # @task(name="register")
@@ -145,8 +142,9 @@ def upload(ctx, repo=None, dry_run=False, skip_existing=False):
     packages = ensure_packages_exist(original_ctx)
     print_packages(packages)
     # ctx.run("twine upload --repository={repo} dist/*".format(repo=repo))
-    ctx.run("twine upload --repository={repo} {opts} dist/*".format(
-            repo=repo, opts=opts))
+    ctx.run(
+        "twine upload --repository={repo} {opts} dist/*".format(repo=repo, opts=opts)
+    )
 
 
 # -- DEPRECATED: Use RTD instead
@@ -173,6 +171,7 @@ def print_packages(packages):
         package_time = package.stat().st_mtime
         print("  - %s  (size=%s)" % (package, package_size))
 
+
 def ensure_packages_exist(ctx, pattern=None, check_only=False):
     if pattern is None:
         project_name = ctx.project.name
@@ -188,8 +187,7 @@ def ensure_packages_exist(ctx, pattern=None, check_only=False):
             # -- RECURSIVE-SELF-CALL: Once
             print("NO-PACKAGES-FOUND: Build packages first ...")
             build_packages(ctx, hide=True)
-            packages = ensure_packages_exist(ctx, pattern,
-                                             check_only=True)
+            packages = ensure_packages_exist(ctx, pattern, check_only=True)
     return packages
 
 
@@ -198,8 +196,10 @@ def ensure_packages_exist(ctx, pattern=None, check_only=False):
 # -----------------------------------------------------------------------------
 # DISABLED: register_packages
 namespace = Collection(bump_version, checklist, prepare, build_packages, upload)
-namespace.configure({
-    "project": {
-        "repo": "pypi",
+namespace.configure(
+    {
+        "project": {
+            "repo": "pypi",
+        }
     }
-})
+)

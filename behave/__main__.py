@@ -8,8 +8,13 @@ from behave import __version__
 from behave.configuration import Configuration, ConfigError
 from behave.parser import ParserError
 from behave.runner import Runner
-from behave.runner_util import print_undefined_step_snippets, reset_runtime, \
-    InvalidFileLocationError, InvalidFilenameError, FileNotFoundError
+from behave.runner_util import (
+    print_undefined_step_snippets,
+    reset_runtime,
+    InvalidFileLocationError,
+    InvalidFilenameError,
+    FileNotFoundError,
+)
 from behave.textutil import compute_words_maxsize, text as _text
 
 
@@ -74,6 +79,7 @@ def run_behave(config, runner_class=None):
 
     if config.lang_list:
         from behave.i18n import languages
+
         stdout = sys.stdout
         if six.PY2:
             # -- PYTHON2: Overcome implicit encode problems (encoding=ASCII).
@@ -83,23 +89,27 @@ def run_behave(config, runner_class=None):
         for iso_code in sorted(iso_codes):
             native = languages[iso_code]["native"][0]
             name = languages[iso_code]["name"][0]
-            print(u"%s: %s / %s" % (iso_code, native, name), file=stdout)
+            print("%s: %s / %s" % (iso_code, native, name), file=stdout)
         return 0
 
     if config.lang_help:
         from behave.i18n import languages
+
         if config.lang_help not in languages:
-            print("%s is not a recognised language: try --lang-list" % \
-                    config.lang_help)
+            print("%s is not a recognised language: try --lang-list" % config.lang_help)
             return 1
         trans = languages[config.lang_help]
-        print(u"Translations for %s / %s" % (trans["name"][0],
-                                             trans["native"][0]))
+        print("Translations for %s / %s" % (trans["name"][0], trans["native"][0]))
         for kw in trans:
             if kw in "name native".split():
                 continue
-            print(u"%16s: %s" % (kw.title().replace("_", " "),
-                                 u", ".join(w for w in trans[kw] if w != "*")))
+            print(
+                "%16s: %s"
+                % (
+                    kw.title().replace("_", " "),
+                    ", ".join(w for w in trans[kw] if w != "*"),
+                )
+            )
         return 0
 
     if not config.format:
@@ -115,8 +125,10 @@ def run_behave(config, runner_class=None):
         return 0
 
     if len(config.outputs) > len(config.format):
-        print("CONFIG-ERROR: More outfiles (%d) than formatters (%d)." % \
-              (len(config.outputs), len(config.format)))
+        print(
+            "CONFIG-ERROR: More outfiles (%d) than formatters (%d)."
+            % (len(config.outputs), len(config.format))
+        )
         return 1
 
     # -- MAIN PART:
@@ -126,24 +138,23 @@ def run_behave(config, runner_class=None):
         runner = runner_class(config)
         failed = runner.run()
     except ParserError as e:
-        print(u"ParserError: %s" % e)
+        print("ParserError: %s" % e)
     except ConfigError as e:
-        print(u"ConfigError: %s" % e)
+        print("ConfigError: %s" % e)
     except FileNotFoundError as e:
-        print(u"FileNotFoundError: %s" % e)
+        print("FileNotFoundError: %s" % e)
     except InvalidFileLocationError as e:
-        print(u"InvalidFileLocationError: %s" % e)
+        print("InvalidFileLocationError: %s" % e)
     except InvalidFilenameError as e:
-        print(u"InvalidFilenameError: %s" % e)
+        print("InvalidFilenameError: %s" % e)
     except Exception as e:
         # -- DIAGNOSTICS:
         text = _text(e)
-        print(u"Exception %s: %s" % (e.__class__.__name__, text))
+        print("Exception %s: %s" % (e.__class__.__name__, text))
         raise
 
     if config.show_snippets and runner.undefined_steps:
-        print_undefined_step_snippets(runner.undefined_steps,
-                                      colored=config.color)
+        print_undefined_step_snippets(runner.undefined_steps, colored=config.color)
 
     return_code = 0
     if failed:
@@ -157,18 +168,18 @@ def print_formatters(title=None, stream=None):
     :param title:   Optional title (as string).
     :param stream:  Optional, output stream to use (default: sys.stdout).
     """
-    from behave.formatter._registry  import format_items
+    from behave.formatter._registry import format_items
     from operator import itemgetter
 
     if stream is None:
         stream = sys.stdout
     if title:
-        stream.write(u"%s\n" % title)
+        stream.write("%s\n" % title)
 
     format_items = sorted(format_items(resolved=True), key=itemgetter(0))
-    format_names = [item[0]  for item in format_items]
+    format_names = [item[0] for item in format_items]
     column_size = compute_words_maxsize(format_names)
-    schema = u"  %-"+ _text(column_size) +"s  %s\n"
+    schema = "  %-" + _text(column_size) + "s  %s\n"
     for name, formatter_class in format_items:
         formatter_description = getattr(formatter_class, "description", "")
         stream.write(schema % (name, formatter_description))
@@ -183,28 +194,38 @@ def main(args=None):
     config = Configuration(args)
 
     rclass = Runner
-    if getattr(config, 'proc_count'):
+    if getattr(config, "proc_count"):
         try:
-            from behave.runner_mp import MultiProcRunner_Feature, MultiProcRunner_Scenario
-            pelem = getattr(config, 'parallel_element', False)
-            if not pelem:
-                print ("INFO: Without giving --parallel-element, defaulting to 'scenario'...")
-                pelem = 'scenario'
+            from behave.runner_mp import (
+                MultiProcRunner_Feature,
+                MultiProcRunner_Scenario,
+            )
 
-            if pelem == 'scenario':
+            pelem = getattr(config, "parallel_element", False)
+            if not pelem:
+                print(
+                    "INFO: Without giving --parallel-element, defaulting to 'scenario'..."
+                )
+                pelem = "scenario"
+
+            if pelem == "scenario":
                 rclass = MultiProcRunner_Scenario
-            elif pelem == 'feature':
+            elif pelem == "feature":
                 rclass = MultiProcRunner_Feature
             else:
-                print ("ERROR: When using --processes, --parallel-element"
+                print(
+                    "ERROR: When using --processes, --parallel-element"
                     " option must be set to 'feature' or 'scenario'. You gave "
-                    "'%s', which isn't valid." % pelem)
+                    "'%s', which isn't valid." % pelem
+                )
                 return 1
 
         except ImportError as e:
-            print ("DEBUG: import error: %s" % e)
-            print ("ERROR: Cannot import multiprocessing module."
-            " If you're on python2.5, go get the backport")
+            print("DEBUG: import error: %s" % e)
+            print(
+                "ERROR: Cannot import multiprocessing module."
+                " If you're on python2.5, go get the backport"
+            )
             return 1
     return run_behave(config, runner_class=rclass)
 

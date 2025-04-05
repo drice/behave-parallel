@@ -9,6 +9,7 @@ from behave.capture import Captured, CaptureController
 from mock import Mock
 import pytest
 
+
 # -----------------------------------------------------------------------------
 # TEST SUPPORT:
 # -----------------------------------------------------------------------------
@@ -21,6 +22,7 @@ def create_capture_controller(config=None):
         config.logging_filter = None
         config.logging_level = "INFO"
     return CaptureController(config)
+
 
 def setup_capture_controller(capture_controller, context=None):
     if not context:
@@ -49,68 +51,75 @@ def capture_controller():
 # TEST SUITE:
 # -----------------------------------------------------------------------------
 class TestCaptured(object):
-
     def test_default_ctor(self):
         captured = Captured()
-        assert captured.stdout == u""
-        assert captured.stderr == u""
-        assert captured.log_output == u""
+        assert captured.stdout == ""
+        assert captured.stderr == ""
+        assert captured.log_output == ""
         assert not captured
 
     def test_ctor_with_params(self):
-        captured = Captured(u"STDOUT", u"STDERR", u"LOG_OUTPUT")
-        assert captured.stdout == u"STDOUT"
-        assert captured.stderr == u"STDERR"
-        assert captured.log_output == u"LOG_OUTPUT"
+        captured = Captured("STDOUT", "STDERR", "LOG_OUTPUT")
+        assert captured.stdout == "STDOUT"
+        assert captured.stderr == "STDERR"
+        assert captured.log_output == "LOG_OUTPUT"
 
-        captured = Captured(stdout=u"STDOUT")
-        assert captured.stdout == u"STDOUT"
-        assert captured.stderr == u""
-        assert captured.log_output == u""
+        captured = Captured(stdout="STDOUT")
+        assert captured.stdout == "STDOUT"
+        assert captured.stderr == ""
+        assert captured.log_output == ""
 
-        captured = Captured(stderr=u"STDERR")
-        assert captured.stdout == u""
-        assert captured.stderr == u"STDERR"
-        assert captured.log_output == u""
+        captured = Captured(stderr="STDERR")
+        assert captured.stdout == ""
+        assert captured.stderr == "STDERR"
+        assert captured.log_output == ""
 
-        captured = Captured(log_output=u"LOG_OUTPUT")
-        assert captured.stdout == u""
-        assert captured.stderr == u""
-        assert captured.log_output == u"LOG_OUTPUT"
+        captured = Captured(log_output="LOG_OUTPUT")
+        assert captured.stdout == ""
+        assert captured.stderr == ""
+        assert captured.log_output == "LOG_OUTPUT"
 
     def test_reset(self):
         captured = Captured("STDOUT", "STDERR", "LOG_OUTPUT")
         captured.reset()
-        assert captured.stdout == u""
-        assert captured.stderr == u""
-        assert captured.log_output == u""
+        assert captured.stdout == ""
+        assert captured.stderr == ""
+        assert captured.log_output == ""
         assert not captured
 
     def test_bool_conversion__returns_false_without_captured_output(self):
         captured = Captured()
         assert bool(captured) == False
 
-    @pytest.mark.parametrize("params", [
-        dict(stdout="xxx"),
-        dict(stderr="yyy"),
-        dict(log_output="zzz"),
-        dict(stderr="yyy", log_output="zzz"),
-        dict(stdout="xxx", stderr="yyy", log_output="zzz"),
-    ])
+    @pytest.mark.parametrize(
+        "params",
+        [
+            dict(stdout="xxx"),
+            dict(stderr="yyy"),
+            dict(log_output="zzz"),
+            dict(stderr="yyy", log_output="zzz"),
+            dict(stdout="xxx", stderr="yyy", log_output="zzz"),
+        ],
+    )
     def test_bool_conversion__returns_true_with_captured_output(self, params):
         captured = Captured(**params)
         assert bool(captured)
 
-    @pytest.mark.parametrize("params, expected", [
-        (dict(), ""),
-        (dict(stdout="STDOUT"), "STDOUT"),
-        (dict(stderr="STDERR"), "STDERR"),
-        (dict(log_output="LOG_OUTPUT"), "LOG_OUTPUT"),
-        (dict(stdout="STDOUT", stderr="STDERR"), "STDOUT\nSTDERR"),
-        (dict(stdout="STDOUT", log_output="LOG_OUTPUT"), "STDOUT\nLOG_OUTPUT"),
-        (dict(stdout="STDOUT", stderr="STDERR", log_output="LOG_OUTPUT"),
-         "STDOUT\nSTDERR\nLOG_OUTPUT"),
-    ])
+    @pytest.mark.parametrize(
+        "params, expected",
+        [
+            (dict(), ""),
+            (dict(stdout="STDOUT"), "STDOUT"),
+            (dict(stderr="STDERR"), "STDERR"),
+            (dict(log_output="LOG_OUTPUT"), "LOG_OUTPUT"),
+            (dict(stdout="STDOUT", stderr="STDERR"), "STDOUT\nSTDERR"),
+            (dict(stdout="STDOUT", log_output="LOG_OUTPUT"), "STDOUT\nLOG_OUTPUT"),
+            (
+                dict(stdout="STDOUT", stderr="STDERR", log_output="LOG_OUTPUT"),
+                "STDOUT\nSTDERR\nLOG_OUTPUT",
+            ),
+        ],
+    )
     def test_output__contains_concatenated_parts(self, params, expected):
         captured = Captured(**params)
         assert captured.output == expected
@@ -215,7 +224,6 @@ class Theory4ActiveCaptureController(object):
 
 
 class TestCaptureController(object):
-
     # @pytest.no_capture
     def test_basics(self):
         capture_controller = create_capture_controller()
@@ -247,7 +255,6 @@ class TestCaptureController(object):
         capture_controller.stop_capture()
         assert capture_controller.captured.output == "HELLO\nSam\nAlice\nBob\n"
 
-
     def test_capturing__with_several_start_stop_cycles(self, capture_controller):
         capture_controller.start_capture()
         sys.stdout.write("HELLO\n")
@@ -263,7 +270,6 @@ class TestCaptureController(object):
         sys.stderr.write("Bob\n")
         capture_controller.stop_capture()
         assert capture_controller.captured.output == "HELLO\nSam\nAlice\nBob\n"
-
 
     def test_make_capture_report(self, capture_controller):
         capture_controller.start_capture()

@@ -12,12 +12,13 @@ from behave.formatter import ansi_escapes
 import unittest
 from six.moves import range
 
+
 class StripEscapesTest(unittest.TestCase):
     ALL_COLORS = list(ansi_escapes.colors.keys())
-    CURSOR_UPS = [ ansi_escapes.up(count)  for count in range(10) ]
+    CURSOR_UPS = [ansi_escapes.up(count) for count in range(10)]
     TEXTS = [
-        u"lorem ipsum",
-        u"Alice\nBob\nCharly\nDennis",
+        "lorem ipsum",
+        "Alice\nBob\nCharly\nDennis",
     ]
 
     @classmethod
@@ -52,7 +53,6 @@ class StripEscapesTest(unittest.TestCase):
             tools.eq_("", ansi_escapes.strip_escapes(text))
         for text in list(ansi_escapes.escapes.values()):
             tools.eq_("", ansi_escapes.strip_escapes(text))
-
 
     def test_should_strip_color_escapes_from_text(self):
         for text in self.TEXTS:

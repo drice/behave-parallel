@@ -9,6 +9,7 @@ from behave.model import ScenarioOutline
 from behave.model_core import Status
 from behave.reporter.base import Reporter
 from behave.formatter.base import StreamOpener
+
 try:
     # requires py>=3.3 or 3.5 for all platforms
     from time import monotonic
@@ -17,9 +18,15 @@ except ImportError:
 
 
 # -- DISABLED: optional_steps = ('untested', 'undefined')
-optional_steps = (Status.untested,) # MAYBE: Status.undefined
-status_order = (Status.passed, Status.failed, Status.skipped,
-                Status.undefined, Status.untested)
+optional_steps = (Status.untested,)  # MAYBE: Status.undefined
+status_order = (
+    Status.passed,
+    Status.failed,
+    Status.skipped,
+    Status.undefined,
+    Status.untested,
+)
+
 
 def format_summary(statement_type, summary):
     parts = []
@@ -35,10 +42,10 @@ def format_summary(statement_type, summary):
             # -- FIRST ITEM: Add statement_type to counter.
             label = statement_type
             if counts != 1:
-                label += 's'
-            part = u"%d %s %s" % (counts, label, status.name)
+                label += "s"
+            part = "%d %s %s" % (counts, label, status.name)
         else:
-            part = u"%d %s" % (counts, status.name)
+            part = "%d %s" % (counts, status.name)
         parts.append(part)
     return ", ".join(parts) + "\n"
 
@@ -51,13 +58,25 @@ class SummaryReporter(Reporter):
         super(SummaryReporter, self).__init__(config)
         stream = getattr(sys, self.output_stream_name, sys.stderr)
         self.stream = StreamOpener.ensure_stream_with_encoder(stream)
-        self.feature_summary = {Status.passed.name: 0, Status.failed.name: 0,
-                                Status.skipped.name: 0, Status.untested.name: 0}
-        self.scenario_summary = {Status.passed.name: 0, Status.failed.name: 0,
-                                 Status.skipped.name: 0, Status.untested.name: 0}
-        self.step_summary = {Status.passed.name: 0, Status.failed.name: 0,
-                             Status.skipped.name: 0, Status.untested.name: 0,
-                             Status.undefined.name: 0}
+        self.feature_summary = {
+            Status.passed.name: 0,
+            Status.failed.name: 0,
+            Status.skipped.name: 0,
+            Status.untested.name: 0,
+        }
+        self.scenario_summary = {
+            Status.passed.name: 0,
+            Status.failed.name: 0,
+            Status.skipped.name: 0,
+            Status.untested.name: 0,
+        }
+        self.step_summary = {
+            Status.passed.name: 0,
+            Status.failed.name: 0,
+            Status.skipped.name: 0,
+            Status.untested.name: 0,
+            Status.undefined.name: 0,
+        }
         self.start = monotonic()
         self.failed_scenarios = []
 
@@ -74,8 +93,7 @@ class SummaryReporter(Reporter):
         if self.show_failed_scenarios and self.failed_scenarios:
             self.stream.write("\nFailing scenarios:\n")
             for scenario in self.failed_scenarios:
-                self.stream.write(u"  %s  %s\n" % (
-                    scenario.location, scenario.name))
+                self.stream.write("  %s  %s\n" % (scenario.location, scenario.name))
             self.stream.write("\n")
 
         # -- SHOW SUMMARY COUNTS:
@@ -84,7 +102,7 @@ class SummaryReporter(Reporter):
         self.stream.write(format_summary("step", self.step_summary))
         duration = monotonic() - self.start
         timings = (int(duration / 60.0), duration % 60)
-        self.stream.write('Took %dm%02.3fs\n' % timings)
+        self.stream.write("Took %dm%02.3fs\n" % timings)
 
     def process_scenario(self, scenario):
         if scenario.status == Status.failed:

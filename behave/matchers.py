@@ -30,16 +30,15 @@ class StepParseError(ValueError):
         if exc_cause and six.PY2:
             # -- NOTE: Python2 does not show chained-exception causes.
             #    Therefore, provide some hint (see also: PEP-3134).
-            cause_text = ExceptionUtil.describe(exc_cause,
-                                                use_traceback=True,
-                                                prefix="CAUSED-BY: ")
-            text += u"\n" + cause_text
+            cause_text = ExceptionUtil.describe(
+                exc_cause, use_traceback=True, prefix="CAUSED-BY: "
+            )
+            text += "\n" + cause_text
 
         ValueError.__init__(self, text)
         if exc_cause:
             # -- CHAINED EXCEPTION (see: PEP 3134)
             ChainedExceptionUtil.set_cause(self, exc_cause)
-
 
 
 # -----------------------------------------------------------------------------
@@ -58,6 +57,7 @@ class Match(Replayable):
        A list of :class:`~behave.model_core.Argument` instances containing the
        matched parameters from the step name.
     """
+
     type = "match"
 
     def __init__(self, func, arguments=None):
@@ -72,8 +72,8 @@ class Match(Replayable):
         if self.func:
             func_name = self.func.__name__
         else:
-            func_name = '<no function>'
-        return '<Match %s, %s>' % (func_name, self.location)
+            func_name = "<no function>"
+        return "<Match %s, %s>" % (func_name, self.location)
 
     def __eq__(self, other):
         if not isinstance(other, Match):
@@ -127,6 +127,7 @@ class MatchWithError(Match):
       * Type conversion error occured.
       * ...
     """
+
     def __init__(self, func, error):
         if not ExceptionUtil.has_traceback(error):
             ExceptionUtil.set_traceback(error)
@@ -136,8 +137,6 @@ class MatchWithError(Match):
     def run(self, context):
         """Raises stored error from step matching phase (type conversion)."""
         raise StepParseError(exc_cause=self.stored_error)
-
-
 
 
 # -----------------------------------------------------------------------------
@@ -154,7 +153,8 @@ class Matcher(object):
 
        The step function the pattern is being attached to.
     """
-    schema = u"@%s('%s')"   # Schema used to describe step definition (matcher)
+
+    schema = "@%s('%s')"  # Schema used to describe step definition (matcher)
 
     def __init__(self, func, pattern, step_type=None):
         self.func = func
@@ -192,7 +192,6 @@ class Matcher(object):
             schema = self.schema
         return schema % (step_type, self.pattern)
 
-
     def check_match(self, step):
         """Match me against the "step" name supplied.
 
@@ -212,17 +211,18 @@ class Matcher(object):
             return MatchWithError(self.func, e)
 
         if result is None:
-            return None     # -- NO-MATCH
+            return None  # -- NO-MATCH
         return Match(self.func, result)
 
     def __repr__(self):
-        return u"<%s: %r>" % (self.__class__.__name__, self.pattern)
+        return "<%s: %r>" % (self.__class__.__name__, self.pattern)
 
 
 class ParseMatcher(Matcher):
     """Uses :class:`~parse.Parser` class to be able to use simpler
     parse expressions compared to normal regular expressions.
     """
+
     custom_types = {}
     parser_class = parse.Parser
 
@@ -258,6 +258,7 @@ class CFParseMatcher(ParseMatcher):
     Provides support for automatic generation of type variants
     for fields with CardinalityField part.
     """
+
     parser_class = cfparse.Parser
 
 
@@ -311,10 +312,10 @@ class RegexMatcher(Matcher):
         for index, group in enumerate(m.groups()):
             index += 1
             name = groupindex.get(index, None)
-            args.append(Argument(m.start(index), m.end(index), group,
-                                 group, name))
+            args.append(Argument(m.start(index), m.end(index), group, group, name))
 
         return args
+
 
 class SimplifiedRegexMatcher(RegexMatcher):
     """Simplified regular expression step-matcher that automatically adds
@@ -327,8 +328,9 @@ class SimplifiedRegexMatcher(RegexMatcher):
     """
 
     def __init__(self, func, pattern, step_type=None):
-        assert not (pattern.startswith("^") or pattern.endswith("$")), \
-            "Regular expression should not use begin/end-markers: "+ pattern
+        assert not (pattern.startswith("^") or pattern.endswith("$")), (
+            "Regular expression should not use begin/end-markers: " + pattern
+        )
         expression = "^%s$" % pattern
         super(SimplifiedRegexMatcher, self).__init__(func, expression, step_type)
         self.pattern = pattern
@@ -344,11 +346,11 @@ class CucumberRegexMatcher(RegexMatcher):
         def step_impl(context): pass
     """
 
+
 matcher_mapping = {
     "parse": ParseMatcher,
     "cfparse": CFParseMatcher,
     "re": SimplifiedRegexMatcher,
-
     # -- BACKWARD-COMPATIBLE REGEX MATCHER: Old Cucumber compatible style.
     # To make it the default step-matcher use the following snippet:
     #   # -- FILE: features/environment.py
@@ -357,7 +359,7 @@ matcher_mapping = {
     #       use_step_matcher("re0")
     "re0": CucumberRegexMatcher,
 }
-current_matcher = ParseMatcher      # pylint: disable=invalid-name
+current_matcher = ParseMatcher  # pylint: disable=invalid-name
 
 
 def use_step_matcher(name):
@@ -409,14 +411,17 @@ def use_step_matcher(name):
     global current_matcher  # pylint: disable=global-statement
     current_matcher = matcher_mapping[name]
 
+
 def step_matcher(name):
     """
     DEPRECATED, use :func:`use_step_matcher()` instead.
     """
     # -- BACKWARD-COMPATIBLE NAME: Mark as deprecated.
-    warnings.warn("deprecated: Use 'use_step_matcher()' instead",
-                  DeprecationWarning, stacklevel=2)
+    warnings.warn(
+        "deprecated: Use 'use_step_matcher()' instead", DeprecationWarning, stacklevel=2
+    )
     use_step_matcher(name)
+
 
 def get_matcher(func, pattern):
     return current_matcher(func, pattern)

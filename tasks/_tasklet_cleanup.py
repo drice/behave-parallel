@@ -99,7 +99,9 @@ def cleanup_dirs(patterns, dry_run=False, workdir="."):
             directory2 = directory.abspath()
             if sys.executable.startswith(directory2):
                 # pylint: disable=line-too-long
-                print("SKIP-SUICIDE: '%s' contains current python executable" % directory)
+                print(
+                    "SKIP-SUICIDE: '%s' contains current python executable" % directory
+                )
                 continue
             elif directory2.startswith(python_basedir):
                 # -- PROTECT CURRENTLY USED VIRTUAL ENVIRONMENT:
@@ -141,13 +143,15 @@ def cleanup_files(patterns, dry_run=False, workdir="."):
                     file_.remove_p()
                 except os.error as e:
                     message = "%s: %s" % (e.__class__.__name__, e)
-                    print(message + " basedir: "+ python_basedir)
+                    print(message + " basedir: " + python_basedir)
                     error_count += 1
                     if not error_message:
                         error_message = message
     if False and error_message:
+
         class CleanupError(RuntimeError):
             pass
+
         raise CleanupError(error_message)
 
 
@@ -209,8 +213,7 @@ def clean_all(ctx, dry_run=False):
 def clean_python(ctx, dry_run=False):
     """Cleanup python related files/dirs: *.pyc, *.pyo, ..."""
     # MAYBE NOT: "**/__pycache__"
-    cleanup_dirs(["build", "dist", "*.egg-info", "**/__pycache__"],
-                 dry_run=dry_run)
+    cleanup_dirs(["build", "dist", "*.egg-info", "**/__pycache__"], dry_run=dry_run)
     if not dry_run:
         ctx.run("py.cleanup")
     cleanup_files(["**/*.pyc", "**/*.pyo", "**/*$py.class"], dry_run=dry_run)
@@ -220,28 +223,34 @@ def clean_python(ctx, dry_run=False):
 # TASK CONFIGURATION:
 # -----------------------------------------------------------------------------
 namespace = Collection(clean, clean_all)
-namespace.configure({
-    "clean": {
-        "directories": [],
-        "files": [
-            "*.bak", "*.log", "*.tmp",
-            "**/.DS_Store", "**/*.~*~",     # -- MACOSX
-        ],
-        "extra_directories": [],
-        "extra_files": [],
-    },
-    "clean_all": {
-        "directories": [".venv*", ".tox", "downloads", "tmp"],
-        "files": [],
-        "extra_directories": [],
-        "extra_files": [],
-    },
-})
+namespace.configure(
+    {
+        "clean": {
+            "directories": [],
+            "files": [
+                "*.bak",
+                "*.log",
+                "*.tmp",
+                "**/.DS_Store",
+                "**/*.~*~",  # -- MACOSX
+            ],
+            "extra_directories": [],
+            "extra_files": [],
+        },
+        "clean_all": {
+            "directories": [".venv*", ".tox", "downloads", "tmp"],
+            "files": [],
+            "extra_directories": [],
+            "extra_files": [],
+        },
+    }
+)
 
 # -- EXTENSION-POINT: CLEANUP TASKS (called by: clean, clean_all task)
 # NOTE: Can be used by other tasklets to register cleanup tasks.
 cleanup_tasks = Collection("cleanup_tasks")
 cleanup_all_tasks = Collection("cleanup_all_tasks")
+
 
 # -- EXTEND NORMAL CLEANUP-TASKS:
 # DISABLED: cleanup_tasks.add_task(clean_python)
@@ -253,6 +262,7 @@ def config_add_cleanup_dirs(directories):
     # pylint: disable=protected-access
     the_cleanup_directories = namespace._configuration["clean"]["directories"]
     the_cleanup_directories.extend(directories)
+
 
 def config_add_cleanup_files(files):
     # pylint: disable=protected-access

@@ -18,6 +18,7 @@ class PlainFormatter(Formatter):
        * table
        * tags (maybe)
     """
+
     name = "plain"
     description = "Very basic formatter with maximum compatibility"
 
@@ -58,25 +59,25 @@ class PlainFormatter(Formatter):
         if tags and self.show_tags:
             indent = indent or ""
             text = " @".join(tags)
-            self.stream.write(u"%s@%s\n" % (indent, text))
+            self.stream.write("%s@%s\n" % (indent, text))
 
     # -- IMPLEMENT-INTERFACE FOR: Formatter
     def feature(self, feature):
         self.reset_steps()
         self.write_tags(feature.tags)
-        self.stream.write(u"%s: %s\n" % (feature.keyword, feature.name))
+        self.stream.write("%s: %s\n" % (feature.keyword, feature.name))
 
     def background(self, background):
         self.reset_steps()
         indent = make_indentation(self.indent_size)
-        text = u"%s%s: %s\n" % (indent, background.keyword, background.name)
+        text = "%s%s: %s\n" % (indent, background.keyword, background.name)
         self.stream.write(text)
 
     def scenario(self, scenario):
         self.reset_steps()
-        self.stream.write(u"\n")
+        self.stream.write("\n")
         indent = make_indentation(self.indent_size)
-        text = u"%s%s: %s\n" % (indent, scenario.keyword, scenario.name)
+        text = "%s%s: %s\n" % (indent, scenario.keyword, scenario.name)
         self.write_tags(scenario.tags, indent)
         self.stream.write(text)
 
@@ -93,9 +94,9 @@ class PlainFormatter(Formatter):
         indent = make_indentation(2 * self.indent_size)
         if self.show_aligned_keywords:
             # -- RIGHT-ALIGN KEYWORDS (max. keyword width: 6):
-            text = u"%s%6s %s ... " % (indent, step.keyword, step.name)
+            text = "%s%6s %s ... " % (indent, step.keyword, step.name)
         else:
-            text = u"%s%s %s ... " % (indent, step.keyword, step.name)
+            text = "%s%s %s ... " % (indent, step.keyword, step.name)
         self.stream.write(text)
 
         status_text = step.status.name
@@ -105,16 +106,17 @@ class PlainFormatter(Formatter):
         unicode_errors = 0
         if step.error_message:
             try:
-                self.stream.write(u"%s\n%s\n" % (status_text, step.error_message))
+                self.stream.write("%s\n%s\n" % (status_text, step.error_message))
             except UnicodeError as e:
                 unicode_errors += 1
-                self.stream.write(u"%s\n" % status_text)
-                self.stream.write(u"%s while writing error message: %s\n" % \
-                                  (e.__class__.__name__, e))
+                self.stream.write("%s\n" % status_text)
+                self.stream.write(
+                    "%s while writing error message: %s\n" % (e.__class__.__name__, e)
+                )
                 if self.RAISE_OUTPUT_ERRORS:
                     raise
         else:
-            self.stream.write(u"%s\n" % status_text)
+            self.stream.write("%s\n" % status_text)
 
         if self.show_multiline:
             if step.text:
@@ -122,8 +124,9 @@ class PlainFormatter(Formatter):
                     self.doc_string(step.text)
                 except UnicodeError as e:
                     unicode_errors += 1
-                    self.stream.write(u"%s while writing docstring: %s\n" % \
-                                      (e.__class__.__name__, e))
+                    self.stream.write(
+                        "%s while writing docstring: %s\n" % (e.__class__.__name__, e)
+                    )
                     if self.RAISE_OUTPUT_ERRORS:
                         raise
             if step.table:
@@ -151,6 +154,7 @@ class Plain0Formatter(PlainFormatter):
       * tables
       * tags
     """
+
     name = "plain0"
     description = "Very basic formatter with maximum compatibility"
     SHOW_MULTI_LINE = False

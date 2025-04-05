@@ -142,6 +142,7 @@ def command_mkdir(args):
 def setup_parser_mkdir(parser):
     parser.add_argument("dirs", nargs="+", help="Directory(s)")
 
+
 command_mkdir.usage = "%(prog)s dir..."
 command_mkdir.short = "Create non-existing directory (or more...)."
 command_mkdir.setup_parser = setup_parser_mkdir
@@ -150,11 +151,14 @@ command_mkdir.setup_parser = setup_parser_mkdir
 # SUBCOMMAND: py2to3
 # -----------------------------------------------------------------------------
 command_py2to4_work_around3k = True
+
+
 def command_py2to3(args):
     """
     Apply '2to3' tool (Python2 to Python3 conversion tool) to Python sources.
     """
     from lib2to3.main import main
+
     args2 = []
     if command_py2to4_work_around3k:
         if args.no_diffs:
@@ -169,12 +173,21 @@ def command_py2to3(args):
 
 def setup_parser4py2to3(parser):
     if command_py2to4_work_around3k:
-        parser.add_argument("--no-diffs", action="store_true",
-                          help="Don't show diffs of the refactoring")
-        parser.add_argument("-w", "--write", action="store_true",
-                          help="Write back modified files")
-        parser.add_argument("-n", "--nobackups", action="store_true", default=False,
-                          help="Don't write backups for modified files.")
+        parser.add_argument(
+            "--no-diffs",
+            action="store_true",
+            help="Don't show diffs of the refactoring",
+        )
+        parser.add_argument(
+            "-w", "--write", action="store_true", help="Write back modified files"
+        )
+        parser.add_argument(
+            "-n",
+            "--nobackups",
+            action="store_true",
+            default=False,
+            help="Don't write backups for modified files.",
+        )
     parser.add_argument("sources", nargs="+", help="Source files.")
 
 
@@ -242,17 +255,20 @@ def toxcmd_main(args=None):
         args = sys.argv[1:]
 
     # -- STEP: Build command-line parser.
-    parser = argparse.ArgumentParser(description=inspect.getdoc(toxcmd_main),
-                                     formatter_class=FORMATTER_CLASS)
+    parser = argparse.ArgumentParser(
+        description=inspect.getdoc(toxcmd_main), formatter_class=FORMATTER_CLASS
+    )
     common_parser = parser.add_argument_group("Common options")
     common_parser.add_argument("--version", action="version", version=VERSION)
     subparsers = parser.add_subparsers(help="commands")
     for command in discover_commands():
-        command_parser = subparsers.add_parser(command.name,
-                                               usage=command.usage,
-                                               description=command.description,
-                                               help=command.short_description,
-                                               formatter_class=FORMATTER_CLASS)
+        command_parser = subparsers.add_parser(
+            command.name,
+            usage=command.usage,
+            description=command.description,
+            help=command.short_description,
+            formatter_class=FORMATTER_CLASS,
+        )
         command_parser.set_defaults(func=command)
         command.setup_parser(command_parser)
         command.parser = command_parser

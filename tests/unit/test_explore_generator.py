@@ -2,7 +2,7 @@
 """
 Explore contextmanager/generator behaviour when:
 * setup step raises error (generator step)
-* with-block raises error 
+* with-block raises error
 """
 
 import pytest

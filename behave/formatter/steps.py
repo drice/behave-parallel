@@ -10,8 +10,12 @@ import inspect
 from six.moves import zip
 from behave.formatter.base import Formatter
 from behave.step_registry import StepRegistry, registry
-from behave.textutil import \
-    compute_words_maxsize, indent, make_indentation, text as _text
+from behave.textutil import (
+    compute_words_maxsize,
+    indent,
+    make_indentation,
+    text as _text,
+)
 from behave import i18n
 
 
@@ -26,6 +30,7 @@ class AbstractStepsFormatter(Formatter):
     .. note::
         Supports behave dry-run mode.
     """
+
     step_types = ("given", "when", "then", "step")
 
     def __init__(self, stream_opener, config):
@@ -81,7 +86,7 @@ class AbstractStepsFormatter(Formatter):
         if not step_type:
             step_type = step_definition.step_type
         assert step_type
-        return u"@%s('%s')" % (step_type, step_definition.pattern)
+        return "@%s('%s')" % (step_type, step_definition.pattern)
 
 
 # -----------------------------------------------------------------------------
@@ -128,6 +133,7 @@ class StepsFormatter(AbstractStepsFormatter):
     .. note::
         Supports behave dry-run mode.
     """
+
     name = "steps"
     description = "Shows step definitions (step implementations)."
     shows_location = True
@@ -138,8 +144,7 @@ class StepsFormatter(AbstractStepsFormatter):
         self.report_steps_by_type()
 
     def report_steps_by_type(self):
-        """Show an overview of the existing step implementations per step type.
-        """
+        """Show an overview of the existing step implementations per step type."""
         # pylint: disable=too-many-branches
         assert set(self.step_types) == set(self.step_registry.steps.keys())
         language = self.config.lang or "en"
@@ -160,21 +165,20 @@ class StepsFormatter(AbstractStepsFormatter):
             else:
                 # step_keyword = step_type.capitalize()
                 keywords = language_keywords[step_type]
-                if keywords[0] == u"*":
+                if keywords[0] == "*":
                     assert len(keywords) > 1
                     step_keyword = keywords[1]
                 else:
                     step_keyword = keywords[0]
 
-            steps_text = [u"%s %s" % (step_keyword, step.pattern)
-                          for step in steps]
+            steps_text = ["%s %s" % (step_keyword, step.pattern) for step in steps]
             if self.shows_location:
                 max_size = compute_words_maxsize(steps_text)
                 if max_size < self.min_location_column:
                     max_size = self.min_location_column
-                schema = u"  %-" + _text(max_size) + "s  # %s\n"
+                schema = "  %-" + _text(max_size) + "s  # %s\n"
             else:
-                schema = u"  %s\n"
+                schema = "  %s\n"
 
             # -- REPORT:
             message = "%s STEP DEFINITIONS[%s]:\n"
@@ -221,6 +225,7 @@ class StepsDocFormatter(AbstractStepsFormatter):
     .. note::
         Supports behave dry-run mode.
     """
+
     name = "steps.doc"
     description = "Shows documentation for step definitions."
     shows_location = True
@@ -242,21 +247,20 @@ class StepsDocFormatter(AbstractStepsFormatter):
                 step_definitions.append(step_definition)
 
         if self.ordered_by_location:
-            step_definitions = sorted(step_definitions,
-                                      key=attrgetter("location"))
+            step_definitions = sorted(step_definitions, key=attrgetter("location"))
 
         for step_definition in step_definitions:
             self.write_step_definition(step_definition)
 
     def write_step_definition(self, step_definition):
         step_definition_text = self.describe_step_definition(step_definition)
-        self.stream.write(u"%s\n" % step_definition_text)
+        self.stream.write("%s\n" % step_definition_text)
         doc = inspect.getdoc(step_definition.func)
         func_name = step_definition.func.__name__
         if self.shows_function_name and func_name not in ("step", "impl"):
-            self.stream.write(u"  Function: %s()\n" % func_name)
+            self.stream.write("  Function: %s()\n" % func_name)
         if self.shows_location:
-            self.stream.write(u"  Location: %s\n" % step_definition.location)
+            self.stream.write("  Location: %s\n" % step_definition.location)
         if doc:
             doc = doc.strip()
             self.stream.write(indent(doc, self.doc_prefix))
@@ -303,13 +307,13 @@ class StepsCatalogFormatter(StepsDocFormatter):
     .. note::
         Supports behave dry-run mode.
     """
+
     name = "steps.catalog"
     description = "Shows non-technical documentation for step definitions."
     shows_location = False
     shows_function_name = False
     ordered_by_location = False
     doc_prefix = make_indentation(4)
-
 
     def describe_step_definition(self, step_definition, step_type=None):
         if not step_type:
@@ -318,12 +322,12 @@ class StepsCatalogFormatter(StepsDocFormatter):
         desc = []
         if step_type == "step":
             for step_type1 in self.step_types[:-1]:
-                text = u"%5s %s" % (step_type1.title(), step_definition.pattern)
+                text = "%5s %s" % (step_type1.title(), step_definition.pattern)
                 desc.append(text)
         else:
-            desc.append(u"%s %s" % (step_type.title(), step_definition.pattern))
+            desc.append("%s %s" % (step_type.title(), step_definition.pattern))
 
-        return '\n'.join(desc)
+        return "\n".join(desc)
 
 
 # -----------------------------------------------------------------------------
@@ -340,6 +344,7 @@ class StepsUsageFormatter(AbstractStepsFormatter):
     .. note::
         Supports behave dry-run mode.
     """
+
     name = "steps.usage"
     description = "Shows how step definitions are used by steps."
     doc_prefix = make_indentation(4)
@@ -367,6 +372,7 @@ class StepsUsageFormatter(AbstractStepsFormatter):
             # -- OTHERWISE:
             step_type = "step"
         return step_type
+
     # pylint: enable=invalid-name
 
     def select_unused_step_definitions(self):
@@ -406,6 +412,7 @@ class StepsUsageFormatter(AbstractStepsFormatter):
         for scenario in feature.walk_scenarios():
             for step in scenario.steps:
                 self.update_usage_database_for_step(step)
+
     # pylint: enable=invalid-name
 
     # -- FORMATTER API:
@@ -430,16 +437,15 @@ class StepsUsageFormatter(AbstractStepsFormatter):
 
         for step_definition, steps in step_definition_items:
             stepdef_text = self.describe_step_definition(step_definition)
-            steps_text = [u"  %s %s" % (step.keyword, step.name)
-                          for step in steps]
+            steps_text = ["  %s %s" % (step.keyword, step.name) for step in steps]
             steps_text.append(stepdef_text)
             max_size = compute_words_maxsize(steps_text)
             if max_size < self.min_location_column:
                 max_size = self.min_location_column
 
-            schema = u"%-" + _text(max_size) + "s  # %s\n"
+            schema = "%-" + _text(max_size) + "s  # %s\n"
             self.stream.write(schema % (stepdef_text, step_definition.location))
-            schema = u"%-" + _text(max_size) + "s  # %s\n"
+            schema = "%-" + _text(max_size) + "s  # %s\n"
             for step, step_text in zip(steps, steps_text):
                 self.stream.write(schema % (step_text, step.location))
             self.stream.write("\n")
@@ -453,15 +459,17 @@ class StepsUsageFormatter(AbstractStepsFormatter):
         # ORDERING: Sort step definitions by file location.
         get_location = lambda x: x.location
         step_definitions = sorted(unused_step_definitions, key=get_location)
-        step_texts = [self.describe_step_definition(step_definition)
-                      for step_definition in step_definitions]
+        step_texts = [
+            self.describe_step_definition(step_definition)
+            for step_definition in step_definitions
+        ]
 
         max_size = compute_words_maxsize(step_texts)
-        if max_size < self.min_location_column-2:
-            max_size = self.min_location_column-2
+        if max_size < self.min_location_column - 2:
+            max_size = self.min_location_column - 2
 
         # -- STEP: Write report.
-        schema = u"  %-" + _text(max_size) + "s  # %s\n"
+        schema = "  %-" + _text(max_size) + "s  # %s\n"
         self.stream.write("UNUSED STEP DEFINITIONS[%d]:\n" % len(step_texts))
         for step_definition, step_text in zip(step_definitions, step_texts):
             self.stream.write(schema % (step_text, step_definition.location))
@@ -471,19 +479,18 @@ class StepsUsageFormatter(AbstractStepsFormatter):
             return
 
         # -- STEP: Undefined steps.
-        undefined_steps = sorted(self.undefined_steps,
-                                 key=attrgetter("location"))
+        undefined_steps = sorted(self.undefined_steps, key=attrgetter("location"))
 
-        steps_text = [u"  %s %s" % (step.keyword, step.name)
-                      for step in undefined_steps]
+        steps_text = ["  %s %s" % (step.keyword, step.name) for step in undefined_steps]
         max_size = compute_words_maxsize(steps_text)
         if max_size < self.min_location_column:
             max_size = self.min_location_column
 
         self.stream.write("\nUNDEFINED STEPS[%d]:\n" % len(steps_text))
-        schema = u"%-" + _text(max_size) + "s  # %s\n"
+        schema = "%-" + _text(max_size) + "s  # %s\n"
         for step, step_text in zip(undefined_steps, steps_text):
             self.stream.write(schema % (step_text, step.location))
+
 
 # -----------------------------------------------------------------------------
 # UTILITY FUNCTIONS:

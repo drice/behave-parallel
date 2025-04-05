@@ -41,6 +41,7 @@ class StopWatch(object):
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.stop()
 
+
 # -- NEEDED-UNTIL: stepimport functionality is completly provided.
 class MatcherFactory(object):
     matcher_mapping = {
@@ -69,8 +70,9 @@ class MatcherFactory(object):
         self.current_matcher = self.default_matcher
 
     def make_matcher(self, func, step_text, step_type=None):
-        return self.current_matcher(func, step_text, step_type=step_type,
-                                    custom_types=self.type_registry)
+        return self.current_matcher(
+            func, step_text, step_type=step_type, custom_types=self.type_registry
+        )
 
     def step_matcher(self, name):
         """
@@ -78,8 +80,10 @@ class MatcherFactory(object):
         """
         # -- BACKWARD-COMPATIBLE NAME: Mark as deprecated.
         import warnings
-        warnings.warn("Use 'use_step_matcher()' instead",
-                      PendingDeprecationWarning, stacklevel=2)
+
+        warnings.warn(
+            "Use 'use_step_matcher()' instead", PendingDeprecationWarning, stacklevel=2
+        )
         self.use_step_matcher(name)
 
 

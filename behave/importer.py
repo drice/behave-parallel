@@ -9,6 +9,7 @@ from __future__ import absolute_import
 import importlib
 from behave._types import Unknown
 
+
 def parse_scoped_name(scoped_name):
     """
     SCHEMA: my.module_name:MyClassName
@@ -21,6 +22,7 @@ def parse_scoped_name(scoped_name):
         scoped_name = scoped_name.replace("::", ":")
     module_name, object_name = scoped_name.rsplit(":", 1)
     return module_name, object_name
+
 
 def load_module(module_name):
     return importlib.import_module(module_name)
@@ -39,7 +41,7 @@ class LazyObject(object):
         self.object_name = object_name
         self.resolved_object = None
 
-    def __get__(self, obj=None, type=None):     # pylint: disable=redefined-builtin
+    def __get__(self, obj=None, type=None):  # pylint: disable=redefined-builtin
         """
         Implement descriptor protocol,
         useful if this class is used as attribute.

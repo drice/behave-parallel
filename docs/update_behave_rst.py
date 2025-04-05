@@ -59,8 +59,9 @@ for fixed, keywords in configuration.options:
         # -- COMMAND-LINE OPTIONS (CONFIGFILE only have empty fixed):
         # cmdline.append(".. option:: %s\n\n%s\n" % (", ".join(fixed), text))
         cmdline_option = ", ".join(fixed)
-        cmdline.append(cmdline_option_schema.format(
-                            cmdline_option=cmdline_option, text=text))
+        cmdline.append(
+            cmdline_option_schema.format(cmdline_option=cmdline_option, text=text)
+        )
 
     if skip or dest in "tags_help lang_list lang_help version".split():
         continue
@@ -69,7 +70,7 @@ for fixed, keywords in configuration.options:
     action = keywords.get("action", "store")
     if action == "store":
         type = "text"
-    elif action in ("store_true","store_false"):
+    elif action in ("store_true", "store_false"):
         type = "bool"
     elif action == "append":
         type = "sequence<text>"

@@ -44,15 +44,17 @@ Provides step definitions that test tag logic for selected features, scenarios.
 from __future__ import absolute_import
 from behave import given, when, then
 from behave_model_util import BehaveModelBuilder, convert_comma_list
-from behave_model_util import \
-    run_model_with_cmdline, collect_selected_and_skipped_scenarios
+from behave_model_util import (
+    run_model_with_cmdline,
+    collect_selected_and_skipped_scenarios,
+)
 from hamcrest import assert_that, equal_to
 
 
 # -----------------------------------------------------------------------------
 # STEP DEFINITIONS:
 # -----------------------------------------------------------------------------
-@given('a behave model with')
+@given("a behave model with")
 def step_given_a_behave_model_with_table(context):
     """
     Build a behave feature model from a tabular description.
@@ -74,10 +76,10 @@ def step_given_a_behave_model_with_table(context):
 
 @when('I run the behave model with "{hint}"')
 def step_when_run_behave_model_with_hint(context, hint):
-    pass    # -- ONLY: SYNTACTIC SUGAR
+    pass  # -- ONLY: SYNTACTIC SUGAR
 
 
-@then('the following scenarios are selected with cmdline')
+@then("the following scenarios are selected with cmdline")
 def step_then_scenarios_are_selected_with_cmdline(context):
     """
     .. code-block:: Gherkin
@@ -98,8 +100,11 @@ def step_then_scenarios_are_selected_with_cmdline(context):
         # -- STEP: Run model with cmdline tags
         run_model_with_cmdline(model, cmdline)
         selected, skipped = collect_selected_and_skipped_scenarios(model)
-        actual_selected = [scenario.name  for scenario in selected]
+        actual_selected = [scenario.name for scenario in selected]
 
         # -- CHECK:
-        assert_that(actual_selected, equal_to(expected_selected_names),
-                    "cmdline=%s (row=%s)" % (cmdline, row_index))
+        assert_that(
+            actual_selected,
+            equal_to(expected_selected_names),
+            "cmdline=%s (row=%s)" % (cmdline, row_index),
+        )

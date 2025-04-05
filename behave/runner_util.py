@@ -77,6 +77,7 @@ class FeatureScenarioLocationCollector(object):
         # -- EOF
 
     """
+
     def __init__(self, feature=None, location=None, filename=None):
         if not filename and location:
             filename = location.filename
@@ -103,8 +104,10 @@ class FeatureScenarioLocationCollector(object):
             # if self.feature and False:
             #     self.filename = self.feature.filename
         # -- NORMAL CASE:
-        assert self.filename == location.filename, \
-            "%s <=> %s" % (self.filename, location.filename)
+        assert self.filename == location.filename, "%s <=> %s" % (
+            self.filename,
+            location.filename,
+        )
         if location.line:
             self.scenario_lines.add(location.line)
         else:
@@ -124,7 +127,7 @@ class FeatureScenarioLocationCollector(object):
         :return: Scenario.line (first line) for the given line.
         """
         if not scenario_lines:
-            return 0    # -- Select all scenarios.
+            return 0  # -- Select all scenarios.
         pos = bisect(scenario_lines, line) - 1
         if pos < 0:
             pos = 0
@@ -156,8 +159,11 @@ class FeatureScenarioLocationCollector(object):
                 self.scenario_lines.remove(line)
                 self.scenario_lines.add(new_line)
                 if strict:
-                    msg = "Scenario location '...:%d' should be: '%s:%d'" % \
-                          (line, self.filename, new_line)
+                    msg = "Scenario location '...:%d' should be: '%s:%d'" % (
+                        line,
+                        self.filename,
+                        new_line,
+                    )
                     raise InvalidFileLocationError(msg)
 
         # -- STEP: Determine selected scenarios and store them.
@@ -226,9 +232,9 @@ class FeatureListParser(object):
         for line in text.splitlines():
             filename = line.strip()
             if not filename:
-                continue    # SKIP: Over empty line(s).
-            elif filename.startswith('#'):
-                continue    # SKIP: Over comment line(s).
+                continue  # SKIP: Over empty line(s).
+            elif filename.startswith("#"):
+                continue  # SKIP: Over comment line(s).
 
             if here and not os.path.isabs(filename):
                 filename = os.path.join(here, line)
@@ -251,7 +257,7 @@ class FeatureListParser(object):
         :param filename:  Name of feature list file.
         :return: List of feature file locations.
         """
-        if filename.startswith('@'):
+        if filename.startswith("@"):
             filename = filename[1:]
         if not os.path.isfile(filename):
             raise FileNotFoundError(filename)
@@ -358,7 +364,7 @@ def collect_feature_locations(paths, strict=True):
                     if filename.endswith(".feature"):
                         location = FileLocation(os.path.join(dirpath, filename))
                         locations.append(location)
-        elif path.startswith('@'):
+        elif path.startswith("@"):
             # -- USE: behave @list_of_features.txt
             locations.extend(FeatureListParser.parse_file(path[1:]))
         else:
@@ -390,9 +396,10 @@ def load_step_modules(step_paths):
     """Load step modules with step definitions from step_paths directories."""
     from behave import matchers
     from behave.step_registry import setup_step_decorators
+
     step_globals = {
         "use_step_matcher": matchers.use_step_matcher,
-        "step_matcher":     matchers.step_matcher, # -- DEPRECATING
+        "step_matcher": matchers.step_matcher,  # -- DEPRECATING
     }
     setup_step_decorators(step_globals)
 
@@ -426,15 +433,21 @@ def make_undefined_step_snippet(step, language=None):
         step = steps[0]
         assert step, "ParseError: %s" % step_text
 
-    prefix = u"u"
+    prefix = "u"
     single_quote = "'"
     if single_quote in step.name:
         step.name = step.name.replace(single_quote, r"\'")
 
-    schema = u"@%s(%s'%s')\ndef step_impl(context):\n"
-    schema += u"    raise NotImplementedError(%s'STEP: %s %s')\n\n"
-    snippet = schema % (step.step_type, prefix, step.name,
-                        prefix, step.step_type.title(), step.name)
+    schema = "@%s(%s'%s')\ndef step_impl(context):\n"
+    schema += "    raise NotImplementedError(%s'STEP: %s %s')\n\n"
+    snippet = schema % (
+        step.step_type,
+        prefix,
+        step.name,
+        prefix,
+        step.step_type.title(),
+        step.name,
+    )
     return snippet
 
 
@@ -474,18 +487,20 @@ def print_undefined_step_snippets(undefined_steps, stream=None, colored=True):
     if not stream:
         stream = sys.stderr
 
-    msg = u"\nYou can implement step definitions for undefined steps with "
-    msg += u"these snippets:\n\n"
-    msg += u"\n".join(make_undefined_step_snippets(undefined_steps))
+    msg = "\nYou can implement step definitions for undefined steps with "
+    msg += "these snippets:\n\n"
+    msg += "\n".join(make_undefined_step_snippets(undefined_steps))
 
     if colored:
         # -- OOPS: Unclear if stream supports ANSI coloring.
         from behave.formatter.ansi_escapes import escapes
-        msg = escapes['undefined'] + msg + escapes['reset']
+
+        msg = escapes["undefined"] + msg + escapes["reset"]
 
     stream = ensure_stream_with_encoder(stream)
     stream.write(msg)
     stream.flush()
+
 
 def reset_runtime():
     """Reset runtime environment.
@@ -493,6 +508,7 @@ def reset_runtime():
     """
     from behave import step_registry
     from behave import matchers
+
     # -- RESET 1: behave.step_registry
     step_registry.registry = step_registry.StepRegistry()
     step_registry.setup_step_decorators(None, step_registry.registry)

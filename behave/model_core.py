@@ -11,6 +11,7 @@ import six
 from behave.capture import Captured
 from behave.textutil import text as _text
 from enum import Enum
+
 if six.PY2:
     # -- USE: Python3 backport for better unicode compatibility.
     import traceback2 as traceback
@@ -18,6 +19,8 @@ else:
     import traceback
 
 PLATFORM_WIN = sys.platform.startswith("win")
+
+
 def posixpath_normalize(path):
     return path.replace("\\", "/")
 
@@ -51,6 +54,7 @@ class Status(Enum):
     .. versionadded:: 1.2.6
         Superceeds string-based status values.
     """
+
     untested = 0
     skipped = 1
     passed = 2
@@ -120,6 +124,7 @@ class Argument(object):
 
        The end index in the step name of the argument. Used for display.
     """
+
     def __init__(self, start, end, original, value, name=None):
         self.start = start
         self.end = end
@@ -142,7 +147,8 @@ class FileLocation(object):
       * "{filename}:{line}" or
       * "{filename}" (if line number is not present)
     """
-    __pychecker__ = "missingattrs=line"     # -- Ignore warnings for 'line'.
+
+    __pychecker__ = "missingattrs=line"  # -- Ignore warnings for 'line'.
 
     def __init__(self, filename, line=None):
         if PLATFORM_WIN:
@@ -188,8 +194,9 @@ class FileLocation(object):
         elif isinstance(other, six.string_types):
             return self.filename == other
         else:
-            raise TypeError("Cannot compare FileLocation with %s:%s" % \
-                            (type(other), other))
+            raise TypeError(
+                "Cannot compare FileLocation with %s:%s" % (type(other), other)
+            )
 
     def __ne__(self, other):
         # return not self == other    # pylint: disable=unneeded-not
@@ -208,8 +215,9 @@ class FileLocation(object):
         elif isinstance(other, six.string_types):
             return self.filename < other
         else:
-            raise TypeError("Cannot compare FileLocation with %s:%s" % \
-                            (type(other), other))
+            raise TypeError(
+                "Cannot compare FileLocation with %s:%s" % (type(other), other)
+            )
 
     def __le__(self, other):
         # -- SEE ALSO: python2.7, functools.total_ordering
@@ -229,8 +237,7 @@ class FileLocation(object):
         return not self.__lt__(other)
 
     def __repr__(self):
-        return u'<FileLocation: filename="%s", line=%s>' % \
-               (self.filename, self.line)
+        return '<FileLocation: filename="%s", line=%s>' % (self.filename, self.line)
 
     def __str__(self):
         filename = self.filename
@@ -238,7 +245,7 @@ class FileLocation(object):
             filename = _text(filename, "utf-8")
         if self.line is None:
             return filename
-        return u"%s:%d" % (filename, self.line)
+        return "%s:%d" % (filename, self.line)
 
     if six.PY2:
         __unicode__ = __str__
@@ -273,8 +280,8 @@ class FileLocation(object):
 # -----------------------------------------------------------------------------
 class BasicStatement(object):
     def __init__(self, filename, line, keyword, name):
-        filename = filename or '<string>'
-        filename = os.path.relpath(filename, os.getcwd())   # -- NEEDS: abspath?
+        filename = filename or "<string>"
+        filename = os.path.relpath(filename, os.getcwd())  # -- NEEDS: abspath?
         self.location = FileLocation(filename, line)
         assert isinstance(keyword, six.text_type)
         assert isinstance(name, six.text_type)
@@ -305,23 +312,22 @@ class BasicStatement(object):
         self.error_message = None
 
     def send_status(self):
-        """Emit the volatile attributes of this model in a primitive dict
-        """
-        ret = {'exception': self.exception,
-               'error_message': self.error_message,
-               'exc_traceback': self.exc_traceback,
-               'captured': self.captured.send_status()
-               }
+        """Emit the volatile attributes of this model in a primitive dict"""
+        ret = {
+            "exception": self.exception,
+            "error_message": self.error_message,
+            "exc_traceback": self.exc_traceback,
+            "captured": self.captured.send_status(),
+        }
         return ret
 
     def recv_status(self, value):
-        """Set volatile attributes from a `send_status()` primitive value
-        """
-        for key in 'exception', 'error_message', 'exc_traceback':
+        """Set volatile attributes from a `send_status()` primitive value"""
+        for key in "exception", "error_message", "exc_traceback":
             if key in value:
                 setattr(self, key, value[key])
-        if 'captured' in value:
-            self.captured.recv_status(value['captured'])
+        if "captured" in value:
+            self.captured.recv_status(value["captured"])
 
     def store_exception_context(self, exception):
         self.exception = exception
@@ -358,7 +364,7 @@ class BasicStatement(object):
     def __ge__(self, other):
         # -- SEE ALSO: python2.7, functools.total_ordering
         # OR: return self >= other
-        return not self < other     # pylint: disable=unneeded-not
+        return not self < other  # pylint: disable=unneeded-not
 
     # def __cmp__(self, other):
     #     # -- NOTE: Ignore potential FileLocation differences.
@@ -366,7 +372,6 @@ class BasicStatement(object):
 
 
 class TagStatement(BasicStatement):
-
     def __init__(self, filename, line, keyword, name, tags):
         if tags is None:
             tags = []
@@ -430,20 +435,23 @@ class TagAndStatusStatement(BasicStatement):
 
     def send_status(self):
         ret = super(TagAndStatusStatement, self).send_status()
-        ret['status'] = self._cached_status
-        ret['should_skip'] = self.should_skip
-        ret['skip_reason'] = self.skip_reason
+        ret["status"] = self._cached_status
+        ret["should_skip"] = self.should_skip
+        ret["skip_reason"] = self.skip_reason
         return ret
 
     def recv_status(self, value):
-        assert self._cached_status in (Status.untested, Status.skipped), self._cached_status
+        assert self._cached_status in (
+            Status.untested,
+            Status.skipped,
+        ), self._cached_status
         super(TagAndStatusStatement, self).recv_status(value)
-        if 'should_skip' in value:
-            self.should_skip = value['should_skip']
-        if 'skip_reason' in value:
-            self.skip_reason = value['skip_reason']
-        if 'status' in value:
-            self._cached_status = value['status']
+        if "should_skip" in value:
+            self.should_skip = value["should_skip"]
+        if "skip_reason" in value:
+            self.skip_reason = value["skip_reason"]
+        if "status" in value:
+            self._cached_status = value["status"]
 
 
 class Replayable(object):

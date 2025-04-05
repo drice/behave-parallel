@@ -6,14 +6,15 @@ import os.path
 from behave import given, when, then
 import six
 
-@given(u'I create a symlink from "{source}" to "{dest}"')
-@when(u'I create a symlink from "{source}" to "{dest}"')
+
+@given('I create a symlink from "{source}" to "{dest}"')
+@when('I create a symlink from "{source}" to "{dest}"')
 def step_create_symlink(context, source, dest):
     print("symlink: %s -> %s" % (source, dest))
     # assert os.path.exists(source), "FILE-NOT-FOUND: source=%s" % source
 
     # -- VARIANT 1:
-    text = u'When I run "ln -s {source} {dest}"'.format(source=source, dest=dest)
+    text = 'When I run "ln -s {source} {dest}"'.format(source=source, dest=dest)
     context.execute_steps(text)
 
     # -- VARIANT 2:
@@ -25,4 +26,3 @@ def step_create_symlink(context, source, dest):
             os.symlink(source, dest, target_is_directory=source_is_dir)
         else:
             os.symlink(source, dest)
-

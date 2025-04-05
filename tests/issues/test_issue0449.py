@@ -30,6 +30,7 @@ from hamcrest.core import assert_that, equal_to
 from hamcrest.library import contains_string
 import six
 import pytest
+
 if six.PY2:
     import traceback2 as traceback
 else:
@@ -37,19 +38,18 @@ else:
 
 
 def foo():
-    assert_that(False, equal_to(True), u"Всё очень плохо")  # cyrillic
+    assert_that(False, equal_to(True), "Всё очень плохо")  # cyrillic
+
 
 @pytest.mark.parametrize("encoding", [None, "UTF-8", "unicode_escape"])
 def test_issue(encoding):
-    expected = u"Всё очень плохо"
+    expected = "Всё очень плохо"
     try:
         foo()
     except Exception as e:
         text2 = traceback.format_exc()
 
     text3 = text(text2, encoding)
-    print(u"EXCEPTION-TEXT: %s" % text3)
-    print(u"text2: "+ text2)
-    assert_that(text3, contains_string(u"AssertionError: Всё очень плохо"))
-
-
+    print("EXCEPTION-TEXT: %s" % text3)
+    print("text2: " + text2)
+    assert_that(text3, contains_string("AssertionError: Всё очень плохо"))
